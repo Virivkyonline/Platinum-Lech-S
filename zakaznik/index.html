@@ -135,16 +135,6 @@
       margin-left: 18px;
     }
 
-    .top-mini-info {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: -2px;
-      text-align: center;
-      color: rgba(255,255,255,.9);
-      font-size: 16px;
-    }
-
     .controls-title {
       text-align: center;
       font-size: 26px;
@@ -242,33 +232,6 @@
       font-weight: 700;
     }
 
-    .status-strip {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .status-box {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(170,210,255,.16);
-      border-radius: 14px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .status-k {
-      font-size: 12px;
-      color: #bcd6ef;
-      margin-bottom: 4px;
-    }
-
-    .status-v {
-      font-size: 17px;
-      color: #fff;
-      font-weight: 700;
-    }
-
     .logo-wrap {
       text-align: center;
       margin-top: 28px;
@@ -320,10 +283,6 @@
       min-height: 48px;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
     @media (max-width: 390px) {
       .controls-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -351,7 +310,6 @@
       <div class="cloud-icon">☁</div>
 
       <div class="center-panel">
-        <div class="top-mini-info hidden" id="spaClockMini"></div>
         <div class="home-temp" id="homeTemp">--.-°C</div>
         <div class="swirl">🌀</div>
         <div class="home-mode" id="homeMode">Ready</div>
@@ -476,42 +434,28 @@
       return String(n).padStart(2, "0");
     }
 
-    function pumpState(masked, lowMask, highMask) {
-      if (masked === 0) return { css: "off", label: "OFF" };
-      if (masked === lowMask) return { css: "low", label: "LOW" };
-      if (masked === highMask) return { css: "high", label: "HIGH" };
-      return { css: "on", label: "ON" };
-    }
-
     function parsePanel(hex) {
       const p = hexToBytes(hex);
-      if (p.length < 26) return null;
+      if (p.length < 24) return null;
 
       const tempNow = p[7];
       const hour = p[8];
       const minute = p[9];
       const heatModeRaw = p[10];
-      const tempRangeRaw = p[15] & 0x04;
-      const setTemp = p[25];
-
-      const pump1 = pumpState(p[16] & 0x03, 0x01, 0x02);
-      const pump2 = pumpState(p[16] & 0x0C, 0x04, 0x08);
-      const pump3 = pumpState(p[16] & 0x30, 0x10, 0x20);
-      const circPump = pumpState(p[16] & 0x03, 0x01, 0x02);
-
-      const blowerMasked = p[18] & 0x0C;
-      let blower = { css: "off", label: "OFF" };
-      if (blowerMasked === 0x04) blower = { css: "low", label: "LOW" };
-      else if (blowerMasked === 0x08) blower = { css: "med", label: "MED" };
-      else if (blowerMasked === 0x0C) blower = { css: "high", label: "HIGH" };
-
-      const light1On = (p[19] & 0x03) !== 0;
+      const tempRange = (p[11] & 0x04) ? "High Range" : "Low Range";
+      const setTemp = p[23];
 
       let heatMode = "Ready";
       if (heatModeRaw === 1) heatMode = "Rest";
       else if (heatModeRaw === 2) heatMode = "Ready in Rest";
 
-      const tempRange = tempRangeRaw === 0x04 ? "High Range" : "Low Range";
+      const circPumpOn = ((p[15] & 0x10) !== 0);
+      const pump1On = ((p[14] & 0x80) !== 0) || ((p[17] & 0x02) !== 0);
+      const pump2On = ((p[14] & 0x40) !== 0) || ((p[17] & 0x01) !== 0);
+      const pump3On = ((p[15] & 0x20) !== 0);
+
+      const blowerOn = ((p[17] & 0x04) !== 0) || ((p[15] & 0x08) !== 0);
+      const light1On = ((p[18] & 0x03) !== 0) || ((p[19] & 0x01) !== 0);
 
       return {
         tempNow,
@@ -519,27 +463,27 @@
         time: pad2(hour) + ":" + pad2(minute),
         heatMode,
         tempRange,
-        circPump,
-        pump1,
-        pump2,
-        pump3,
-        blower,
+        circPumpOn,
+        pump1On,
+        pump2On,
+        pump3On,
+        blowerOn,
         light1On
       };
     }
 
     function applyHomeState(s) {
-      document.getElementById("homeTemp").textContent = s.tempNow + "." + "0°C";
+      document.getElementById("homeTemp").textContent = s.tempNow + ".0°C";
       document.getElementById("homeMode").textContent = s.heatMode;
       document.getElementById("homeRange").textContent = s.tempRange;
     }
 
     function applyControlsState(s) {
-      setCtrlState("btn-circpump", "lbl-circpump", s.circPump.css, s.circPump.label);
-      setCtrlState("btn-pump1", "lbl-pump1", s.pump1.css, s.pump1.label);
-      setCtrlState("btn-pump2", "lbl-pump2", s.pump2.css, s.pump2.label);
-      setCtrlState("btn-pump3", "lbl-pump3", s.pump3.css, s.pump3.label);
-      setCtrlState("btn-blower", "lbl-blower", s.blower.css, s.blower.label);
+      setCtrlState("btn-circpump", "lbl-circpump", s.circPumpOn ? "on" : "off", s.circPumpOn ? "ON" : "OFF");
+      setCtrlState("btn-pump1", "lbl-pump1", s.pump1On ? "on" : "off", s.pump1On ? "ON" : "OFF");
+      setCtrlState("btn-pump2", "lbl-pump2", s.pump2On ? "on" : "off", s.pump2On ? "ON" : "OFF");
+      setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
+      setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
     }
 
@@ -578,6 +522,7 @@
 
         const txt = (data && data.response) ? data.response : "";
         const ok = txt.includes("Command received") || txt.includes('status="0"');
+
         setMessage((ok ? "Príkaz prijatý: " : "Príkaz odoslaný: ") + name + ". Aktualizujem stav...");
         setTimeout(loadPanelUpdate, 1200);
       } catch (e) {
