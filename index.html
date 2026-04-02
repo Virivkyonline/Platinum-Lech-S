@@ -5,207 +5,348 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ovládanie vírivky Balboa</title>
   <style>
+    :root {
+      --bg1: #eaf7ff;
+      --bg2: #dff2ff;
+      --card: rgba(255, 255, 255, 0.82);
+      --card-strong: rgba(255, 255, 255, 0.92);
+      --text: #12344d;
+      --muted: #5d7f97;
+      --border: rgba(120, 180, 220, 0.28);
+      --accent: #78c8f5;
+      --accent-2: #56b9ef;
+      --accent-3: #bfeaff;
+      --shadow: 0 10px 30px rgba(80, 150, 190, 0.12);
+      --ok: #1fa971;
+      --warn: #e0a329;
+      --danger: #d95f5f;
+      --panel: #f7fcff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #eee;
       margin: 0;
       padding: 20px;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #ffffff 0%, transparent 35%),
+        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
     }
 
     h1 {
-      font-size: 32px;
-      margin: 0 0 18px 0;
+      margin: 0 0 8px 0;
+      font-size: 34px;
+      color: #0d3550;
+    }
+
+    .sub {
+      margin: 0 0 20px 0;
+      color: var(--muted);
+      font-size: 15px;
     }
 
     .card {
-      background: #1b1b1f;
-      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 22px;
       padding: 18px;
       margin-bottom: 18px;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0 0 14px 0;
+      color: #174666;
     }
 
     label {
       display: block;
-      font-size: 16px;
+      font-size: 14px;
+      color: var(--muted);
       margin-bottom: 8px;
     }
 
     input, textarea {
       width: 100%;
-      box-sizing: border-box;
-      background: #2c2c31;
-      color: #fff;
-      border: 1px solid #666;
-      border-radius: 10px;
-      padding: 12px;
+      border: 1px solid #cde9f8;
+      background: var(--card-strong);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
       font-size: 15px;
+      outline: none;
+      transition: 0.2s ease;
       margin-bottom: 14px;
     }
 
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(120, 200, 245, 0.18);
+    }
+
     textarea {
-      min-height: 160px;
+      min-height: 150px;
       resize: vertical;
     }
 
-    .row2 {
+    .row2, .row3 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 12px;
     }
 
+    .row2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
     .row3 {
-      display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
     }
 
     button {
       width: 100%;
-      background: #6f6f6f;
-      color: white;
       border: none;
-      border-radius: 10px;
-      padding: 15px 10px;
-      font-size: 16px;
+      border-radius: 16px;
+      padding: 15px 12px;
+      font-size: 15px;
+      font-weight: bold;
       cursor: pointer;
+      color: #0f3854;
+      background: linear-gradient(180deg, #d9f3ff 0%, #bfeaff 100%);
+      box-shadow: 0 6px 18px rgba(85, 170, 220, 0.16);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
 
     button:hover {
-      background: #868686;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(85, 170, 220, 0.22);
+      background: linear-gradient(180deg, #e6f8ff 0%, #cceeff 100%);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .primary {
+      background: linear-gradient(180deg, #9edfff 0%, #7fd0fa 100%);
+    }
+
+    .danger {
+      background: linear-gradient(180deg, #ffe0e0 0%, #ffcaca 100%);
+      color: #7a2e2e;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mini {
+      background: var(--panel);
+      border: 1px solid #d6eefb;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .mini-title {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .mini-value {
+      font-size: 16px;
+      word-break: break-word;
     }
 
     .out {
-      background: #101014;
-      border-radius: 10px;
-      padding: 12px;
+      background: #f8fdff;
+      border: 1px solid #d8effc;
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 62px;
       white-space: pre-wrap;
       word-break: break-word;
       font-size: 14px;
-      min-height: 60px;
+      color: #184663;
     }
 
     .mono {
       font-family: monospace;
     }
 
-    .infoGrid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
     }
 
-    .smallBox {
-      background: #101014;
-      border-radius: 10px;
-      padding: 12px;
-    }
-
-    .smallTitle {
-      color: #bbb;
+    .badge {
+      padding: 9px 12px;
+      border-radius: 999px;
       font-size: 13px;
-      margin-bottom: 6px;
+      background: #effaff;
+      border: 1px solid #d4eefc;
+      color: #33627e;
     }
 
-    .smallValue {
-      font-size: 16px;
-      word-break: break-word;
+    .ok {
+      color: var(--ok);
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      .row2, .row3, .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      body {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      button {
+        padding: 16px 10px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Ovládanie vírivky Balboa</h1>
+  <div class="wrap">
+    <h1>Ovládanie vírivky Balboa</h1>
+    <p class="sub">Webové ovládanie cez starý cloud. Svetlomodrá finálna verzia.</p>
 
-  <div class="card">
-    <label for="workerUrl">Adresa workeru</label>
-    <input id="workerUrl" type="text" value="https://balboa-proxy-worker.lechstav.workers.dev">
+    <div class="card">
+      <div class="card-title">Pripojenie</div>
+      <label for="workerUrl">Adresa workeru</label>
+      <input id="workerUrl" type="text" value="https://balboa-proxy-worker.lechstav.workers.dev">
 
-    <div class="row2">
-      <button onclick="testWorker()">Test workeru</button>
-      <button onclick="clearAll()">Vymazať výstup</button>
-    </div>
-
-    <div class="row2">
-      <button onclick="loadPanelUpdate()">Načítať stav vírivky</button>
-      <button onclick="loadDeviceConfig()">Načítať konfiguráciu</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <label>Tlačidlá z APK</label>
-
-    <div class="row3">
-      <button onclick="sendButton(4, 'Pump1')">Pumpa 1</button>
-      <button onclick="sendButton(5, 'Pump2')">Pumpa 2</button>
-      <button onclick="sendButton(6, 'Pump3')">Pumpa 3</button>
-    </div>
-
-    <div class="row3">
-      <button onclick="sendButton(7, 'Pump4')">Pumpa 4</button>
-      <button onclick="sendButton(8, 'Pump5')">Pumpa 5</button>
-      <button onclick="sendButton(9, 'Pump6')">Pumpa 6</button>
-    </div>
-
-    <div class="row3">
-      <button onclick="sendButton(12, 'Blower')">Blower</button>
-      <button onclick="sendButton(14, 'Mister')">Mister</button>
-      <button onclick="sendButton(17, 'Light1')">Svetlo 1</button>
-    </div>
-
-    <div class="row3">
-      <button onclick="sendButton(18, 'Light2')">Svetlo 2</button>
-      <button onclick="sendButton(22, 'Aux1')">Aux 1</button>
-      <button onclick="sendButton(23, 'Aux2')">Aux 2</button>
-    </div>
-
-    <div class="row2">
-      <button onclick="sendButton(80, 'TempRange')">Rozsah teploty</button>
-      <button onclick="sendButton(81, 'HeatMode')">Režim kúrenia</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="infoGrid">
-      <div class="smallBox">
-        <div class="smallTitle">Súbor / akcia</div>
-        <div class="smallValue" id="fileName">-</div>
+      <div class="badge-row">
+        <div class="badge">Cloud: aktívny</div>
+        <div class="badge">Zariadenie: pripojené</div>
+        <div class="badge">Jazyk: slovenčina</div>
       </div>
-      <div class="smallBox">
-        <div class="smallTitle">HTTP status</div>
-        <div class="smallValue" id="httpStatus">-</div>
+
+      <div class="row2">
+        <button class="primary" onclick="testWorker()">Test workeru</button>
+        <button onclick="loadPanelUpdate()">Načítať stav vírivky</button>
       </div>
-      <div class="smallBox">
-        <div class="smallTitle">Počet bajtov</div>
-        <div class="smallValue" id="bytesLength">-</div>
-      </div>
-      <div class="smallBox">
-        <div class="smallTitle">Device ID</div>
-        <div class="smallValue mono" id="deviceId">-</div>
+
+      <div class="row2">
+        <button onclick="loadDeviceConfig()">Načítať konfiguráciu</button>
+        <button class="danger" onclick="clearAll()">Vymazať výstup</button>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <label>HEX dáta</label>
-    <div class="out mono" id="hexBox">-</div>
-  </div>
+    <div class="card">
+      <div class="card-title">Ovládanie</div>
 
-  <div class="card">
-    <label>Base64 dáta</label>
-    <div class="out mono" id="base64Box">-</div>
-  </div>
+      <div class="row3">
+        <button onclick="sendButton(4, 'Pumpa 1')">Pumpa 1</button>
+        <button onclick="sendButton(5, 'Pumpa 2')">Pumpa 2</button>
+        <button onclick="sendButton(6, 'Pumpa 3')">Pumpa 3</button>
+      </div>
 
-  <div class="card">
-    <label>Odpoveď / XML</label>
-    <div class="out mono" id="xmlBox">-</div>
-  </div>
+      <div class="row3">
+        <button onclick="sendButton(7, 'Pumpa 4')">Pumpa 4</button>
+        <button onclick="sendButton(8, 'Pumpa 5')">Pumpa 5</button>
+        <button onclick="sendButton(9, 'Pumpa 6')">Pumpa 6</button>
+      </div>
 
-  <div class="card">
-    <label>Krátky log</label>
-    <div class="out mono" id="logBox">Pripravené.</div>
+      <div class="row3">
+        <button onclick="sendButton(12, 'Blower')">Blower</button>
+        <button onclick="sendButton(14, 'Mister')">Mister</button>
+        <button onclick="sendButton(17, 'Svetlo 1')">Svetlo 1</button>
+      </div>
+
+      <div class="row3">
+        <button onclick="sendButton(18, 'Svetlo 2')">Svetlo 2</button>
+        <button onclick="sendButton(22, 'Aux 1')">Aux 1</button>
+        <button onclick="sendButton(23, 'Aux 2')">Aux 2</button>
+      </div>
+
+      <div class="row2">
+        <button onclick="sendButton(80, 'Rozsah teploty')">Rozsah teploty</button>
+        <button onclick="sendButton(81, 'Režim kúrenia')">Režim kúrenia</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Prehľad odpovede</div>
+      <div class="info-grid">
+        <div class="mini">
+          <div class="mini-title">Súbor / akcia</div>
+          <div class="mini-value" id="fileName">-</div>
+        </div>
+        <div class="mini">
+          <div class="mini-title">HTTP status</div>
+          <div class="mini-value" id="httpStatus">-</div>
+        </div>
+        <div class="mini">
+          <div class="mini-title">Počet bajtov</div>
+          <div class="mini-value" id="bytesLength">-</div>
+        </div>
+        <div class="mini">
+          <div class="mini-title">Device ID</div>
+          <div class="mini-value mono" id="deviceId">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">HEX dáta</div>
+      <div class="out mono" id="hexBox">-</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Base64 dáta</div>
+      <div class="out mono" id="base64Box">-</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Odpoveď / XML</div>
+      <div class="out mono" id="xmlBox">-</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Krátky log</div>
+      <div class="out mono" id="logBox">Pripravené.</div>
+    </div>
+
+    <p class="footer-note">Platinum Lech Spa · webové ovládanie vírivky</p>
   </div>
 
   <script>
