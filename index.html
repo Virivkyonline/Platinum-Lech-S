@@ -156,7 +156,7 @@
 
     .controls-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 18px 8px;
       justify-items: center;
       align-items: start;
@@ -326,12 +326,6 @@
       gap: 10px;
     }
 
-    .btn-grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-
     .logo-wrap {
       text-align: center;
       margin-top: 28px;
@@ -362,22 +356,6 @@
       padding: 12px 14px;
       font-size: 14px;
       min-height: 48px;
-    }
-
-    @media (max-width: 390px) {
-      .controls-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .center-panel {
-        width: calc(100% - 28px);
-        min-height: 560px;
-      }
-      .home-temp {
-        font-size: 54px;
-      }
-      .btn-grid-3 {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
@@ -437,24 +415,6 @@
           </div>
 
           <div class="control-item">
-            <button id="btn-pump4" class="circle-btn off" onclick="sendButton(7,'Pumpa 4')">🌀</button>
-            <div class="control-label">Pumpa 4</div>
-            <div class="control-state" id="lbl-pump4">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-pump5" class="circle-btn off" onclick="sendButton(8,'Pumpa 5')">🌀</button>
-            <div class="control-label">Pumpa 5</div>
-            <div class="control-state" id="lbl-pump5">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-pump6" class="circle-btn off" onclick="sendButton(9,'Pumpa 6')">🌀</button>
-            <div class="control-label">Pumpa 6</div>
-            <div class="control-state" id="lbl-pump6">-</div>
-          </div>
-
-          <div class="control-item">
             <button id="btn-blower" class="circle-btn off" onclick="sendButton(12,'Blower')">◌</button>
             <div class="control-label">Blower</div>
             <div class="control-state" id="lbl-blower">-</div>
@@ -465,45 +425,9 @@
             <div class="control-label">Svetlo 1</div>
             <div class="control-state" id="lbl-light1">-</div>
           </div>
-
-          <div class="control-item">
-            <button id="btn-light2" class="circle-btn light off" onclick="sendButton(18,'Svetlo 2')">☼</button>
-            <div class="control-label">Svetlo 2</div>
-            <div class="control-state" id="lbl-light2">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-mister" class="circle-btn off" onclick="sendButton(14,'Mister')">◍</button>
-            <div class="control-label">Mister</div>
-            <div class="control-state" id="lbl-mister">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-aux1" class="circle-btn off" onclick="sendButton(22,'Aux 1')">A1</button>
-            <div class="control-label">Aux 1</div>
-            <div class="control-state" id="lbl-aux1">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-aux2" class="circle-btn off" onclick="sendButton(23,'Aux 2')">A2</button>
-            <div class="control-label">Aux 2</div>
-            <div class="control-state" id="lbl-aux2">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-range" class="circle-btn off" onclick="sendRangeButton()">R</button>
-            <div class="control-label">Rozsah</div>
-            <div class="control-state" id="lbl-range">-</div>
-          </div>
-
-          <div class="control-item">
-            <button id="btn-heatmode" class="circle-btn off" onclick="sendHeatModeButton()">H</button>
-            <div class="control-label">Kúrenie</div>
-            <div class="control-state" id="lbl-heatmode">-</div>
-          </div>
         </div>
 
-        <div class="logo-wrap" style="margin-top:52px;">
+        <div class="logo-wrap" style="margin-top:70px;">
           <div class="logo-main">PLATINUM LECH</div>
           <div class="logo-sub">SPA</div>
         </div>
@@ -551,17 +475,6 @@
           </div>
         </div>
 
-        <div class="settings-block">
-          <div class="settings-label">Ďalšie nastavenia</div>
-          <div class="btn-grid-2">
-            <button class="settings-btn" onclick="showTodo('Time Of Day pripravím v ďalšom kroku.')">Time Of Day</button>
-            <button class="settings-btn" onclick="showTodo('Filter Cycles pripravím v ďalšom kroku.')">Filter Cycles</button>
-          </div>
-          <div style="margin-top:10px;">
-            <button class="settings-btn-wide" onclick="showTodo('Advanced pripravím podľa pôvodnej appky neskôr.')">Advanced</button>
-          </div>
-        </div>
-
         <div class="logo-wrap" style="margin-top:28px;">
           <div class="logo-main">PLATINUM LECH</div>
           <div class="logo-sub">SPA</div>
@@ -603,10 +516,6 @@
       }
     }
 
-    function showTodo(text) {
-      setMessage(text);
-    }
-
     function setCtrlState(btnId, lblId, css, label) {
       const btn = document.getElementById(btnId);
       const lbl = document.getElementById(lblId);
@@ -614,10 +523,6 @@
       btn.classList.remove("off", "on", "low", "high");
       btn.classList.add(css);
       lbl.textContent = label;
-    }
-
-    function setUnknown(btnId, lblId) {
-      setCtrlState(btnId, lblId, "off", "-");
     }
 
     async function fetchJson(url) {
@@ -715,15 +620,6 @@
       setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
       setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
-
-      setUnknown("btn-pump4", "lbl-pump4");
-      setUnknown("btn-pump5", "lbl-pump5");
-      setUnknown("btn-pump6", "lbl-pump6");
-      setUnknown("btn-light2", "lbl-light2");
-      setUnknown("btn-mister", "lbl-mister");
-      setUnknown("btn-aux1", "lbl-aux1");
-      setUnknown("btn-aux2", "lbl-aux2");
-
       setCtrlState("btn-range", "lbl-range", s.tempRangeHigh ? "on" : "off", s.tempRangeHigh ? "HIGH" : "LOW");
       setCtrlState("btn-heatmode", "lbl-heatmode", "on", (s.heatMode || "-").toUpperCase());
     }
@@ -737,12 +633,8 @@
 
       document.getElementById("unitCBtn").classList.toggle("active", appState.tempUnit === "C");
       document.getElementById("unitFBtn").classList.toggle("active", appState.tempUnit === "F");
-
       document.getElementById("heatReadyBtn").textContent = appState.heatMode;
-      document.getElementById("heatReadyBtn").classList.add("active");
-
       document.getElementById("rangeLowBtn").textContent = appState.tempRangeHigh ? "High Range" : "Low Range";
-      document.getElementById("rangeLowBtn").classList.add("active");
 
       updateSliderLimits();
     }
@@ -916,4 +808,4 @@
     setInterval(loadPanelUpdate, 15000);
   </script>
 </body>
-</html>
+</html> 
