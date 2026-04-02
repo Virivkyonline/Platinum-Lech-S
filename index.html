@@ -357,6 +357,10 @@
       font-size: 14px;
       min-height: 48px;
     }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -390,40 +394,82 @@
         <div class="controls-title">Ovládanie</div>
 
         <div class="controls-grid">
-          <div class="control-item">
+          <div class="control-item" id="item-circpump">
             <button id="btn-circpump" class="circle-btn off" onclick="sendButton(3,'Obehové čerpadlo')">🌀</button>
             <div class="control-label">Obeh</div>
             <div class="control-state" id="lbl-circpump">-</div>
           </div>
 
-          <div class="control-item">
+          <div class="control-item" id="item-pump1">
             <button id="btn-pump1" class="circle-btn off" onclick="sendButton(4,'Pumpa 1')">🌀</button>
             <div class="control-label">Pumpa 1</div>
             <div class="control-state" id="lbl-pump1">-</div>
           </div>
 
-          <div class="control-item">
+          <div class="control-item" id="item-pump2">
             <button id="btn-pump2" class="circle-btn off" onclick="sendButton(5,'Pumpa 2')">🌀</button>
             <div class="control-label">Pumpa 2</div>
             <div class="control-state" id="lbl-pump2">-</div>
           </div>
 
-          <div class="control-item">
+          <div class="control-item" id="item-pump3">
             <button id="btn-pump3" class="circle-btn off" onclick="sendButton(6,'Pumpa 3')">🌀</button>
             <div class="control-label">Pumpa 3</div>
             <div class="control-state" id="lbl-pump3">-</div>
           </div>
 
-          <div class="control-item">
+          <div class="control-item" id="item-pump4">
+            <button id="btn-pump4" class="circle-btn off" onclick="sendButton(7,'Pumpa 4')">🌀</button>
+            <div class="control-label">Pumpa 4</div>
+            <div class="control-state" id="lbl-pump4">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump5">
+            <button id="btn-pump5" class="circle-btn off" onclick="sendButton(8,'Pumpa 5')">🌀</button>
+            <div class="control-label">Pumpa 5</div>
+            <div class="control-state" id="lbl-pump5">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump6">
+            <button id="btn-pump6" class="circle-btn off" onclick="sendButton(9,'Pumpa 6')">🌀</button>
+            <div class="control-label">Pumpa 6</div>
+            <div class="control-state" id="lbl-pump6">-</div>
+          </div>
+
+          <div class="control-item" id="item-blower">
             <button id="btn-blower" class="circle-btn off" onclick="sendButton(12,'Blower')">◌</button>
             <div class="control-label">Blower</div>
             <div class="control-state" id="lbl-blower">-</div>
           </div>
 
-          <div class="control-item">
+          <div class="control-item" id="item-light1">
             <button id="btn-light1" class="circle-btn light off" onclick="sendButton(17,'Svetlo 1')">☼</button>
             <div class="control-label">Svetlo 1</div>
             <div class="control-state" id="lbl-light1">-</div>
+          </div>
+
+          <div class="control-item" id="item-light2">
+            <button id="btn-light2" class="circle-btn light off" onclick="sendButton(18,'Svetlo 2')">☼</button>
+            <div class="control-label">Svetlo 2</div>
+            <div class="control-state" id="lbl-light2">-</div>
+          </div>
+
+          <div class="control-item" id="item-mister">
+            <button id="btn-mister" class="circle-btn off" onclick="sendButton(14,'Mister')">◍</button>
+            <div class="control-label">Mister</div>
+            <div class="control-state" id="lbl-mister">-</div>
+          </div>
+
+          <div class="control-item" id="item-aux1">
+            <button id="btn-aux1" class="circle-btn off" onclick="sendButton(22,'Aux 1')">A1</button>
+            <div class="control-label">Aux 1</div>
+            <div class="control-state" id="lbl-aux1">-</div>
+          </div>
+
+          <div class="control-item" id="item-aux2">
+            <button id="btn-aux2" class="circle-btn off" onclick="sendButton(23,'Aux 2')">A2</button>
+            <div class="control-label">Aux 2</div>
+            <div class="control-state" id="lbl-aux2">-</div>
           </div>
         </div>
 
@@ -492,7 +538,47 @@
       tempUnit: "C",
       tempRangeHigh: false,
       heatMode: "Ready",
-      setTemp: 34.0
+      setTemp: 34.0,
+      deviceConfigHex: "",
+      profileName: "default"
+    };
+
+    const deviceProfiles = {
+      default: {
+        controls: {
+          circpump: true,
+          pump1: true,
+          pump2: true,
+          pump3: true,
+          pump4: false,
+          pump5: false,
+          pump6: false,
+          blower: true,
+          light1: true,
+          light2: false,
+          mister: false,
+          aux1: false,
+          aux2: false
+        }
+      },
+
+      currentSpa: {
+        controls: {
+          circpump: true,
+          pump1: true,
+          pump2: true,
+          pump3: true,
+          pump4: false,
+          pump5: false,
+          pump6: false,
+          blower: true,
+          light1: true,
+          light2: false,
+          mister: false,
+          aux1: false,
+          aux2: false
+        }
+      }
     };
 
     function setMessage(text) {
@@ -552,6 +638,30 @@
       const v = Number(n);
       if (!Number.isFinite(v)) return "--";
       return String(v).padStart(2, "0");
+    }
+
+    function detectDeviceProfile(deviceHex) {
+      const hex = (deviceHex || "").toLowerCase();
+
+      if (!hex) return "default";
+
+      // miesto pre ďalšie modely
+      // if (hex === "sem_pridame_presny_hex_inej_virivky") return "fivePumps";
+
+      return "currentSpa";
+    }
+
+    function applyDeviceProfile(profileName) {
+      const profile = deviceProfiles[profileName] || deviceProfiles.default;
+      const controls = profile.controls;
+
+      Object.keys(controls).forEach((key) => {
+        const el = document.getElementById("item-" + key);
+        if (!el) return;
+        el.classList.toggle("hidden", !controls[key]);
+      });
+
+      appState.profileName = profileName;
     }
 
     function parsePanel(hex) {
@@ -620,8 +730,6 @@
       setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
       setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
-      setCtrlState("btn-range", "lbl-range", s.tempRangeHigh ? "on" : "off", s.tempRangeHigh ? "HIGH" : "LOW");
-      setCtrlState("btn-heatmode", "lbl-heatmode", "on", (s.heatMode || "-").toUpperCase());
     }
 
     function updateSettingsUI() {
@@ -684,6 +792,23 @@
       appState.setTemp = Number(slider.value);
       document.getElementById("settingsTempValue").textContent =
         Number(appState.setTemp).toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
+    }
+
+    async function loadDeviceConfig() {
+      try {
+        const { resp, data } = await fetchJson(WORKER_URL + "/deviceconfig");
+        if (!resp.ok) {
+          applyDeviceProfile("default");
+          return;
+        }
+
+        const hex = data && data.hex ? data.hex : "";
+        appState.deviceConfigHex = hex;
+        const profile = detectDeviceProfile(hex);
+        applyDeviceProfile(profile);
+      } catch (e) {
+        applyDeviceProfile("default");
+      }
     }
 
     async function loadPanelUpdate() {
@@ -793,6 +918,7 @@
     }
 
     async function refreshAll() {
+      await loadDeviceConfig();
       await loadPanelUpdate();
     }
 
@@ -804,8 +930,8 @@
     });
 
     updateSettingsUI();
-    loadPanelUpdate();
+    refreshAll();
     setInterval(loadPanelUpdate, 15000);
   </script>
 </body>
-</html> 
+</html>
