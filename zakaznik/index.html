@@ -15,11 +15,19 @@
       --line:rgba(120,180,220,.28);
       --shadow:0 10px 30px rgba(80,150,190,.12);
       --ok:#1fa971;
+      --off1:#d9f3ff;
+      --off2:#bfeaff;
+      --on1:#77d6ff;
+      --on2:#3eb8f2;
+      --high1:#34c28a;
+      --high2:#169e6c;
+      --warn1:#ffd98a;
+      --warn2:#f3b93d;
+      --danger1:#ffd1d1;
+      --danger2:#ffb1b1;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{box-sizing:border-box}
 
     body{
       margin:0;
@@ -74,7 +82,7 @@
 
     .statusbar{
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:1fr 1fr;
       gap:10px;
     }
 
@@ -95,8 +103,9 @@
     }
 
     .statusvalue{
-      font-size:20px;
+      font-size:18px;
       font-weight:700;
+      line-height:1.25;
     }
 
     .badge-row{
@@ -127,12 +136,13 @@
       gap:8px;
     }
 
-    .grid2{
-      grid-template-columns:1fr 1fr;
-    }
+    .grid2{ grid-template-columns:1fr 1fr; }
+    .grid3{ grid-template-columns:1fr 1fr 1fr; }
 
-    .grid3{
-      grid-template-columns:1fr 1fr 1fr;
+    .ctrl{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
     }
 
     button{
@@ -140,24 +150,52 @@
       border:none;
       border-radius:999px;
       padding:10px 8px;
-      min-height:50px;
+      min-height:46px;
       font-size:15px;
       font-weight:700;
       cursor:pointer;
       color:#0f3854;
-      background:linear-gradient(180deg,#d9f3ff 0%,#bfeaff 100%);
+      background:linear-gradient(180deg,var(--off1) 0%,var(--off2) 100%);
       box-shadow:0 4px 12px rgba(85,170,220,.14);
-      transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+      transition:transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease;
     }
 
     button:hover{
       transform:translateY(-1px);
       box-shadow:0 8px 18px rgba(85,170,220,.20);
-      background:linear-gradient(180deg,#e6f8ff 0%,#cceeff 100%);
     }
 
     button:active{
       transform:translateY(0);
+    }
+
+    button.state-off{
+      background:linear-gradient(180deg,var(--off1) 0%,var(--off2) 100%);
+      color:#0f3854;
+    }
+
+    button.state-low,
+    button.state-on{
+      background:linear-gradient(180deg,var(--on1) 0%,var(--on2) 100%);
+      color:#ffffff;
+    }
+
+    button.state-med{
+      background:linear-gradient(180deg,var(--warn1) 0%,var(--warn2) 100%);
+      color:#5c4200;
+    }
+
+    button.state-high{
+      background:linear-gradient(180deg,var(--high1) 0%,var(--high2) 100%);
+      color:#ffffff;
+    }
+
+    .state-label{
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      min-height:16px;
     }
 
     .info{
@@ -180,27 +218,16 @@
     }
 
     @media (max-width:680px){
-      h1{
-        font-size:26px;
-      }
-
-      .grid2{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .grid3{
-        grid-template-columns:1fr 1fr 1fr;
-      }
-
+      h1{ font-size:26px; }
+      .statusbar{ grid-template-columns:1fr; }
+      .grid2{ grid-template-columns:1fr 1fr; }
+      .grid3{ grid-template-columns:1fr 1fr 1fr; }
       button{
         font-size:14px;
         padding:8px 6px;
-        min-height:46px;
+        min-height:44px;
       }
-
-      .statusvalue{
-        font-size:18px;
-      }
+      .statusvalue{ font-size:17px; }
     }
   </style>
 </head>
@@ -219,46 +246,109 @@
           <div class="statuslabel">Pripojenie</div>
           <div class="statusvalue" id="connectionState">Pripravené</div>
         </div>
+        <div class="statusbox">
+          <div class="statuslabel">Aktuálny stav</div>
+          <div class="statusvalue" id="summaryState">Bez údajov</div>
+        </div>
+        <div class="statusbox">
+          <div class="statuslabel">Teplota vody</div>
+          <div class="statusvalue" id="waterTemp">-</div>
+        </div>
+        <div class="statusbox">
+          <div class="statuslabel">Nastavená teplota</div>
+          <div class="statusvalue" id="setTemp">-</div>
+        </div>
+        <div class="statusbox">
+          <div class="statuslabel">Čas</div>
+          <div class="statusvalue" id="spaTime">-</div>
+        </div>
+        <div class="statusbox">
+          <div class="statuslabel">Kúrenie / rozsah</div>
+          <div class="statusvalue" id="heatInfo">-</div>
+        </div>
       </div>
 
       <div class="badge-row">
         <div class="badge ok">● Zákaznícka verzia</div>
+        <div class="badge">Automatická aktualizácia stavov</div>
       </div>
     </div>
 
     <div class="card">
       <div class="title">Čerpadlá</div>
       <div class="grid3">
-        <button onclick="sendButton(4, 'Pumpa 1')">Pumpa 1</button>
-        <button onclick="sendButton(5, 'Pumpa 2')">Pumpa 2</button>
-        <button onclick="sendButton(6, 'Pumpa 3')">Pumpa 3</button>
+        <div class="ctrl">
+          <button id="btn-pump1" class="state-off" onclick="sendButton(4, 'Pumpa 1')">Pumpa 1</button>
+          <div class="state-label" id="lbl-pump1">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-pump2" class="state-off" onclick="sendButton(5, 'Pumpa 2')">Pumpa 2</button>
+          <div class="state-label" id="lbl-pump2">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-pump3" class="state-off" onclick="sendButton(6, 'Pumpa 3')">Pumpa 3</button>
+          <div class="state-label" id="lbl-pump3">OFF</div>
+        </div>
       </div>
       <div class="grid3" style="margin-top:8px;">
-        <button onclick="sendButton(7, 'Pumpa 4')">Pumpa 4</button>
-        <button onclick="sendButton(8, 'Pumpa 5')">Pumpa 5</button>
-        <button onclick="sendButton(9, 'Pumpa 6')">Pumpa 6</button>
+        <div class="ctrl">
+          <button id="btn-pump4" class="state-off" onclick="sendButton(7, 'Pumpa 4')">Pumpa 4</button>
+          <div class="state-label" id="lbl-pump4">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-pump5" class="state-off" onclick="sendButton(8, 'Pumpa 5')">Pumpa 5</button>
+          <div class="state-label" id="lbl-pump5">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-pump6" class="state-off" onclick="sendButton(9, 'Pumpa 6')">Pumpa 6</button>
+          <div class="state-label" id="lbl-pump6">OFF</div>
+        </div>
       </div>
     </div>
 
     <div class="card">
       <div class="title">Osvetlenie a príslušenstvo</div>
       <div class="grid3">
-        <button onclick="sendButton(17, 'Svetlo 1')">Svetlo 1</button>
-        <button onclick="sendButton(18, 'Svetlo 2')">Svetlo 2</button>
-        <button onclick="sendButton(12, 'Blower')">Blower</button>
+        <div class="ctrl">
+          <button id="btn-light1" class="state-off" onclick="sendButton(17, 'Svetlo 1')">Svetlo 1</button>
+          <div class="state-label" id="lbl-light1">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-light2" class="state-off" onclick="sendButton(18, 'Svetlo 2')">Svetlo 2</button>
+          <div class="state-label" id="lbl-light2">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-blower" class="state-off" onclick="sendButton(12, 'Blower')">Blower</button>
+          <div class="state-label" id="lbl-blower">OFF</div>
+        </div>
       </div>
       <div class="grid3" style="margin-top:8px;">
-        <button onclick="sendButton(14, 'Mister')">Mister</button>
-        <button onclick="sendButton(22, 'Aux 1')">Aux 1</button>
-        <button onclick="sendButton(23, 'Aux 2')">Aux 2</button>
+        <div class="ctrl">
+          <button id="btn-mister" class="state-off" onclick="sendButton(14, 'Mister')">Mister</button>
+          <div class="state-label" id="lbl-mister">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-aux1" class="state-off" onclick="sendButton(22, 'Aux 1')">Aux 1</button>
+          <div class="state-label" id="lbl-aux1">OFF</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-aux2" class="state-off" onclick="sendButton(23, 'Aux 2')">Aux 2</button>
+          <div class="state-label" id="lbl-aux2">OFF</div>
+        </div>
       </div>
     </div>
 
     <div class="card">
       <div class="title">Nastavenia</div>
       <div class="grid2">
-        <button onclick="sendButton(80, 'Rozsah teploty')">Rozsah teploty</button>
-        <button onclick="sendButton(81, 'Režim kúrenia')">Režim kúrenia</button>
+        <div class="ctrl">
+          <button id="btn-range" class="state-off" onclick="sendButton(80, 'Rozsah teploty')">Rozsah teploty</button>
+          <div class="state-label" id="lbl-range">-</div>
+        </div>
+        <div class="ctrl">
+          <button id="btn-heatmode" class="state-off" onclick="sendButton(81, 'Režim kúrenia')">Režim kúrenia</button>
+          <div class="state-label" id="lbl-heatmode">-</div>
+        </div>
       </div>
     </div>
 
@@ -281,6 +371,23 @@
       document.getElementById("connectionState").textContent = text;
     }
 
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function setButtonState(id, state) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.classList.remove("state-off", "state-on", "state-low", "state-med", "state-high");
+      btn.classList.add("state-" + state);
+    }
+
+    function setCtrl(btnId, lblId, stateClass, label) {
+      setButtonState(btnId, stateClass);
+      setText(lblId, label);
+    }
+
     async function fetchText(url) {
       const resp = await fetch(url, { method: "GET" });
       const text = await resp.text();
@@ -298,6 +405,137 @@
       return { resp, data, raw: text };
     }
 
+    function hexToBytes(hex) {
+      if (!hex || hex.length % 2 !== 0) return [];
+      const out = [];
+      for (let i = 0; i < hex.length; i += 2) {
+        out.push(parseInt(hex.substring(i, i + 2), 16));
+      }
+      return out;
+    }
+
+    function pad2(n) {
+      return String(n).padStart(2, "0");
+    }
+
+    function pumpStateFromMasked(value, lowMask, highMask) {
+      if (value === 0) return { cls: "off", label: "OFF" };
+      if (value === lowMask) return { cls: "low", label: "LOW" };
+      if (value === highMask) return { cls: "high", label: "HIGH" };
+      return { cls: "on", label: "ON" };
+    }
+
+    function parsePanelUpdate(hex) {
+      const p = hexToBytes(hex);
+      if (p.length < 26) return null;
+
+      const tempNow = p[7];
+      const hour = p[8];
+      const minute = p[9];
+      const heatModeRaw = p[10];
+      const tempRangeRaw = p[15] & 0x04;
+      const setTemp = p[25];
+
+      const pump1 = pumpStateFromMasked(p[16] & 0x03, 0x01, 0x02);
+      const pump2 = pumpStateFromMasked(p[16] & 0x0C, 0x04, 0x08);
+      const pump3 = pumpStateFromMasked(p[16] & 0x30, 0x10, 0x20);
+      const pump4 = pumpStateFromMasked(p[16] & 0xC0, 0x40, 0x80);
+      const pump5 = pumpStateFromMasked(p[17] & 0x03, 0x01, 0x02);
+      const pump6 = pumpStateFromMasked(p[17] & 0x0C, 0x04, 0x08);
+
+      const blowerRaw = p[18] & 0x0C;
+      let blower = { cls: "off", label: "OFF" };
+      if (blowerRaw === 0x04) blower = { cls: "low", label: "LOW" };
+      else if (blowerRaw === 0x08) blower = { cls: "med", label: "MED" };
+      else if (blowerRaw === 0x0C) blower = { cls: "high", label: "HIGH" };
+
+      const light1On = (p[19] & 0x03) !== 0;
+      const light2On = (p[19] & 0x0C) !== 0;
+      const misterOn = (p[20] & 0x01) !== 0;
+      const aux1On = (p[20] & 0x08) !== 0;
+      const aux2On = (p[20] & 0x10) !== 0;
+
+      let heatModeLabel = "READY";
+      if (heatModeRaw === 1) heatModeLabel = "REST";
+      else if (heatModeRaw === 2) heatModeLabel = "READY IN REST";
+
+      const tempRangeLabel = tempRangeRaw === 0x04 ? "HIGH" : "LOW";
+
+      return {
+        tempNow,
+        setTemp,
+        time: pad2(hour) + ":" + pad2(minute),
+        heatModeLabel,
+        tempRangeLabel,
+        pump1, pump2, pump3, pump4, pump5, pump6,
+        blower,
+        light1On, light2On,
+        misterOn, aux1On, aux2On
+      };
+    }
+
+    function applyPanelState(parsed) {
+      setText("waterTemp", parsed.tempNow + " °");
+      setText("setTemp", parsed.setTemp + " °");
+      setText("spaTime", parsed.time);
+      setText("heatInfo", parsed.heatModeLabel + " / " + parsed.tempRangeLabel);
+      setText("summaryState", "Aktualizované");
+
+      setCtrl("btn-pump1", "lbl-pump1", parsed.pump1.cls, parsed.pump1.label);
+      setCtrl("btn-pump2", "lbl-pump2", parsed.pump2.cls, parsed.pump2.label);
+      setCtrl("btn-pump3", "lbl-pump3", parsed.pump3.cls, parsed.pump3.label);
+      setCtrl("btn-pump4", "lbl-pump4", parsed.pump4.cls, parsed.pump4.label);
+      setCtrl("btn-pump5", "lbl-pump5", parsed.pump5.cls, parsed.pump5.label);
+      setCtrl("btn-pump6", "lbl-pump6", parsed.pump6.cls, parsed.pump6.label);
+
+      setCtrl("btn-blower", "lbl-blower", parsed.blower.cls, parsed.blower.label);
+
+      setCtrl("btn-light1", "lbl-light1", parsed.light1On ? "on" : "off", parsed.light1On ? "ON" : "OFF");
+      setCtrl("btn-light2", "lbl-light2", parsed.light2On ? "on" : "off", parsed.light2On ? "ON" : "OFF");
+      setCtrl("btn-mister", "lbl-mister", parsed.misterOn ? "on" : "off", parsed.misterOn ? "ON" : "OFF");
+      setCtrl("btn-aux1", "lbl-aux1", parsed.aux1On ? "on" : "off", parsed.aux1On ? "ON" : "OFF");
+      setCtrl("btn-aux2", "lbl-aux2", parsed.aux2On ? "on" : "off", parsed.aux2On ? "ON" : "OFF");
+
+      setCtrl("btn-range", "lbl-range", tempRangeToClass(parsed.tempRangeLabel), parsed.tempRangeLabel);
+      setCtrl("btn-heatmode", "lbl-heatmode", heatModeToClass(parsed.heatModeLabel), parsed.heatModeLabel);
+    }
+
+    function tempRangeToClass(label) {
+      return label === "HIGH" ? "high" : "low";
+    }
+
+    function heatModeToClass(label) {
+      if (label === "REST") return "med";
+      if (label === "READY IN REST") return "high";
+      return "on";
+    }
+
+    async function loadPanelUpdate() {
+      try {
+        setMessage("Načítavam aktuálny stav vírivky...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
+
+        if (!resp.ok) {
+          setMessage("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        setConnection("Online");
+
+        const parsed = parsePanelUpdate(data.hex || "");
+        if (!parsed) {
+          setMessage("Stav sa načítal, ale nepodarilo sa ho rozparsovať.");
+          return;
+        }
+
+        applyPanelState(parsed);
+        setMessage("Stav vírivky bol úspešne aktualizovaný.");
+      } catch (e) {
+        setConnection("Offline");
+        setMessage("Chyba pri načítaní stavu: " + e.message);
+      }
+    }
+
     async function sendButton(code, name) {
       try {
         setMessage("Odosielam príkaz: " + name + " ...");
@@ -309,10 +547,12 @@
           const ok = txt.includes("Command received") || txt.includes('status="0"');
 
           if (ok) {
-            setMessage("Príkaz bol prijatý: " + name);
+            setMessage("Príkaz bol prijatý: " + name + ". Aktualizujem stav...");
           } else {
-            setMessage("Príkaz bol odoslaný: " + name);
+            setMessage("Príkaz bol odoslaný: " + name + ". Aktualizujem stav...");
           }
+
+          setTimeout(loadPanelUpdate, 1100);
         } else {
           setMessage("Príkaz zlyhal: " + name + ". HTTP status: " + resp.status);
         }
@@ -321,6 +561,8 @@
         setMessage("Chyba pri odoslaní príkazu " + name + ": " + e.message);
       }
     }
+
+    loadPanelUpdate();
   </script>
 </body>
 </html>
