@@ -13,18 +13,17 @@
       --text:#12344d;
       --muted:#5d7f97;
       --line:rgba(120,180,220,.28);
-      --accent:#78c8f5;
-      --accent2:#56b9ef;
       --shadow:0 10px 30px rgba(80,150,190,.12);
       --ok:#1fa971;
-      --danger:#d95f5f;
     }
 
-    *{box-sizing:border-box}
+    *{
+      box-sizing:border-box;
+    }
 
     body{
       margin:0;
-      padding:16px;
+      padding:14px;
       font-family:Arial,sans-serif;
       color:var(--text);
       background:
@@ -40,19 +39,19 @@
 
     .hero{
       text-align:center;
-      padding:18px 10px 10px;
+      padding:10px 8px 14px;
     }
 
     h1{
       margin:0;
-      font-size:34px;
+      font-size:30px;
       color:#0d3550;
     }
 
     .sub{
       margin:8px 0 0;
       color:var(--muted);
-      font-size:15px;
+      font-size:14px;
     }
 
     .card{
@@ -61,62 +60,61 @@
       -webkit-backdrop-filter:blur(8px);
       border:1px solid var(--line);
       border-radius:24px;
-      padding:18px;
-      margin-bottom:16px;
+      padding:16px;
+      margin-bottom:14px;
       box-shadow:var(--shadow);
     }
 
     .title{
-      font-size:20px;
+      font-size:18px;
       font-weight:700;
-      margin:0 0 14px;
+      margin:0 0 12px;
       color:#174666;
     }
 
     .statusbar{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+      grid-template-columns:1fr;
+      gap:10px;
     }
 
     .statusbox{
       background:var(--card2);
       border:1px solid #d5eefb;
       border-radius:18px;
-      padding:16px;
+      padding:14px;
       text-align:center;
     }
 
     .statuslabel{
-      font-size:13px;
+      font-size:12px;
       color:var(--muted);
-      margin-bottom:8px;
+      margin-bottom:6px;
       text-transform:uppercase;
       letter-spacing:.05em;
     }
 
     .statusvalue{
-      font-size:24px;
+      font-size:20px;
       font-weight:700;
     }
 
-    .worker-row{
+    .badge-row{
       display:flex;
-      gap:10px;
-      align-items:center;
+      gap:8px;
       flex-wrap:wrap;
-      margin-top:8px;
+      margin-top:10px;
     }
 
     .badge{
       display:inline-flex;
       align-items:center;
-      padding:10px 14px;
+      padding:8px 12px;
       border-radius:999px;
       background:#effaff;
       border:1px solid #d4eefc;
       color:#33627e;
-      font-size:14px;
+      font-size:13px;
     }
 
     .badge.ok{
@@ -124,24 +122,37 @@
       font-weight:700;
     }
 
+    .grid2,.grid3{
+      display:grid;
+      gap:8px;
+    }
+
+    .grid2{
+      grid-template-columns:1fr 1fr;
+    }
+
+    .grid3{
+      grid-template-columns:1fr 1fr 1fr;
+    }
+
     button{
-  width:100%;
-  border:none;
-  border-radius:999px;
-  padding:10px 8px;
-  min-height:52px;
-  font-size:15px;
-  font-weight:700;
-  cursor:pointer;
-  color:#0f3854;
-  background:linear-gradient(180deg,#d9f3ff 0%,#bfeaff 100%);
-  box-shadow:0 4px 12px rgba(85,170,220,.14);
-  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+      width:100%;
+      border:none;
+      border-radius:999px;
+      padding:10px 8px;
+      min-height:50px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      color:#0f3854;
+      background:linear-gradient(180deg,#d9f3ff 0%,#bfeaff 100%);
+      box-shadow:0 4px 12px rgba(85,170,220,.14);
+      transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
     }
 
     button:hover{
       transform:translateY(-1px);
-      box-shadow:0 10px 22px rgba(85,170,220,.22);
+      box-shadow:0 8px 18px rgba(85,170,220,.20);
       background:linear-gradient(180deg,#e6f8ff 0%,#cceeff 100%);
     }
 
@@ -149,32 +160,15 @@
       transform:translateY(0);
     }
 
-    .primary{
-      background:linear-gradient(180deg,#9edfff 0%,#7fd0fa 100%);
-    }
-
-    .danger{
-      background:linear-gradient(180deg,#ffe0e0 0%,#ffcaca 100%);
-      color:#7a2e2e;
-    }
-
-    .grid2,.grid3{
-      display:grid;
-      gap:8px;
-    }
-
-    .grid2{grid-template-columns:1fr 1fr}
-    .grid3{grid-template-columns:1fr 1fr 1fr}
-
     .info{
       background:#f8fdff;
       border:1px solid #d8effc;
       border-radius:18px;
-      padding:16px;
+      padding:14px;
       min-height:70px;
       white-space:pre-wrap;
       word-break:break-word;
-      font-size:16px;
+      font-size:15px;
       color:#184663;
     }
 
@@ -182,17 +176,31 @@
       text-align:center;
       color:var(--muted);
       font-size:13px;
-      padding:6px 0 18px;
-    }
-
-    .hidden{
-      display:none !important;
+      padding:4px 0 16px;
     }
 
     @media (max-width:680px){
-      h1{font-size:28px}
-      .grid2,.grid3,.statusbar{grid-template-columns:1fr}
-      button{font-size:17px;padding:17px 10px}
+      h1{
+        font-size:26px;
+      }
+
+      .grid2{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .grid3{
+        grid-template-columns:1fr 1fr 1fr;
+      }
+
+      button{
+        font-size:14px;
+        padding:8px 6px;
+        min-height:46px;
+      }
+
+      .statusvalue{
+        font-size:18px;
+      }
     }
   </style>
 </head>
@@ -211,6 +219,12 @@
           <div class="statuslabel">Pripojenie</div>
           <div class="statusvalue" id="connectionState">Pripravené</div>
         </div>
+      </div>
+
+      <div class="badge-row">
+        <div class="badge ok">● Zákaznícka verzia</div>
+      </div>
+    </div>
 
     <div class="card">
       <div class="title">Čerpadlá</div>
@@ -219,7 +233,7 @@
         <button onclick="sendButton(5, 'Pumpa 2')">Pumpa 2</button>
         <button onclick="sendButton(6, 'Pumpa 3')">Pumpa 3</button>
       </div>
-      <div class="grid3" style="margin-top:12px">
+      <div class="grid3" style="margin-top:8px;">
         <button onclick="sendButton(7, 'Pumpa 4')">Pumpa 4</button>
         <button onclick="sendButton(8, 'Pumpa 5')">Pumpa 5</button>
         <button onclick="sendButton(9, 'Pumpa 6')">Pumpa 6</button>
@@ -233,7 +247,7 @@
         <button onclick="sendButton(18, 'Svetlo 2')">Svetlo 2</button>
         <button onclick="sendButton(12, 'Blower')">Blower</button>
       </div>
-      <div class="grid3" style="margin-top:12px">
+      <div class="grid3" style="margin-top:8px;">
         <button onclick="sendButton(14, 'Mister')">Mister</button>
         <button onclick="sendButton(22, 'Aux 1')">Aux 1</button>
         <button onclick="sendButton(23, 'Aux 2')">Aux 2</button>
@@ -263,18 +277,8 @@
       document.getElementById("messageBox").textContent = text;
     }
 
-    function setLastAction(text) {
-      document.getElementById("lastAction").textContent = text;
-    }
-
     function setConnection(text) {
       document.getElementById("connectionState").textContent = text;
-    }
-
-    function setWorkerBadge(text, ok = true) {
-      const el = document.getElementById("workerBadge");
-      el.textContent = text;
-      el.className = ok ? "badge ok" : "badge";
     }
 
     async function fetchText(url) {
@@ -294,44 +298,6 @@
       return { resp, data, raw: text };
     }
 
-    async function testWorker() {
-      try {
-        setMessage("Prebieha test pripojenia...");
-        const { resp, raw } = await fetchJson(WORKER_URL);
-        if (resp.ok) {
-          setConnection("Online");
-          setWorkerBadge("● Worker online", true);
-          setLastAction("Test pripojenia");
-          setMessage("Pripojenie je v poriadku. Server odpovedal: " + (raw || "OK"));
-        } else {
-          setConnection("Chyba");
-          setWorkerBadge("● Worker problém", false);
-          setMessage("Test zlyhal. HTTP status: " + resp.status);
-        }
-      } catch (e) {
-        setConnection("Offline");
-        setWorkerBadge("● Worker nedostupný", false);
-        setMessage("Nepodarilo sa pripojiť: " + e.message);
-      }
-    }
-
-    async function loadPanelUpdate() {
-      try {
-        setMessage("Načítavam aktuálny stav vírivky...");
-        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
-        if (resp.ok) {
-          setConnection("Online");
-          setLastAction("Obnovený stav");
-          const bytes = data.bytesLength ?? "-";
-          setMessage("Stav vírivky bol úspešne načítaný. Počet prijatých bajtov: " + bytes);
-        } else {
-          setMessage("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
-        }
-      } catch (e) {
-        setMessage("Chyba pri načítaní stavu: " + e.message);
-      }
-    }
-
     async function sendButton(code, name) {
       try {
         setMessage("Odosielam príkaz: " + name + " ...");
@@ -339,9 +305,9 @@
 
         if (resp.ok) {
           setConnection("Online");
-          setLastAction(name);
           const txt = (data && data.response) ? data.response : "";
           const ok = txt.includes("Command received") || txt.includes('status="0"');
+
           if (ok) {
             setMessage("Príkaz bol prijatý: " + name);
           } else {
@@ -351,6 +317,7 @@
           setMessage("Príkaz zlyhal: " + name + ". HTTP status: " + resp.status);
         }
       } catch (e) {
+        setConnection("Offline");
         setMessage("Chyba pri odoslaní príkazu " + name + ": " + e.message);
       }
     }
