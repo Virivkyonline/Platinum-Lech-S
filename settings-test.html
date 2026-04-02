@@ -158,7 +158,7 @@
       </div>
 
       <div class="block">
-        <div class="label">Tepelný režim</div>
+        <div class="label">Teplotný režim</div>
         <div class="grid2">
           <button id="btnHeatReady" onclick="setHeatMode('ready')">Pripravený</button>
           <button id="btnHeatRest" onclick="setHeatMode('rest')">Spiaci</button>
@@ -232,13 +232,15 @@
 
       const heatModeRaw = p[10] ?? 0;
       const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
-      const setTemp = (p[23] ?? 0) / 2;
+      const rawSetTemp = p[23] ?? 0;
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
 
       let heatMode = "Pripravený";
       if (heatModeRaw === 1) heatMode = "Spiaci";
       else if (heatModeRaw === 2) heatMode = "Pripravený v spiacom";
+
+      const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
 
       return {
         setTemp,
@@ -306,7 +308,10 @@
       document.getElementById("btnUnitC").classList.toggle("active", state.unit === "C");
       document.getElementById("btnUnitF").classList.toggle("active", state.unit === "F");
 
-      const isReady = state.heatMode === "Pripravený" || state.heatMode === "Pripravený v spiacom";
+      const isReady =
+        state.heatMode === "Pripravený" ||
+        state.heatMode === "Pripravený v spiacom";
+
       document.getElementById("btnHeatReady").classList.toggle("active", isReady);
       document.getElementById("btnHeatRest").classList.toggle("active", !isReady);
 
@@ -347,13 +352,26 @@
       }
     }
 
+    function convertSetTempForWorker(temp, unit) {
+      if (unit === "C") {
+        return String((Number(temp) * 2).toFixed(1));
+      }
+      return String(Number(temp).toFixed(1));
+    }
+
     async function saveSetTemp() {
       try {
-        const value = document.getElementById("tempSlider").value;
-        setMsg("Nastavujem teplotu na " + value + "°" + state.unit + " ...");
+        const uiValue = Number(document.getElementById("tempSlider").value);
+        const workerValue = convertSetTempForWorker(uiValue, state.unit);
+
+        setMsg(
+          "Nastavujem teplotu na " +
+          uiValue.toFixed(state.unit === "C" ? 1 : 0) +
+          "°" + state.unit + " ..."
+        );
 
         const { resp, data } = await fetchJson(
-          WORKER_URL + "/settemp?value=" + encodeURIComponent(value)
+          WORKER_URL + "/settemp?value=" + encodeURIComponent(workerValue)
         );
 
         if (!resp.ok) {
@@ -364,7 +382,7 @@
         const txt = data.response || "";
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
-        state.setTemp = Number(value);
+        state.setTemp = uiValue;
         render();
         setMsg((ok ? "Teplota nastavená." : "Príkaz odoslaný.") + " Aktualizujem stav...");
         setTimeout(refreshPanel, 1500);
@@ -401,30 +419,32 @@
 
     async function setHeatMode(target) {
       try {
-        const currentlyReady = state.heatMode === "Pripravený" || state.heatMode === "Pripravený v spiacom";
+        const currentlyReady =
+          state.heatMode === "Pripravený" ||
+          state.heatMode === "Pripravený v spiacom";
         const wantReady = target === "ready";
 
         if ((wantReady && currentlyReady) || (!wantReady && !currentlyReady)) {
-          setMsg("Tepelný režim je už nastavený.");
+          setMsg("Teplotný režim je už nastavený.");
           return;
         }
 
-        setMsg("Prepínam tepelný režim...");
+        setMsg("Prepínam teplotný režim...");
 
         const { resp, data } = await fetchJson(WORKER_URL + "/button?code=81");
 
         if (!resp.ok) {
-          setMsg("Prepnutie tepelného režimu zlyhalo. HTTP status: " + resp.status);
+          setMsg("Prepnutie teplotného režimu zlyhalo. HTTP status: " + resp.status);
           return;
         }
 
         const txt = data.response || "";
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
-        setMsg((ok ? "Tepelný režim prepnutý." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setMsg((ok ? "Teplotný režim prepnutý." : "Príkaz odoslaný.") + " Aktualizujem stav...");
         setTimeout(refreshPanel, 1500);
       } catch (e) {
-        setMsg("Chyba pri prepínaní tepelného režimu: " + e.message);
+        setMsg("Chyba pri prepínaní teplotného režimu: " + e.message);
       }
     }
 
