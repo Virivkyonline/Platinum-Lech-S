@@ -160,16 +160,24 @@
       <div class="block">
         <div class="label">Tepelný režim</div>
         <div class="grid2">
-          <button id="btnHeatMode" onclick="toggleHeatMode()">Pripravené</button>
-          <button onclick="refreshPanel()">Obnoviť stav</button>
+          <button id="btnHeatReady" onclick="setHeatMode('ready')">Pripravený</button>
+          <button id="btnHeatRest" onclick="setHeatMode('rest')">Spiaci</button>
         </div>
       </div>
 
       <div class="block">
         <div class="label">Teplotný rozsah</div>
         <div class="grid2">
-          <button id="btnTempRange" onclick="toggleTempRange()">Nízky rozsah</button>
+          <button id="btnRangeLow" onclick="setTempRange('low')">Nízky</button>
+          <button id="btnRangeHigh" onclick="setTempRange('high')">Vysoký</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="label">Obnovenie</div>
+        <div class="grid2">
           <button onclick="refreshPanel()">Načítať z panelu</button>
+          <button onclick="refreshPanel()">Obnoviť stav</button>
         </div>
       </div>
 
@@ -183,7 +191,7 @@
     const state = {
       unit: "C",
       tempRangeHigh: false,
-      heatMode: "Pripravené",
+      heatMode: "Pripravený",
       setTemp: 10.0
     };
 
@@ -228,9 +236,9 @@
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
 
-      let heatMode = "Pripravené";
-      if (heatModeRaw === 1) heatMode = "Odpočinok";
-      else if (heatModeRaw === 2) heatMode = "Pripravené v odpočinku";
+      let heatMode = "Pripravený";
+      if (heatModeRaw === 1) heatMode = "Spiaci";
+      else if (heatModeRaw === 2) heatMode = "Pripravený v spiacom";
 
       return {
         setTemp,
@@ -295,13 +303,15 @@
       document.getElementById("tempRangeText").textContent =
         state.tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah";
 
-      document.getElementById("btnTempRange").textContent =
-        state.tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah";
-
-      document.getElementById("btnHeatMode").textContent = state.heatMode;
-
       document.getElementById("btnUnitC").classList.toggle("active", state.unit === "C");
       document.getElementById("btnUnitF").classList.toggle("active", state.unit === "F");
+
+      const isReady = state.heatMode === "Pripravený" || state.heatMode === "Pripravený v spiacom";
+      document.getElementById("btnHeatReady").classList.toggle("active", isReady);
+      document.getElementById("btnHeatRest").classList.toggle("active", !isReady);
+
+      document.getElementById("btnRangeLow").classList.toggle("active", !state.tempRangeHigh);
+      document.getElementById("btnRangeHigh").classList.toggle("active", state.tempRangeHigh);
     }
 
     async function refreshPanel() {
@@ -389,8 +399,16 @@
       }
     }
 
-    async function toggleHeatMode() {
+    async function setHeatMode(target) {
       try {
+        const currentlyReady = state.heatMode === "Pripravený" || state.heatMode === "Pripravený v spiacom";
+        const wantReady = target === "ready";
+
+        if ((wantReady && currentlyReady) || (!wantReady && !currentlyReady)) {
+          setMsg("Tepelný režim je už nastavený.");
+          return;
+        }
+
         setMsg("Prepínam tepelný režim...");
 
         const { resp, data } = await fetchJson(WORKER_URL + "/button?code=81");
@@ -410,8 +428,15 @@
       }
     }
 
-    async function toggleTempRange() {
+    async function setTempRange(target) {
       try {
+        const wantHigh = target === "high";
+
+        if ((wantHigh && state.tempRangeHigh) || (!wantHigh && !state.tempRangeHigh)) {
+          setMsg("Teplotný rozsah je už nastavený.");
+          return;
+        }
+
         setMsg("Prepínam teplotný rozsah...");
 
         const { resp, data } = await fetchJson(WORKER_URL + "/button?code=80");
