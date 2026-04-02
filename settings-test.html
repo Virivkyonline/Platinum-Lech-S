@@ -67,7 +67,7 @@
     .subvalue {
       font-size: 18px;
       color: #cde5ff;
-      margin-top: 6px;
+      margin-top: 8px;
     }
 
     .row {
@@ -77,7 +77,7 @@
     }
 
     .minmax {
-      width: 48px;
+      width: 52px;
       text-align: center;
       color: #cde5ff;
       font-size: 15px;
@@ -140,7 +140,7 @@
         <div class="value" id="tempValue">--.-°C</div>
         <div class="row">
           <div class="minmax" id="tempMinLabel">10</div>
-          <input type="range" id="tempSlider" min="10" max="26.5" step="0.5" value="26.5">
+          <input type="range" id="tempSlider" min="10" max="26.5" step="0.5" value="10">
           <div class="minmax" id="tempMaxLabel">26.5</div>
         </div>
         <div class="subvalue" id="tempRangeText">Nízky rozsah</div>
@@ -184,7 +184,7 @@
       unit: "C",
       tempRangeHigh: false,
       heatMode: "Pripravené",
-      setTemp: 26.5
+      setTemp: 10.0
     };
 
     function setMsg(text) {
@@ -278,6 +278,7 @@
 
       const min = Number(slider.min);
       const max = Number(slider.max);
+
       if (state.setTemp < min) state.setTemp = min;
       if (state.setTemp > max) state.setTemp = max;
 
