@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Balboa old cloud web</title>
+  <title>Ovládanie vírivky Balboa</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,10 +12,12 @@
       margin: 0;
       padding: 20px;
     }
+
     h1 {
-      font-size: 34px;
-      margin: 0 0 20px 0;
+      font-size: 32px;
+      margin: 0 0 18px 0;
     }
+
     .card {
       background: #1b1b1f;
       border-radius: 18px;
@@ -23,11 +25,13 @@
       margin-bottom: 18px;
       box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
     }
+
     label {
       display: block;
-      font-size: 17px;
+      font-size: 16px;
       margin-bottom: 8px;
     }
+
     input, textarea {
       width: 100%;
       box-sizing: border-box;
@@ -39,35 +43,41 @@
       font-size: 15px;
       margin-bottom: 14px;
     }
+
     textarea {
-      min-height: 120px;
+      min-height: 160px;
       resize: vertical;
     }
-    .row {
+
+    .row2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 12px;
     }
+
     .row3 {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 12px;
       margin-bottom: 12px;
     }
+
     button {
       width: 100%;
       background: #6f6f6f;
       color: white;
       border: none;
       border-radius: 10px;
-      padding: 16px 10px;
-      font-size: 17px;
+      padding: 15px 10px;
+      font-size: 16px;
       cursor: pointer;
     }
+
     button:hover {
-      background: #848484;
+      background: #868686;
     }
+
     .out {
       background: #101014;
       border-radius: 10px;
@@ -77,24 +87,29 @@
       font-size: 14px;
       min-height: 60px;
     }
+
     .mono {
       font-family: monospace;
     }
+
     .infoGrid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
+
     .smallBox {
       background: #101014;
       border-radius: 10px;
       padding: 12px;
     }
+
     .smallTitle {
       color: #bbb;
       font-size: 13px;
       margin-bottom: 6px;
     }
+
     .smallValue {
       font-size: 16px;
       word-break: break-word;
@@ -102,27 +117,60 @@
   </style>
 </head>
 <body>
-  <h1>Balboa old cloud web</h1>
+  <h1>Ovládanie vírivky Balboa</h1>
 
   <div class="card">
-    <label for="workerUrl">Worker URL</label>
+    <label for="workerUrl">Adresa workeru</label>
     <input id="workerUrl" type="text" value="https://balboa-proxy-worker.lechstav.workers.dev">
 
-    <div class="row">
-      <button onclick="loadPanelUpdate()">Načítať PanelUpdate.txt</button>
-      <button onclick="loadDeviceConfig()">Načítať DeviceConfiguration.txt</button>
-    </div>
-
-    <div class="row">
+    <div class="row2">
       <button onclick="testWorker()">Test workeru</button>
       <button onclick="clearAll()">Vymazať výstup</button>
+    </div>
+
+    <div class="row2">
+      <button onclick="loadPanelUpdate()">Načítať stav vírivky</button>
+      <button onclick="loadDeviceConfig()">Načítať konfiguráciu</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Tlačidlá z APK</label>
+
+    <div class="row3">
+      <button onclick="sendButton(4, 'Pump1')">Pumpa 1</button>
+      <button onclick="sendButton(5, 'Pump2')">Pumpa 2</button>
+      <button onclick="sendButton(6, 'Pump3')">Pumpa 3</button>
+    </div>
+
+    <div class="row3">
+      <button onclick="sendButton(7, 'Pump4')">Pumpa 4</button>
+      <button onclick="sendButton(8, 'Pump5')">Pumpa 5</button>
+      <button onclick="sendButton(9, 'Pump6')">Pumpa 6</button>
+    </div>
+
+    <div class="row3">
+      <button onclick="sendButton(12, 'Blower')">Blower</button>
+      <button onclick="sendButton(14, 'Mister')">Mister</button>
+      <button onclick="sendButton(17, 'Light1')">Svetlo 1</button>
+    </div>
+
+    <div class="row3">
+      <button onclick="sendButton(18, 'Light2')">Svetlo 2</button>
+      <button onclick="sendButton(22, 'Aux1')">Aux 1</button>
+      <button onclick="sendButton(23, 'Aux2')">Aux 2</button>
+    </div>
+
+    <div class="row2">
+      <button onclick="sendButton(80, 'TempRange')">Rozsah teploty</button>
+      <button onclick="sendButton(81, 'HeatMode')">Režim kúrenia</button>
     </div>
   </div>
 
   <div class="card">
     <div class="infoGrid">
       <div class="smallBox">
-        <div class="smallTitle">Súbor</div>
+        <div class="smallTitle">Súbor / akcia</div>
         <div class="smallValue" id="fileName">-</div>
       </div>
       <div class="smallBox">
@@ -151,7 +199,7 @@
   </div>
 
   <div class="card">
-    <label>Raw XML</label>
+    <label>Odpoveď / XML</label>
     <div class="out mono" id="xmlBox">-</div>
   </div>
 
@@ -183,13 +231,13 @@
     }
 
     function fillResult(data) {
-      document.getElementById("fileName").textContent = data.file || "-";
+      document.getElementById("fileName").textContent = data.file || data.action || "-";
       document.getElementById("httpStatus").textContent = data.status ?? "-";
       document.getElementById("bytesLength").textContent = data.bytesLength ?? "-";
       document.getElementById("deviceId").textContent = data.deviceId || "-";
       document.getElementById("hexBox").textContent = data.hex || "-";
       document.getElementById("base64Box").textContent = data.base64 || "-";
-      document.getElementById("xmlBox").textContent = data.xml || "-";
+      document.getElementById("xmlBox").textContent = data.xml || data.response || "-";
     }
 
     async function fetchJson(path) {
@@ -199,7 +247,7 @@
       const resp = await fetch(url, { method: "GET" });
       const text = await resp.text();
 
-      log("[OK] HTTP status: " + resp.status);
+      log("[INFO] HTTP status: " + resp.status);
 
       let data;
       try {
@@ -223,20 +271,23 @@
       try {
         const url = getWorkerUrl();
         log("[INFO] Test workeru: " + url);
+
         const resp = await fetch(url);
         const text = await resp.text();
 
-        document.getElementById("fileName").textContent = "worker test";
-        document.getElementById("httpStatus").textContent = resp.status;
-        document.getElementById("bytesLength").textContent = text.length;
-        document.getElementById("deviceId").textContent = "-";
-        document.getElementById("hexBox").textContent = "-";
-        document.getElementById("base64Box").textContent = "-";
-        document.getElementById("xmlBox").textContent = text;
+        fillResult({
+          file: "worker test",
+          status: resp.status,
+          bytesLength: text.length,
+          deviceId: "-",
+          hex: "-",
+          base64: "-",
+          xml: text
+        });
 
         log("[OK] Worker odpovedal.");
       } catch (e) {
-        log("[CHYBA] " + e.message);
+        log("[CHYBA] Worker test zlyhal: " + e.message);
       }
     }
 
@@ -245,7 +296,7 @@
         const data = await fetchJson("/panelupdate");
         fillResult(data);
       } catch (e) {
-        log("[CHYBA] PanelUpdate zlyhal: " + e.message);
+        log("[CHYBA] Načítanie stavu zlyhalo: " + e.message);
       }
     }
 
@@ -254,7 +305,17 @@
         const data = await fetchJson("/deviceconfig");
         fillResult(data);
       } catch (e) {
-        log("[CHYBA] DeviceConfiguration zlyhal: " + e.message);
+        log("[CHYBA] Načítanie konfigurácie zlyhalo: " + e.message);
+      }
+    }
+
+    async function sendButton(code, name) {
+      try {
+        log("[INFO] Posielam " + name + " (code " + code + ")");
+        const data = await fetchJson("/button?code=" + encodeURIComponent(code));
+        fillResult(data);
+      } catch (e) {
+        log("[CHYBA] Tlačidlo " + name + " zlyhalo: " + e.message);
       }
     }
   </script>
