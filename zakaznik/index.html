@@ -1,363 +1,421 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Platinum Lech Spa</title>
   <style>
-    :root{
-      --bg:#eaf7ff;
-      --bg2:#dff2ff;
-      --card:rgba(255,255,255,.82);
-      --card2:rgba(255,255,255,.92);
-      --text:#12344d;
-      --muted:#5d7f97;
-      --line:rgba(120,180,220,.28);
-      --shadow:0 10px 30px rgba(80,150,190,.12);
-      --ok:#1fa971;
-      --off1:#d9f3ff;
-      --off2:#bfeaff;
-      --on1:#77d6ff;
-      --on2:#3eb8f2;
-      --high1:#34c28a;
-      --high2:#169e6c;
-      --warn1:#ffd98a;
-      --warn2:#f3b93d;
-      --danger1:#ffd1d1;
-      --danger2:#ffb1b1;
-    }
+    * { box-sizing: border-box; }
 
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      padding:14px;
-      font-family:Arial,sans-serif;
-      color:var(--text);
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #fff;
       background:
-        radial-gradient(circle at top left,#ffffff 0%,transparent 35%),
-        linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
-      min-height:100vh;
+        radial-gradient(circle at 20% 15%, rgba(80,140,255,.18), transparent 20%),
+        radial-gradient(circle at 80% 25%, rgba(80,140,255,.14), transparent 18%),
+        radial-gradient(circle at 35% 70%, rgba(80,140,255,.12), transparent 24%),
+        linear-gradient(180deg, #041b3e 0%, #06224b 45%, #041833 100%);
+      min-height: 100vh;
     }
 
-    .wrap{
-      max-width:760px;
-      margin:0 auto;
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 26px;
     }
 
-    .hero{
-      text-align:center;
-      padding:10px 8px 14px;
+    .bubble-bg::before,
+    .bubble-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        radial-gradient(circle at 8px 8px, rgba(255,255,255,.45) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 22px 20px, rgba(255,255,255,.28) 0 1.5px, transparent 2px),
+        radial-gradient(circle at 38px 8px, rgba(255,255,255,.18) 0 1px, transparent 1.5px);
+      background-size: 48px 48px;
     }
 
-    h1{
-      margin:0;
-      font-size:30px;
-      color:#0d3550;
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 10px 10px;
     }
 
-    .sub{
-      margin:8px 0 0;
-      color:var(--muted);
-      font-size:14px;
+    .nav-btn {
+      min-width: 88px;
+      height: 38px;
+      border: 1px solid rgba(170,210,255,.55);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(173,213,255,.95), rgba(96,149,224,.95));
+      color: #eef7ff;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
     }
 
-    .card{
-      background:var(--card);
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:16px;
-      margin-bottom:14px;
-      box-shadow:var(--shadow);
+    .title {
+      font-size: 28px;
+      font-weight: 400;
+      text-align: center;
+      flex: 1;
+      margin: 0 10px;
+      color: #f3f8ff;
     }
 
-    .title{
-      font-size:18px;
-      font-weight:700;
-      margin:0 0 12px;
-      color:#174666;
+    .cloud-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      margin-left: 6px;
     }
 
-    .statusbar{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 1;
     }
 
-    .statusbox{
-      background:var(--card2);
-      border:1px solid #d5eefb;
-      border-radius:18px;
-      padding:14px;
-      text-align:center;
+    .screen.active {
+      display: block;
     }
 
-    .statuslabel{
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:6px;
-      text-transform:uppercase;
-      letter-spacing:.05em;
+    .center-panel {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      min-height: 575px;
+      border-radius: 28px;
+      padding: 30px 18px 24px;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(5,34,79,.94) 0%, rgba(2,20,50,.96) 100%);
+      border: 2px solid rgba(0,0,0,.38);
+      box-shadow:
+        inset 0 0 0 1px rgba(140,190,255,.08),
+        0 8px 30px rgba(0,0,0,.25);
     }
 
-    .statusvalue{
-      font-size:18px;
-      font-weight:700;
-      line-height:1.25;
+    .home-temp {
+      text-align: center;
+      font-size: 64px;
+      font-weight: 500;
+      margin-top: 120px;
+      letter-spacing: 1px;
     }
 
-    .badge-row{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:10px;
+    .swirl {
+      text-align: center;
+      font-size: 82px;
+      opacity: .88;
+      margin-top: 26px;
+      line-height: 1;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      padding:8px 12px;
-      border-radius:999px;
-      background:#effaff;
-      border:1px solid #d4eefc;
-      color:#33627e;
-      font-size:13px;
+    .home-mode {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 600;
+      margin-top: 14px;
     }
 
-    .badge.ok{
-      color:var(--ok);
-      font-weight:700;
+    .home-range {
+      font-size: 24px;
+      color: rgba(255,255,255,.88);
+      margin-top: 20px;
+      margin-left: 18px;
     }
 
-    .grid2,.grid3{
-      display:grid;
-      gap:8px;
+    .top-mini-info {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -2px;
+      text-align: center;
+      color: rgba(255,255,255,.9);
+      font-size: 16px;
     }
 
-    .grid2{ grid-template-columns:1fr 1fr; }
-    .grid3{ grid-template-columns:1fr 1fr 1fr; }
-
-    .ctrl{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
+    .controls-title {
+      text-align: center;
+      font-size: 26px;
+      margin-top: -4px;
+      margin-bottom: 34px;
+      color: #f3f8ff;
     }
 
-    button{
-      width:100%;
-      border:none;
-      border-radius:999px;
-      padding:10px 8px;
-      min-height:46px;
-      font-size:15px;
-      font-weight:700;
-      cursor:pointer;
-      color:#0f3854;
-      background:linear-gradient(180deg,var(--off1) 0%,var(--off2) 100%);
-      box-shadow:0 4px 12px rgba(85,170,220,.14);
-      transition:transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease;
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px 8px;
+      justify-items: center;
+      align-items: start;
+      margin-top: 135px;
     }
 
-    button:hover{
-      transform:translateY(-1px);
-      box-shadow:0 8px 18px rgba(85,170,220,.20);
+    .control-item {
+      width: 72px;
+      text-align: center;
     }
 
-    button:active{
-      transform:translateY(0);
+    .circle-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.12);
+      cursor: pointer;
+      position: relative;
+      box-shadow:
+        inset 0 10px 18px rgba(255,255,255,.16),
+        inset 0 -8px 14px rgba(0,0,0,.45),
+        0 2px 8px rgba(0,0,0,.25);
+      margin: 0 auto 6px;
+      color: #d7e8ff;
+      font-size: 31px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.23), transparent 28%),
+        linear-gradient(180deg, #565656 0%, #171717 55%, #050505 100%);
     }
 
-    button.state-off{
-      background:linear-gradient(180deg,var(--off1) 0%,var(--off2) 100%);
-      color:#0f3854;
+    .circle-btn.off {
+      filter: grayscale(.15);
+      opacity: .95;
     }
 
-    button.state-low,
-    button.state-on{
-      background:linear-gradient(180deg,var(--on1) 0%,var(--on2) 100%);
-      color:#ffffff;
+    .circle-btn.low,
+    .circle-btn.on {
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.28), transparent 28%),
+        linear-gradient(180deg, #777777 0%, #222 45%, #0a0a0a 100%);
+      box-shadow:
+        inset 0 0 10px rgba(130,210,255,.55),
+        0 0 16px rgba(85,170,255,.28);
     }
 
-    button.state-med{
-      background:linear-gradient(180deg,var(--warn1) 0%,var(--warn2) 100%);
-      color:#5c4200;
+    .circle-btn.high {
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.35), transparent 28%),
+        linear-gradient(180deg, #6f6f6f 0%, #1d1d1d 45%, #060606 100%);
+      box-shadow:
+        inset 0 0 12px rgba(110,255,185,.7),
+        0 0 18px rgba(40,220,150,.38);
     }
 
-    button.state-high{
-      background:linear-gradient(180deg,var(--high1) 0%,var(--high2) 100%);
-      color:#ffffff;
+    .circle-btn.med {
+      box-shadow:
+        inset 0 0 11px rgba(255,220,120,.58),
+        0 0 16px rgba(255,200,70,.28);
     }
 
-    .state-label{
-      text-align:center;
-      font-size:12px;
-      font-weight:700;
-      color:var(--muted);
-      min-height:16px;
+    .circle-btn.light.on {
+      box-shadow:
+        inset 0 0 16px rgba(170,220,255,.85),
+        0 0 18px rgba(110,190,255,.45);
+      color: #eef9ff;
     }
 
-    .info{
-      background:#f8fdff;
-      border:1px solid #d8effc;
-      border-radius:18px;
-      padding:14px;
-      min-height:70px;
-      white-space:pre-wrap;
-      word-break:break-word;
-      font-size:15px;
-      color:#184663;
+    .control-label {
+      font-size: 15px;
+      line-height: 1.1;
+      color: #f2f7ff;
+      min-height: 34px;
     }
 
-    .footer{
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-      padding:4px 0 16px;
+    .control-state {
+      font-size: 13px;
+      color: #c8def5;
+      min-height: 16px;
+      margin-top: 2px;
+      font-weight: 700;
     }
 
-    @media (max-width:680px){
-      h1{ font-size:26px; }
-      .statusbar{ grid-template-columns:1fr; }
-      .grid2{ grid-template-columns:1fr 1fr; }
-      .grid3{ grid-template-columns:1fr 1fr 1fr; }
-      button{
-        font-size:14px;
-        padding:8px 6px;
-        min-height:44px;
+    .status-strip {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .status-box {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(170,210,255,.16);
+      border-radius: 14px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .status-k {
+      font-size: 12px;
+      color: #bcd6ef;
+      margin-bottom: 4px;
+    }
+
+    .status-v {
+      font-size: 17px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-top: 28px;
+      color: rgba(255,255,255,.96);
+    }
+
+    .logo-main {
+      font-size: 54px;
+      letter-spacing: 1px;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .logo-sub {
+      font-size: 18px;
+      letter-spacing: 8px;
+      margin-top: 6px;
+      text-transform: lowercase;
+    }
+
+    .info-btn {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.2);
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255,255,255,.28), transparent 30%),
+        linear-gradient(180deg, #4ea2ff 0%, #1954a6 100%);
+      color: #fff;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px rgba(60,130,255,.35);
+    }
+
+    .message-box {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(170,210,255,.12);
+      color: #e8f3ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      min-height: 48px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 390px) {
+      .controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 70px;
       }
-      .statusvalue{ font-size:17px; }
+      .center-panel {
+        width: calc(100% - 28px);
+        min-height: 560px;
+      }
+      .home-temp {
+        font-size: 54px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <h1>Platinum Lech Spa</h1>
-      <p class="sub">Jednoduché webové ovládanie vírivky</p>
+  <div class="app bubble-bg">
+    <div class="topbar">
+      <button class="nav-btn" onclick="showScreen('controls')">Controls</button>
+      <div class="title" id="mainTitle">Home</div>
+      <button class="nav-btn" onclick="showSettingsNote()">Settings</button>
     </div>
 
-    <div class="card">
-      <div class="title">Stav vírivky</div>
+    <div id="homeScreen" class="screen active">
+      <div class="cloud-icon">☁</div>
 
-      <div class="statusbar">
-        <div class="statusbox">
-          <div class="statuslabel">Pripojenie</div>
-          <div class="statusvalue" id="connectionState">Pripravené</div>
-        </div>
-        <div class="statusbox">
-          <div class="statuslabel">Aktuálny stav</div>
-          <div class="statusvalue" id="summaryState">Bez údajov</div>
-        </div>
-        <div class="statusbox">
-          <div class="statuslabel">Teplota vody</div>
-          <div class="statusvalue" id="waterTemp">-</div>
-        </div>
-        <div class="statusbox">
-          <div class="statuslabel">Nastavená teplota</div>
-          <div class="statusvalue" id="setTemp">-</div>
-        </div>
-        <div class="statusbox">
-          <div class="statuslabel">Čas</div>
-          <div class="statusvalue" id="spaTime">-</div>
-        </div>
-        <div class="statusbox">
-          <div class="statuslabel">Kúrenie / rozsah</div>
-          <div class="statusvalue" id="heatInfo">-</div>
-        </div>
-      </div>
+      <div class="center-panel">
+        <div class="top-mini-info hidden" id="spaClockMini"></div>
+        <div class="home-temp" id="homeTemp">--.-°C</div>
+        <div class="swirl">🌀</div>
+        <div class="home-mode" id="homeMode">Ready</div>
+        <div class="home-range" id="homeRange">Low Range</div>
 
-      <div class="badge-row">
-        <div class="badge ok">● Zákaznícka verzia</div>
-        <div class="badge">Automatická aktualizácia stavov</div>
+        <div class="logo-wrap" style="margin-top:120px;">
+          <div class="logo-main">BALBOA</div>
+          <div class="logo-sub">water group</div>
+        </div>
+
+        <div class="info-btn">i</div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="title">Čerpadlá</div>
-      <div class="grid3">
-        <div class="ctrl">
-          <button id="btn-pump1" class="state-off" onclick="sendButton(4, 'Pumpa 1')">Pumpa 1</button>
-          <div class="state-label" id="lbl-pump1">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-pump2" class="state-off" onclick="sendButton(5, 'Pumpa 2')">Pumpa 2</button>
-          <div class="state-label" id="lbl-pump2">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-pump3" class="state-off" onclick="sendButton(6, 'Pumpa 3')">Pumpa 3</button>
-          <div class="state-label" id="lbl-pump3">OFF</div>
-        </div>
-      </div>
-      <div class="grid3" style="margin-top:8px;">
-        <div class="ctrl">
-          <button id="btn-pump4" class="state-off" onclick="sendButton(7, 'Pumpa 4')">Pumpa 4</button>
-          <div class="state-label" id="lbl-pump4">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-pump5" class="state-off" onclick="sendButton(8, 'Pumpa 5')">Pumpa 5</button>
-          <div class="state-label" id="lbl-pump5">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-pump6" class="state-off" onclick="sendButton(9, 'Pumpa 6')">Pumpa 6</button>
-          <div class="state-label" id="lbl-pump6">OFF</div>
-        </div>
-      </div>
-    </div>
+    <div id="controlsScreen" class="screen">
+      <div class="center-panel">
+        <div class="controls-title">Controls</div>
 
-    <div class="card">
-      <div class="title">Osvetlenie a príslušenstvo</div>
-      <div class="grid3">
-        <div class="ctrl">
-          <button id="btn-light1" class="state-off" onclick="sendButton(17, 'Svetlo 1')">Svetlo 1</button>
-          <div class="state-label" id="lbl-light1">OFF</div>
+        <div class="controls-grid">
+          <div class="control-item">
+            <button id="btn-circpump" class="circle-btn off" onclick="sendButton(3,'Circ Pump')">🌀</button>
+            <div class="control-label">Circ Pump</div>
+            <div class="control-state" id="lbl-circpump">OFF</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump1" class="circle-btn off" onclick="sendButton(4,'Pump 1')">🌀</button>
+            <div class="control-label">Pump 1</div>
+            <div class="control-state" id="lbl-pump1">OFF</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump2" class="circle-btn off" onclick="sendButton(5,'Pump 2')">🌀</button>
+            <div class="control-label">Pump 2</div>
+            <div class="control-state" id="lbl-pump2">OFF</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump3" class="circle-btn off" onclick="sendButton(6,'Pump 3')">🌀</button>
+            <div class="control-label">Pump 3</div>
+            <div class="control-state" id="lbl-pump3">OFF</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-blower" class="circle-btn off" onclick="sendButton(12,'Blower')">◌</button>
+            <div class="control-label">Blower</div>
+            <div class="control-state" id="lbl-blower">OFF</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-light1" class="circle-btn light off" onclick="sendButton(17,'Light 1')">☼</button>
+            <div class="control-label">Light 1</div>
+            <div class="control-state" id="lbl-light1">OFF</div>
+          </div>
         </div>
-        <div class="ctrl">
-          <button id="btn-light2" class="state-off" onclick="sendButton(18, 'Svetlo 2')">Svetlo 2</button>
-          <div class="state-label" id="lbl-light2">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-blower" class="state-off" onclick="sendButton(12, 'Blower')">Blower</button>
-          <div class="state-label" id="lbl-blower">OFF</div>
-        </div>
-      </div>
-      <div class="grid3" style="margin-top:8px;">
-        <div class="ctrl">
-          <button id="btn-mister" class="state-off" onclick="sendButton(14, 'Mister')">Mister</button>
-          <div class="state-label" id="lbl-mister">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-aux1" class="state-off" onclick="sendButton(22, 'Aux 1')">Aux 1</button>
-          <div class="state-label" id="lbl-aux1">OFF</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-aux2" class="state-off" onclick="sendButton(23, 'Aux 2')">Aux 2</button>
-          <div class="state-label" id="lbl-aux2">OFF</div>
+
+        <div class="logo-wrap" style="margin-top:84px;">
+          <div class="logo-main">BALBOA</div>
+          <div class="logo-sub">water group</div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="title">Nastavenia</div>
-      <div class="grid2">
-        <div class="ctrl">
-          <button id="btn-range" class="state-off" onclick="sendButton(80, 'Rozsah teploty')">Rozsah teploty</button>
-          <div class="state-label" id="lbl-range">-</div>
-        </div>
-        <div class="ctrl">
-          <button id="btn-heatmode" class="state-off" onclick="sendButton(81, 'Režim kúrenia')">Režim kúrenia</button>
-          <div class="state-label" id="lbl-heatmode">-</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="title">Správa</div>
-      <div class="info" id="messageBox">Vitajte. Ovládanie je pripravené.</div>
-    </div>
-
-    <div class="footer">Platinum Lech Spa · zákaznícka verzia</div>
+    <div class="message-box" id="messageBox">Vitajte. Ovládanie je pripravené.</div>
   </div>
 
   <script>
@@ -367,42 +425,42 @@
       document.getElementById("messageBox").textContent = text;
     }
 
-    function setConnection(text) {
-      document.getElementById("connectionState").textContent = text;
+    function showScreen(name) {
+      document.getElementById("homeScreen").classList.remove("active");
+      document.getElementById("controlsScreen").classList.remove("active");
+
+      if (name === "home") {
+        document.getElementById("homeScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Home";
+      } else {
+        document.getElementById("controlsScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Controls";
+      }
     }
 
-    function setText(id, text) {
-      const el = document.getElementById(id);
-      if (el) el.textContent = text;
+    function showSettingsNote() {
+      setMessage("Settings pripravím v ďalšom kroku presne podľa appky.");
     }
 
-    function setButtonState(id, state) {
-      const btn = document.getElementById(id);
-      if (!btn) return;
-      btn.classList.remove("state-off", "state-on", "state-low", "state-med", "state-high");
-      btn.classList.add("state-" + state);
-    }
-
-    function setCtrl(btnId, lblId, stateClass, label) {
-      setButtonState(btnId, stateClass);
-      setText(lblId, label);
-    }
-
-    async function fetchText(url) {
-      const resp = await fetch(url, { method: "GET" });
-      const text = await resp.text();
-      return { resp, text };
+    function setCtrlState(btnId, lblId, css, label) {
+      const btn = document.getElementById(btnId);
+      const lbl = document.getElementById(lblId);
+      if (!btn || !lbl) return;
+      btn.classList.remove("off", "on", "low", "med", "high");
+      btn.classList.add(css);
+      lbl.textContent = label;
     }
 
     async function fetchJson(url) {
-      const { resp, text } = await fetchText(url);
+      const resp = await fetch(url, { method: "GET" });
+      const text = await resp.text();
       let data = null;
       try {
         data = JSON.parse(text);
       } catch (e) {
         data = { raw: text };
       }
-      return { resp, data, raw: text };
+      return { resp, data };
     }
 
     function hexToBytes(hex) {
@@ -418,14 +476,14 @@
       return String(n).padStart(2, "0");
     }
 
-    function pumpStateFromMasked(value, lowMask, highMask) {
-      if (value === 0) return { cls: "off", label: "OFF" };
-      if (value === lowMask) return { cls: "low", label: "LOW" };
-      if (value === highMask) return { cls: "high", label: "HIGH" };
-      return { cls: "on", label: "ON" };
+    function pumpState(masked, lowMask, highMask) {
+      if (masked === 0) return { css: "off", label: "OFF" };
+      if (masked === lowMask) return { css: "low", label: "LOW" };
+      if (masked === highMask) return { css: "high", label: "HIGH" };
+      return { css: "on", label: "ON" };
     }
 
-    function parsePanelUpdate(hex) {
+    function parsePanel(hex) {
       const p = hexToBytes(hex);
       if (p.length < 26) return null;
 
@@ -436,83 +494,57 @@
       const tempRangeRaw = p[15] & 0x04;
       const setTemp = p[25];
 
-      const pump1 = pumpStateFromMasked(p[16] & 0x03, 0x01, 0x02);
-      const pump2 = pumpStateFromMasked(p[16] & 0x0C, 0x04, 0x08);
-      const pump3 = pumpStateFromMasked(p[16] & 0x30, 0x10, 0x20);
-      const pump4 = pumpStateFromMasked(p[16] & 0xC0, 0x40, 0x80);
-      const pump5 = pumpStateFromMasked(p[17] & 0x03, 0x01, 0x02);
-      const pump6 = pumpStateFromMasked(p[17] & 0x0C, 0x04, 0x08);
+      const pump1 = pumpState(p[16] & 0x03, 0x01, 0x02);
+      const pump2 = pumpState(p[16] & 0x0C, 0x04, 0x08);
+      const pump3 = pumpState(p[16] & 0x30, 0x10, 0x20);
+      const circPump = pumpState(p[16] & 0x03, 0x01, 0x02);
 
-      const blowerRaw = p[18] & 0x0C;
-      let blower = { cls: "off", label: "OFF" };
-      if (blowerRaw === 0x04) blower = { cls: "low", label: "LOW" };
-      else if (blowerRaw === 0x08) blower = { cls: "med", label: "MED" };
-      else if (blowerRaw === 0x0C) blower = { cls: "high", label: "HIGH" };
+      const blowerMasked = p[18] & 0x0C;
+      let blower = { css: "off", label: "OFF" };
+      if (blowerMasked === 0x04) blower = { css: "low", label: "LOW" };
+      else if (blowerMasked === 0x08) blower = { css: "med", label: "MED" };
+      else if (blowerMasked === 0x0C) blower = { css: "high", label: "HIGH" };
 
       const light1On = (p[19] & 0x03) !== 0;
-      const light2On = (p[19] & 0x0C) !== 0;
-      const misterOn = (p[20] & 0x01) !== 0;
-      const aux1On = (p[20] & 0x08) !== 0;
-      const aux2On = (p[20] & 0x10) !== 0;
 
-      let heatModeLabel = "READY";
-      if (heatModeRaw === 1) heatModeLabel = "REST";
-      else if (heatModeRaw === 2) heatModeLabel = "READY IN REST";
+      let heatMode = "Ready";
+      if (heatModeRaw === 1) heatMode = "Rest";
+      else if (heatModeRaw === 2) heatMode = "Ready in Rest";
 
-      const tempRangeLabel = tempRangeRaw === 0x04 ? "HIGH" : "LOW";
+      const tempRange = tempRangeRaw === 0x04 ? "High Range" : "Low Range";
 
       return {
         tempNow,
         setTemp,
         time: pad2(hour) + ":" + pad2(minute),
-        heatModeLabel,
-        tempRangeLabel,
-        pump1, pump2, pump3, pump4, pump5, pump6,
+        heatMode,
+        tempRange,
+        circPump,
+        pump1,
+        pump2,
+        pump3,
         blower,
-        light1On, light2On,
-        misterOn, aux1On, aux2On
+        light1On
       };
     }
 
-    function applyPanelState(parsed) {
-      setText("waterTemp", parsed.tempNow + " °");
-      setText("setTemp", parsed.setTemp + " °");
-      setText("spaTime", parsed.time);
-      setText("heatInfo", parsed.heatModeLabel + " / " + parsed.tempRangeLabel);
-      setText("summaryState", "Aktualizované");
-
-      setCtrl("btn-pump1", "lbl-pump1", parsed.pump1.cls, parsed.pump1.label);
-      setCtrl("btn-pump2", "lbl-pump2", parsed.pump2.cls, parsed.pump2.label);
-      setCtrl("btn-pump3", "lbl-pump3", parsed.pump3.cls, parsed.pump3.label);
-      setCtrl("btn-pump4", "lbl-pump4", parsed.pump4.cls, parsed.pump4.label);
-      setCtrl("btn-pump5", "lbl-pump5", parsed.pump5.cls, parsed.pump5.label);
-      setCtrl("btn-pump6", "lbl-pump6", parsed.pump6.cls, parsed.pump6.label);
-
-      setCtrl("btn-blower", "lbl-blower", parsed.blower.cls, parsed.blower.label);
-
-      setCtrl("btn-light1", "lbl-light1", parsed.light1On ? "on" : "off", parsed.light1On ? "ON" : "OFF");
-      setCtrl("btn-light2", "lbl-light2", parsed.light2On ? "on" : "off", parsed.light2On ? "ON" : "OFF");
-      setCtrl("btn-mister", "lbl-mister", parsed.misterOn ? "on" : "off", parsed.misterOn ? "ON" : "OFF");
-      setCtrl("btn-aux1", "lbl-aux1", parsed.aux1On ? "on" : "off", parsed.aux1On ? "ON" : "OFF");
-      setCtrl("btn-aux2", "lbl-aux2", parsed.aux2On ? "on" : "off", parsed.aux2On ? "ON" : "OFF");
-
-      setCtrl("btn-range", "lbl-range", tempRangeToClass(parsed.tempRangeLabel), parsed.tempRangeLabel);
-      setCtrl("btn-heatmode", "lbl-heatmode", heatModeToClass(parsed.heatModeLabel), parsed.heatModeLabel);
+    function applyHomeState(s) {
+      document.getElementById("homeTemp").textContent = s.tempNow + "." + "0°C";
+      document.getElementById("homeMode").textContent = s.heatMode;
+      document.getElementById("homeRange").textContent = s.tempRange;
     }
 
-    function tempRangeToClass(label) {
-      return label === "HIGH" ? "high" : "low";
-    }
-
-    function heatModeToClass(label) {
-      if (label === "REST") return "med";
-      if (label === "READY IN REST") return "high";
-      return "on";
+    function applyControlsState(s) {
+      setCtrlState("btn-circpump", "lbl-circpump", s.circPump.css, s.circPump.label);
+      setCtrlState("btn-pump1", "lbl-pump1", s.pump1.css, s.pump1.label);
+      setCtrlState("btn-pump2", "lbl-pump2", s.pump2.css, s.pump2.label);
+      setCtrlState("btn-pump3", "lbl-pump3", s.pump3.css, s.pump3.label);
+      setCtrlState("btn-blower", "lbl-blower", s.blower.css, s.blower.label);
+      setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
     }
 
     async function loadPanelUpdate() {
       try {
-        setMessage("Načítavam aktuálny stav vírivky...");
         const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
 
         if (!resp.ok) {
@@ -520,18 +552,16 @@
           return;
         }
 
-        setConnection("Online");
-
-        const parsed = parsePanelUpdate(data.hex || "");
+        const parsed = parsePanel(data.hex || "");
         if (!parsed) {
-          setMessage("Stav sa načítal, ale nepodarilo sa ho rozparsovať.");
+          setMessage("Nepodarilo sa rozpoznať stav z PanelUpdate.");
           return;
         }
 
-        applyPanelState(parsed);
-        setMessage("Stav vírivky bol úspešne aktualizovaný.");
+        applyHomeState(parsed);
+        applyControlsState(parsed);
+        setMessage("Stav vírivky bol aktualizovaný.");
       } catch (e) {
-        setConnection("Offline");
         setMessage("Chyba pri načítaní stavu: " + e.message);
       }
     }
@@ -541,28 +571,22 @@
         setMessage("Odosielam príkaz: " + name + " ...");
         const { resp, data } = await fetchJson(WORKER_URL + "/button?code=" + encodeURIComponent(code));
 
-        if (resp.ok) {
-          setConnection("Online");
-          const txt = (data && data.response) ? data.response : "";
-          const ok = txt.includes("Command received") || txt.includes('status="0"');
-
-          if (ok) {
-            setMessage("Príkaz bol prijatý: " + name + ". Aktualizujem stav...");
-          } else {
-            setMessage("Príkaz bol odoslaný: " + name + ". Aktualizujem stav...");
-          }
-
-          setTimeout(loadPanelUpdate, 1100);
-        } else {
+        if (!resp.ok) {
           setMessage("Príkaz zlyhal: " + name + ". HTTP status: " + resp.status);
+          return;
         }
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+        setMessage((ok ? "Príkaz prijatý: " : "Príkaz odoslaný: ") + name + ". Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1200);
       } catch (e) {
-        setConnection("Offline");
         setMessage("Chyba pri odoslaní príkazu " + name + ": " + e.message);
       }
     }
 
     loadPanelUpdate();
+    setInterval(loadPanelUpdate, 15000);
   </script>
 </body>
 </html>
