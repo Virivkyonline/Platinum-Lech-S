@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="sk">
 <head>
   <meta charset="UTF-8" />
@@ -506,12 +506,12 @@
       const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
       const pump1On = (byte15 & 0x02) !== 0;
 
-      // Pumpa 2 zatiaľ ponechaná podľa doterajšieho testu
-      const pump2On = false;
+      // Pumpa 2 znovu zapojená
+      const pump2On = (byte14 & 0x40) !== 0 || (byte17 & 0x01) !== 0;
 
       const pump3On = (byte15 & 0x20) !== 0;
 
-      // Blower = oproti obehu pribudnú bity 0x04 a 0x08 v byte17
+      // Blower potvrdený z reálnych testov
       const blowerOn = (byte17 & 0x04) !== 0 || (byte17 & 0x08) !== 0;
 
       const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
@@ -548,9 +548,7 @@
     function applyControlsState(s) {
       setCtrlState("btn-circpump", "lbl-circpump", s.circPumpOn ? "on" : "off", s.circPumpOn ? "ON" : "OFF");
       setCtrlState("btn-pump1", "lbl-pump1", s.pump1On ? "on" : "off", s.pump1On ? "ON" : "OFF");
-
-      setUnknown("btn-pump2", "lbl-pump2");
-
+      setCtrlState("btn-pump2", "lbl-pump2", s.pump2On ? "on" : "off", s.pump2On ? "ON" : "OFF");
       setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
       setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
