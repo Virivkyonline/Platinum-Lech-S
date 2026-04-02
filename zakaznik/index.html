@@ -202,33 +202,44 @@
     .circle-btn.on,
     .circle-btn.low {
       background:
-        radial-gradient(circle at 30% 28%, rgba(255,255,255,.28), transparent 28%),
-        linear-gradient(180deg, #777777 0%, #222 45%, #0a0a0a 100%);
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.40), transparent 28%),
+        linear-gradient(180deg, #8b8b8b 0%, #2a2a2a 45%, #050505 100%);
       box-shadow:
-        inset 0 0 10px rgba(130,210,255,.55),
-        0 0 16px rgba(85,170,255,.28);
+        inset 0 0 18px rgba(120,220,255,.95),
+        0 0 10px rgba(100,190,255,.75),
+        0 0 22px rgba(90,180,255,.85),
+        0 0 38px rgba(70,165,255,.75);
+      color: #ffffff;
     }
 
     .circle-btn.high {
       background:
-        radial-gradient(circle at 30% 28%, rgba(255,255,255,.35), transparent 28%),
-        linear-gradient(180deg, #6f6f6f 0%, #1d1d1d 45%, #060606 100%);
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.42), transparent 28%),
+        linear-gradient(180deg, #7d7d7d 0%, #202020 45%, #040404 100%);
       box-shadow:
-        inset 0 0 12px rgba(110,255,185,.7),
-        0 0 18px rgba(40,220,150,.38);
+        inset 0 0 18px rgba(120,255,185,.98),
+        0 0 12px rgba(80,240,160,.8),
+        0 0 26px rgba(60,220,145,.95),
+        0 0 42px rgba(45,200,130,.85);
+      color: #ffffff;
     }
 
     .circle-btn.med {
       box-shadow:
-        inset 0 0 11px rgba(255,220,120,.58),
-        0 0 16px rgba(255,200,70,.28);
+        inset 0 0 16px rgba(255,225,120,.92),
+        0 0 10px rgba(255,210,90,.7),
+        0 0 24px rgba(255,196,55,.82),
+        0 0 38px rgba(255,180,35,.68);
+      color: #fff7d1;
     }
 
     .circle-btn.light.on {
       box-shadow:
-        inset 0 0 16px rgba(170,220,255,.85),
-        0 0 18px rgba(110,190,255,.45);
-      color: #eef9ff;
+        inset 0 0 22px rgba(190,235,255,1),
+        0 0 12px rgba(135,210,255,.88),
+        0 0 28px rgba(110,190,255,.95),
+        0 0 42px rgba(90,170,255,.82);
+      color: #ffffff;
     }
 
     .control-label {
@@ -240,10 +251,11 @@
 
     .control-state {
       font-size: 12px;
-      color: #c8def5;
+      color: #ffffff;
       min-height: 16px;
       margin-top: 2px;
       font-weight: 700;
+      text-shadow: 0 0 8px rgba(120,200,255,.6);
     }
 
     .logo-wrap {
@@ -530,10 +542,11 @@
 
       const circPumpOn = (((p[15] ?? 0) & 0x10) !== 0);
       const pump1On = ((((p[14] ?? 0) & 0x80) !== 0) || (((p[17] ?? 0) & 0x02) !== 0));
-      const pump2On = ((((p[14] ?? 0) & 0x40) !== 0) || (((p[17] ?? 0) & 0x01) !== 0));
+
+      const pump2On = ((((p[17] ?? 0) & 0x04) !== 0) || (((p[15] ?? 0) & 0x08) !== 0));
       const pump3On = (((p[15] ?? 0) & 0x20) !== 0);
 
-      const blowerOn = ((((p[17] ?? 0) & 0x04) !== 0) || (((p[15] ?? 0) & 0x08) !== 0));
+      const blowerOn = ((((p[14] ?? 0) & 0x40) !== 0) || (((p[17] ?? 0) & 0x01) !== 0));
       const light1On = ((((p[18] ?? 0) & 0x03) !== 0) || (((p[19] ?? 0) & 0x01) !== 0));
 
       return {
