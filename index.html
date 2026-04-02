@@ -1,30 +1,116 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Balboa Old Cloud Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balboa old cloud test</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background:#f5f5f5; color:#222; }
-    .box { background:#fff; padding:16px; border-radius:12px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    input, button, textarea, select { width:100%; padding:10px; margin-top:8px; margin-bottom:12px; box-sizing:border-box; }
-    button { cursor:pointer; }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    textarea { min-height:260px; font-family:monospace; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin: 0 0 24px 0;
+    }
+
+    .card {
+      background: #1b1b1f;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    label {
+      display: block;
+      font-size: 18px;
+      margin: 0 0 8px 0;
+    }
+
+    input, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background: #3a3a3f;
+      color: #fff;
+      border: 1px solid #666;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 16px;
+      margin-bottom: 18px;
+    }
+
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .row-1 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      width: 100%;
+      background: #777;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 18px 12px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #8b8b8b;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #bbb;
+      margin-top: -8px;
+      margin-bottom: 16px;
+    }
+
+    .ok {
+      color: #7CFC8A;
+    }
+
+    .err {
+      color: #FF8A8A;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #101014;
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-  <h1>Balboa old cloud test</h1>
+  <h1>Balboa old cloud web</h1>
 
-  <div class="box">
-    <label>Device Identifier</label>
-    <input id="deviceId" placeholder="Sem vlož device identifier" />
-
-    <label>Cloud username</label>
-    <input id="username" value="BalboaWaterAndroidApp" />
-
-    <label>Cloud password</label>
-    <input id="password" value="SW2Bra7a!" />
+  <div class="card">
+    <label for="workerUrl">Worker URL</label>
+    <input id="workerUrl" type="text" value="https://balboa-proxy-worker.lechstav.workers.dev">
+    <div class="small">Tu nechaj adresu tvojho Cloudflare workeru.</div>
 
     <div class="row">
       <button onclick="loadPanelUpdate()">Načítať PanelUpdate.txt</button>
@@ -32,130 +118,93 @@
     </div>
 
     <div class="row">
-      <button onclick="sendTarget('Pump1')">Pump1</button>
-      <button onclick="sendTarget('Light1')">Light1</button>
+      <button onclick="clearOutput()">Vymazať výstup</button>
+      <button onclick="testWorker()">Test workeru</button>
     </div>
-
-    <div class="row">
-      <button onclick="sendTarget('Blower')">Blower</button>
-      <button onclick="sendTarget('HeatMode')">HeatMode</button>
-    </div>
-
-    <label>Vlastný target_name</label>
-    <input id="customTarget" placeholder="napr. Pump2" />
-    <button onclick="sendCustom()">Poslať vlastný príkaz</button>
   </div>
 
-  <div class="box">
-    <label>Log / odpoveď</label>
-    <textarea id="log"></textarea>
+  <div class="card">
+    <label for="statusBox">Stav / odpoveď</label>
+    <textarea id="statusBox" readonly></textarea>
+  </div>
+
+  <div class="card">
+    <label>Krátky log</label>
+    <pre id="logBox">Pripravené.</pre>
   </div>
 
   <script>
-    const SCI_URL = "http://my.idigi.com/ws/sci";
-    const DATA_URL = "https://my.idigi.com/ws/data/~/";
-    const DEVICECORE_URL = "https://my.idigi.com/ws/DeviceCore";
-
-    function log(msg) {
-      const el = document.getElementById("log");
-      el.value += msg + "\n\n";
-      el.scrollTop = el.scrollHeight;
+    function getWorkerUrl() {
+      return document.getElementById("workerUrl").value.trim().replace(/\/+$/, "");
     }
 
-    function getCreds() {
+    function setStatus(text) {
+      document.getElementById("statusBox").value = text;
+    }
+
+    function appendLog(text, ok) {
+      const box = document.getElementById("logBox");
+      const now = new Date().toLocaleTimeString();
+      const prefix = ok === true ? "[OK]" : ok === false ? "[CHYBA]" : "[INFO]";
+      box.textContent = now + " " + prefix + " " + text + "\n\n" + box.textContent;
+    }
+
+    function clearOutput() {
+      setStatus("");
+      document.getElementById("logBox").textContent = "Vymazané.";
+    }
+
+    async function fetchText(path) {
+      const base = getWorkerUrl();
+      const url = base + path;
+
+      appendLog("Volám: " + url, null);
+
+      const resp = await fetch(url, {
+        method: "GET"
+      });
+
+      const text = await resp.text();
+
+      appendLog("HTTP status: " + resp.status, resp.ok);
+
       return {
-        deviceId: document.getElementById("deviceId").value.trim(),
-        username: document.getElementById("username").value.trim(),
-        password: document.getElementById("password").value.trim()
+        ok: resp.ok,
+        status: resp.status,
+        text: text
       };
     }
 
-    function authHeader(username, password) {
-      return "Basic " + btoa(username + ":" + password);
+    async function testWorker() {
+      try {
+        const result = await fetchText("");
+        setStatus(result.text);
+      } catch (e) {
+        setStatus("CHYBA: " + e.message);
+        appendLog("Worker test zlyhal: " + e.message, false);
+      }
     }
 
     async function loadPanelUpdate() {
-      const { deviceId, username, password } = getCreds();
-      const url = DATA_URL + deviceId + "/PanelUpdate.txt";
-      log("GET " + url);
-
       try {
-        const res = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Authorization": authHeader(username, password)
-          }
-        });
-        const text = await res.text();
-        log("STATUS: " + res.status);
-        log(text);
+        setStatus("Načítavam PanelUpdate.txt ...");
+        const result = await fetchText("/panelupdate");
+        setStatus(result.text);
       } catch (e) {
-        log("CHYBA: " + e.message);
+        setStatus("CHYBA: " + e.message);
+        appendLog("PanelUpdate zlyhal: " + e.message, false);
       }
     }
 
     async function loadDeviceConfig() {
-      const { deviceId, username, password } = getCreds();
-      const url = DATA_URL + deviceId + "/DeviceConfiguration.txt";
-      log("GET " + url);
-
       try {
-        const res = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Authorization": authHeader(username, password)
-          }
-        });
-        const text = await res.text();
-        log("STATUS: " + res.status);
-        log(text);
+        setStatus("Načítavam DeviceConfiguration.txt ...");
+        const result = await fetchText("/deviceconfig");
+        setStatus(result.text);
       } catch (e) {
-        log("CHYBA: " + e.message);
+        setStatus("CHYBA: " + e.message);
+        appendLog("DeviceConfiguration zlyhal: " + e.message, false);
       }
-    }
-
-    async function sendTarget(targetName) {
-      const { deviceId, username, password } = getCreds();
-
-      const xml =
-`<sci_request version="1.0">
-  <send_message cache="false">
-    <targets>
-      <device id="${deviceId}"/>
-    </targets>
-    <rci_request version="1.1">
-      <do_command target_name="${targetName}"/>
-    </rci_request>
-  </send_message>
-</sci_request>`;
-
-      log("POST " + SCI_URL);
-      log(xml);
-
-      try {
-        const res = await fetch(SCI_URL, {
-          method: "POST",
-          headers: {
-            "Authorization": authHeader(username, password),
-            "Content-Type": "text/xml"
-          },
-          body: xml
-        });
-        const text = await res.text();
-        log("STATUS: " + res.status);
-        log(text);
-      } catch (e) {
-        log("CHYBA: " + e.message);
-      }
-    }
-
-    function sendCustom() {
-      const t = document.getElementById("customTarget").value.trim();
-      if (!t) {
-        log("Zadaj target_name.");
-        return;
-      }
-      sendTarget(t);
     }
   </script>
 </body>
