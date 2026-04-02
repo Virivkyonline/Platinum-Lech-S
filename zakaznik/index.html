@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 <head>
   <meta charset="UTF-8" />
@@ -506,12 +506,11 @@
       const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
       const pump1On = (byte15 & 0x02) !== 0;
 
-      // Pumpa 2 znovu zapojená
-      const pump2On = (byte14 & 0x40) !== 0 || (byte17 & 0x01) !== 0;
+      // Pumpa 2 podľa porovnania OFF vs Pumpa2+obeh
+      const pump2On = (byte15 & 0x08) !== 0;
 
       const pump3On = (byte15 & 0x20) !== 0;
 
-      // Blower potvrdený z reálnych testov
       const blowerOn = (byte17 & 0x04) !== 0 || (byte17 & 0x08) !== 0;
 
       const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
