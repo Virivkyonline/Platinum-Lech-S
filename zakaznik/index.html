@@ -482,14 +482,14 @@
 
     function parsePanel(hex) {
       const p = hexToBytes(hex);
-      if (p.length < 24) return null;
+      if (p.length < 25) return null;
 
       const tempNow = (p[6] ?? 0) / 2;
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
       const heatModeRaw = p[10] ?? 0;
       const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
-      const setTemp = (p[23] ?? 0) / 2;
+      const setTemp = (p[24] ?? p[23] ?? 0) / 2;
 
       let heatMode = "Ready";
       if (heatModeRaw === 1) heatMode = "Rest";
@@ -505,7 +505,7 @@
 
       const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
       const pump1On = (byte15 & 0x02) !== 0;
-      const pump2On = (byte14 & 0x40) !== 0 || (byte17 & 0x01) !== 0;
+      const pump2On = (byte15 & 0x08) !== 0 || (byte17 & 0x04) !== 0;
       const pump3On = (byte15 & 0x20) !== 0;
       const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
 
