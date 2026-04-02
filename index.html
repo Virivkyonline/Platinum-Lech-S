@@ -47,13 +47,14 @@
       align-items: center;
       justify-content: space-between;
       padding: 14px 10px 10px;
+      gap: 8px;
     }
 
     .nav-btn {
-      min-width: 88px;
-      height: 38px;
+      min-width: 92px;
+      height: 40px;
       border: 1px solid rgba(170,210,255,.55);
-      border-radius: 8px;
+      border-radius: 10px;
       background: linear-gradient(180deg, rgba(173,213,255,.95), rgba(96,149,224,.95));
       color: #eef7ff;
       font-size: 16px;
@@ -66,7 +67,7 @@
       font-weight: 400;
       text-align: center;
       flex: 1;
-      margin: 0 10px;
+      margin: 0;
       color: #f3f8ff;
     }
 
@@ -134,21 +135,18 @@
       margin-left: 18px;
     }
 
-    .home-time {
-      text-align: center;
-      font-size: 18px;
-      color: #cde5ff;
-      margin-top: 20px;
-    }
-
+    .home-time,
     .home-settemp {
       text-align: center;
       font-size: 18px;
       color: #cde5ff;
-      margin-top: 8px;
     }
 
-    .controls-title {
+    .home-time { margin-top: 20px; }
+    .home-settemp { margin-top: 8px; }
+
+    .controls-title,
+    .settings-title {
       text-align: center;
       font-size: 26px;
       margin-top: -4px;
@@ -236,6 +234,104 @@
       text-shadow: 0 0 10px rgba(120,255,185,.9);
     }
 
+    .settings-block {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(170,210,255,.18);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .settings-label {
+      font-size: 17px;
+      margin-bottom: 10px;
+      color: #f3f8ff;
+    }
+
+    .settings-value {
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-min,
+    .slider-max {
+      width: 44px;
+      text-align: center;
+      color: #cde5ff;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: #74d4ff;
+    }
+
+    .settings-btn,
+    .settings-btn-small,
+    .settings-btn-wide {
+      border: 1px solid rgba(170,210,255,.28);
+      border-radius: 14px;
+      color: #eef7ff;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(173,213,255,.20), rgba(96,149,224,.18));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .settings-btn {
+      min-height: 44px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+    }
+
+    .settings-btn-small {
+      min-width: 70px;
+      min-height: 42px;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .settings-btn-wide {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .settings-btn.active,
+    .settings-btn-small.active,
+    .settings-btn-wide.active {
+      background: linear-gradient(180deg, rgba(120,255,185,.38), rgba(55,175,115,.28));
+      box-shadow:
+        inset 0 0 16px rgba(120,255,185,.42),
+        0 0 18px rgba(60,220,145,.20);
+      border-color: rgba(120,255,185,.55);
+      color: #ffffff;
+    }
+
+    .btn-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
     .logo-wrap {
       text-align: center;
       margin-top: 28px;
@@ -279,6 +375,9 @@
       .home-temp {
         font-size: 54px;
       }
+      .btn-grid-3 {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -286,8 +385,8 @@
   <div class="app bubble-bg">
     <div class="topbar">
       <button class="nav-btn" onclick="showScreen('controls')">Ovládanie</button>
-      <div class="title" id="mainTitle">Domov</div>
-      <button class="nav-btn" onclick="showSettingsNote()">Nastavenia</button>
+      <h1 class="title" id="mainTitle">Domov</h1>
+      <button class="nav-btn" onclick="showScreen('settings')">Nastavenia</button>
     </div>
 
     <div id="homeScreen" class="screen active">
@@ -392,13 +491,13 @@
           </div>
 
           <div class="control-item">
-            <button id="btn-range" class="circle-btn off" onclick="sendButton(80,'Rozsah teploty')">R</button>
+            <button id="btn-range" class="circle-btn off" onclick="sendRangeButton()">R</button>
             <div class="control-label">Rozsah</div>
             <div class="control-state" id="lbl-range">-</div>
           </div>
 
           <div class="control-item">
-            <button id="btn-heatmode" class="circle-btn off" onclick="sendButton(81,'Režim kúrenia')">H</button>
+            <button id="btn-heatmode" class="circle-btn off" onclick="sendHeatModeButton()">H</button>
             <div class="control-label">Kúrenie</div>
             <div class="control-state" id="lbl-heatmode">-</div>
           </div>
@@ -411,11 +510,77 @@
       </div>
     </div>
 
+    <div id="settingsScreen" class="screen">
+      <div class="center-panel">
+        <div class="settings-title">Nastavenia</div>
+
+        <div class="settings-block">
+          <div class="settings-label">Nastavená teplota</div>
+          <div class="settings-value" id="settingsTempValue">--.-°C</div>
+          <div class="slider-row">
+            <div class="slider-min" id="tempMinLabel">26</div>
+            <input type="range" id="tempSlider" min="26" max="40" step="0.5" value="34" />
+            <div class="slider-max" id="tempMaxLabel">40</div>
+          </div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveSetTemp()">Uložiť teplotu</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Jednotky teploty</div>
+          <div class="btn-grid-2">
+            <button id="unitCBtn" class="settings-btn-small" onclick="setTempUnits('C')">°C</button>
+            <button id="unitFBtn" class="settings-btn-small" onclick="setTempUnits('F')">°F</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Heat Mode</div>
+          <div class="btn-grid-2">
+            <button id="heatReadyBtn" class="settings-btn" onclick="sendHeatModeButton()">Ready / Rest</button>
+            <button class="settings-btn" onclick="refreshAll()">Obnoviť stav</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Temperature Range</div>
+          <div class="btn-grid-2">
+            <button id="rangeLowBtn" class="settings-btn" onclick="sendRangeButton()">Low / High</button>
+            <button class="settings-btn" onclick="refreshAll()">Načítať z panelu</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Ďalšie nastavenia</div>
+          <div class="btn-grid-2">
+            <button class="settings-btn" onclick="showTodo('Time Of Day pripravím v ďalšom kroku.')">Time Of Day</button>
+            <button class="settings-btn" onclick="showTodo('Filter Cycles pripravím v ďalšom kroku.')">Filter Cycles</button>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="settings-btn-wide" onclick="showTodo('Advanced pripravím podľa pôvodnej appky neskôr.')">Advanced</button>
+          </div>
+        </div>
+
+        <div class="logo-wrap" style="margin-top:28px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
+        </div>
+      </div>
+    </div>
+
     <div class="message-box" id="messageBox">Vitajte. Ovládanie je pripravené.</div>
   </div>
 
   <script>
     const WORKER_URL = "https://balboa-proxy-worker.lechstav.workers.dev";
+
+    const appState = {
+      tempUnit: "C",
+      tempRangeHigh: false,
+      heatMode: "Ready",
+      setTemp: 34.0
+    };
 
     function setMessage(text) {
       document.getElementById("messageBox").textContent = text;
@@ -424,18 +589,22 @@
     function showScreen(name) {
       document.getElementById("homeScreen").classList.remove("active");
       document.getElementById("controlsScreen").classList.remove("active");
+      document.getElementById("settingsScreen").classList.remove("active");
 
       if (name === "home") {
         document.getElementById("homeScreen").classList.add("active");
         document.getElementById("mainTitle").textContent = "Domov";
+      } else if (name === "settings") {
+        document.getElementById("settingsScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Nastavenia";
       } else {
         document.getElementById("controlsScreen").classList.add("active");
         document.getElementById("mainTitle").textContent = "Ovládanie";
       }
     }
 
-    function showSettingsNote() {
-      setMessage("Nastavenia pripravím neskôr.");
+    function showTodo(text) {
+      setMessage(text);
     }
 
     function setCtrlState(btnId, lblId, css, label) {
@@ -505,14 +674,9 @@
 
       const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
       const pump1On = (byte15 & 0x02) !== 0;
-
-      // Pumpa 2 podľa porovnania OFF vs Pumpa2+obeh
       const pump2On = (byte15 & 0x08) !== 0;
-
       const pump3On = (byte15 & 0x20) !== 0;
-
       const blowerOn = (byte17 & 0x04) !== 0 || (byte17 & 0x08) !== 0;
-
       const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
 
       return {
@@ -564,6 +728,72 @@
       setCtrlState("btn-heatmode", "lbl-heatmode", "on", (s.heatMode || "-").toUpperCase());
     }
 
+    function updateSettingsUI() {
+      document.getElementById("settingsTempValue").textContent =
+        Number(appState.setTemp).toFixed(1) + "°" + appState.tempUnit;
+
+      const slider = document.getElementById("tempSlider");
+      slider.value = String(appState.setTemp);
+
+      document.getElementById("unitCBtn").classList.toggle("active", appState.tempUnit === "C");
+      document.getElementById("unitFBtn").classList.toggle("active", appState.tempUnit === "F");
+
+      document.getElementById("heatReadyBtn").textContent = appState.heatMode;
+      document.getElementById("heatReadyBtn").classList.add("active");
+
+      document.getElementById("rangeLowBtn").textContent = appState.tempRangeHigh ? "High Range" : "Low Range";
+      document.getElementById("rangeLowBtn").classList.add("active");
+
+      updateSliderLimits();
+    }
+
+    function updateSliderLimits() {
+      const slider = document.getElementById("tempSlider");
+      const minLabel = document.getElementById("tempMinLabel");
+      const maxLabel = document.getElementById("tempMaxLabel");
+
+      if (appState.tempUnit === "C") {
+        if (appState.tempRangeHigh) {
+          slider.min = "32";
+          slider.max = "40";
+          slider.step = "0.5";
+          minLabel.textContent = "32";
+          maxLabel.textContent = "40";
+        } else {
+          slider.min = "26";
+          slider.max = "32";
+          slider.step = "0.5";
+          minLabel.textContent = "26";
+          maxLabel.textContent = "32";
+        }
+      } else {
+        if (appState.tempRangeHigh) {
+          slider.min = "90";
+          slider.max = "104";
+          slider.step = "1";
+          minLabel.textContent = "90";
+          maxLabel.textContent = "104";
+        } else {
+          slider.min = "80";
+          slider.max = "90";
+          slider.step = "1";
+          minLabel.textContent = "80";
+          maxLabel.textContent = "90";
+        }
+      }
+
+      const current = Number(slider.value);
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+
+      if (current < min) slider.value = String(min);
+      if (current > max) slider.value = String(max);
+
+      appState.setTemp = Number(slider.value);
+      document.getElementById("settingsTempValue").textContent =
+        Number(appState.setTemp).toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
+    }
+
     async function loadPanelUpdate() {
       try {
         const { resp, data, text } = await fetchJson(WORKER_URL + "/panelupdate");
@@ -582,8 +812,13 @@
           return;
         }
 
+        appState.heatMode = parsed.heatMode || "Ready";
+        appState.tempRangeHigh = !!parsed.tempRangeHigh;
+        appState.setTemp = Number.isFinite(parsed.setTemp) ? parsed.setTemp : appState.setTemp;
+
         applyHomeState(parsed);
         applyControlsState(parsed);
+        updateSettingsUI();
         setMessage("Stav vírivky bol aktualizovaný.");
       } catch (e) {
         setMessage("Chyba pri načítaní stavu: " + e.message);
@@ -610,6 +845,73 @@
       }
     }
 
+    async function saveSetTemp() {
+      try {
+        const value = document.getElementById("tempSlider").value;
+        setMessage("Nastavujem teplotu na " + value + "°" + appState.tempUnit + " ...");
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/settemp?value=" + encodeURIComponent(value));
+
+        if (!resp.ok) {
+          setMessage("Nastavenie teploty zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        appState.setTemp = Number(value);
+        updateSettingsUI();
+        setMessage((ok ? "Teplota nastavená. " : "Príkaz odoslaný. ") + "Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1500);
+      } catch (e) {
+        setMessage("Chyba pri nastavení teploty: " + e.message);
+      }
+    }
+
+    async function setTempUnits(unit) {
+      try {
+        setMessage("Prepínam jednotky na °" + unit + " ...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/tempunits?value=" + encodeURIComponent(unit));
+
+        if (!resp.ok) {
+          setMessage("Prepnutie jednotiek zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        appState.tempUnit = unit;
+        updateSettingsUI();
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMessage((ok ? "Jednotky zmenené. " : "Príkaz odoslaný. ") + "Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1500);
+      } catch (e) {
+        setMessage("Chyba pri prepnutí jednotiek: " + e.message);
+      }
+    }
+
+    async function sendHeatModeButton() {
+      await sendButton(81, "Heat Mode");
+    }
+
+    async function sendRangeButton() {
+      await sendButton(80, "Temperature Range");
+    }
+
+    async function refreshAll() {
+      await loadPanelUpdate();
+    }
+
+    document.getElementById("tempSlider").addEventListener("input", function () {
+      const val = Number(this.value);
+      appState.setTemp = val;
+      document.getElementById("settingsTempValue").textContent =
+        val.toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
+    });
+
+    updateSettingsUI();
     loadPanelUpdate();
     setInterval(loadPanelUpdate, 15000);
   </script>
