@@ -482,14 +482,14 @@
 
     function parsePanel(hex) {
       const p = hexToBytes(hex);
-      if (p.length < 25) return null;
+      if (p.length < 24) return null;
 
       const tempNow = (p[6] ?? 0) / 2;
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
       const heatModeRaw = p[10] ?? 0;
       const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
-      const setTemp = (p[24] ?? p[23] ?? 0) / 2;
+      const setTemp = (p[23] ?? 0) / 2;
 
       let heatMode = "Ready";
       if (heatModeRaw === 1) heatMode = "Rest";
@@ -505,8 +505,15 @@
 
       const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
       const pump1On = (byte15 & 0x02) !== 0;
-      const pump2On = (byte15 & 0x08) !== 0 || (byte17 & 0x04) !== 0;
+
+      // Pumpa 2 zatiaľ ponechaná podľa doterajšieho testu
+      const pump2On = false;
+
       const pump3On = (byte15 & 0x20) !== 0;
+
+      // Blower = oproti obehu pribudnú bity 0x04 a 0x08 v byte17
+      const blowerOn = (byte17 & 0x04) !== 0 || (byte17 & 0x08) !== 0;
+
       const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
 
       return {
@@ -520,7 +527,7 @@
         pump1On,
         pump2On,
         pump3On,
-        blowerOn: false,
+        blowerOn,
         light1On
       };
     }
@@ -541,11 +548,11 @@
     function applyControlsState(s) {
       setCtrlState("btn-circpump", "lbl-circpump", s.circPumpOn ? "on" : "off", s.circPumpOn ? "ON" : "OFF");
       setCtrlState("btn-pump1", "lbl-pump1", s.pump1On ? "on" : "off", s.pump1On ? "ON" : "OFF");
-      setCtrlState("btn-pump2", "lbl-pump2", s.pump2On ? "on" : "off", s.pump2On ? "ON" : "OFF");
+
+      setUnknown("btn-pump2", "lbl-pump2");
+
       setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
-
-      setUnknown("btn-blower", "lbl-blower");
-
+      setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
 
       setUnknown("btn-pump4", "lbl-pump4");
