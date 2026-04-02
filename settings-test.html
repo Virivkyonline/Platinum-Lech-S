@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test nastavení vírivky</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(80,140,255,.18), transparent 20%),
+        radial-gradient(circle at 80% 25%, rgba(80,140,255,.14), transparent 18%),
+        radial-gradient(circle at 35% 70%, rgba(80,140,255,.12), transparent 24%),
+        linear-gradient(180deg, #041b3e 0%, #06224b 45%, #041833 100%);
+      min-height: 100vh;
+      padding: 16px 0 24px;
+    }
+
+    .wrap {
+      width: calc(100% - 28px);
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      border-radius: 28px;
+      padding: 24px 16px;
+      background: linear-gradient(180deg, rgba(5,34,79,.94) 0%, rgba(2,20,50,.96) 100%);
+      border: 2px solid rgba(0,0,0,.38);
+      box-shadow:
+        inset 0 0 0 1px rgba(140,190,255,.08),
+        0 8px 30px rgba(0,0,0,.25);
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 400;
+      color: #f3f8ff;
+    }
+
+    .block {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(170,210,255,.18);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .label {
+      font-size: 18px;
+      color: #f3f8ff;
+      margin-bottom: 10px;
+    }
+
+    .value {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .subvalue {
+      font-size: 18px;
+      color: #cde5ff;
+      margin-top: 6px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .minmax {
+      width: 48px;
+      text-align: center;
+      color: #cde5ff;
+      font-size: 15px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: #79d8ff;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid rgba(170,210,255,.28);
+      border-radius: 14px;
+      color: #eef7ff;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(173,213,255,.20), rgba(96,149,224,.18));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    button.active {
+      background: linear-gradient(180deg, rgba(120,255,185,.38), rgba(55,175,115,.28));
+      box-shadow:
+        inset 0 0 16px rgba(120,255,185,.42),
+        0 0 18px rgba(60,220,145,.20);
+      border-color: rgba(120,255,185,.55);
+      color: #ffffff;
+    }
+
+    .msg {
+      margin-top: 14px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(170,210,255,.12);
+      color: #e8f3ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      min-height: 48px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>Nastavenia</h1>
+
+      <div class="block">
+        <div class="label">Nastavená teplota</div>
+        <div class="value" id="tempValue">--.-°C</div>
+        <div class="row">
+          <div class="minmax" id="tempMinLabel">10</div>
+          <input type="range" id="tempSlider" min="10" max="26.5" step="0.5" value="26.5">
+          <div class="minmax" id="tempMaxLabel">26.5</div>
+        </div>
+        <div class="subvalue" id="tempRangeText">Nízky rozsah</div>
+        <div style="margin-top:12px;">
+          <button onclick="saveSetTemp()">Uložiť teplotu</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="label">Jednotky teploty</div>
+        <div class="grid2">
+          <button id="btnUnitC" onclick="setTempUnits('C')">°C</button>
+          <button id="btnUnitF" onclick="setTempUnits('F')">°F</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="label">Tepelný režim</div>
+        <div class="grid2">
+          <button id="btnHeatMode" onclick="toggleHeatMode()">Pripravené</button>
+          <button onclick="refreshPanel()">Obnoviť stav</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="label">Teplotný rozsah</div>
+        <div class="grid2">
+          <button id="btnTempRange" onclick="toggleTempRange()">Nízky rozsah</button>
+          <button onclick="refreshPanel()">Načítať z panelu</button>
+        </div>
+      </div>
+
+      <div class="msg" id="msg">Pripravené.</div>
+    </div>
+  </div>
+
+  <script>
+    const WORKER_URL = "https://balboa-proxy-worker.lechstav.workers.dev";
+
+    const state = {
+      unit: "C",
+      tempRangeHigh: false,
+      heatMode: "Pripravené",
+      setTemp: 26.5
+    };
+
+    function setMsg(text) {
+      document.getElementById("msg").textContent = text;
+    }
+
+    async function fetchJson(url) {
+      const resp = await fetch(url, { method: "GET" });
+      const text = await resp.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { raw: text };
+      }
+      return { resp, data, text };
+    }
+
+    function hexToBytes(hex) {
+      if (!hex) return [];
+      const clean = String(hex).replace(/[^0-9a-f]/gi, "");
+      if (clean.length % 2 !== 0) return [];
+      const out = [];
+      for (let i = 0; i < clean.length; i += 2) {
+        out.push(parseInt(clean.substring(i, i + 2), 16));
+      }
+      return out;
+    }
+
+    function pad2(n) {
+      return String(Number(n) || 0).padStart(2, "0");
+    }
+
+    function parsePanel(hex) {
+      const p = hexToBytes(hex);
+      if (p.length < 24) return null;
+
+      const heatModeRaw = p[10] ?? 0;
+      const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
+      const setTemp = (p[23] ?? 0) / 2;
+      const hour = p[7] ?? 0;
+      const minute = p[8] ?? 0;
+
+      let heatMode = "Pripravené";
+      if (heatModeRaw === 1) heatMode = "Odpočinok";
+      else if (heatModeRaw === 2) heatMode = "Pripravené v odpočinku";
+
+      return {
+        setTemp,
+        heatMode,
+        tempRangeHigh,
+        tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
+        time: pad2(hour) + ":" + pad2(minute)
+      };
+    }
+
+    function updateSliderLimits() {
+      const slider = document.getElementById("tempSlider");
+      const minLabel = document.getElementById("tempMinLabel");
+      const maxLabel = document.getElementById("tempMaxLabel");
+
+      if (state.unit === "C") {
+        if (state.tempRangeHigh) {
+          slider.min = "26.5";
+          slider.max = "40";
+          slider.step = "0.5";
+          minLabel.textContent = "26.5";
+          maxLabel.textContent = "40";
+        } else {
+          slider.min = "10";
+          slider.max = "26.5";
+          slider.step = "0.5";
+          minLabel.textContent = "10";
+          maxLabel.textContent = "26.5";
+        }
+      } else {
+        if (state.tempRangeHigh) {
+          slider.min = "80";
+          slider.max = "104";
+          slider.step = "1";
+          minLabel.textContent = "80";
+          maxLabel.textContent = "104";
+        } else {
+          slider.min = "50";
+          slider.max = "80";
+          slider.step = "1";
+          minLabel.textContent = "50";
+          maxLabel.textContent = "80";
+        }
+      }
+
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+      if (state.setTemp < min) state.setTemp = min;
+      if (state.setTemp > max) state.setTemp = max;
+
+      slider.value = String(state.setTemp);
+    }
+
+    function render() {
+      updateSliderLimits();
+
+      const decimals = state.unit === "C" ? 1 : 0;
+      document.getElementById("tempValue").textContent =
+        Number(state.setTemp).toFixed(decimals) + "°" + state.unit;
+
+      document.getElementById("tempRangeText").textContent =
+        state.tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah";
+
+      document.getElementById("btnTempRange").textContent =
+        state.tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah";
+
+      document.getElementById("btnHeatMode").textContent = state.heatMode;
+
+      document.getElementById("btnUnitC").classList.toggle("active", state.unit === "C");
+      document.getElementById("btnUnitF").classList.toggle("active", state.unit === "F");
+    }
+
+    async function refreshPanel() {
+      try {
+        setMsg("Načítavam stav z panelu...");
+        const { resp, data, text } = await fetchJson(WORKER_URL + "/panelupdate");
+
+        if (!resp.ok) {
+          setMsg("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const parsed = parsePanel(data.hex || "");
+        if (!parsed) {
+          console.log(text);
+          setMsg("PanelUpdate sa nepodarilo rozpoznať.");
+          return;
+        }
+
+        state.heatMode = parsed.heatMode;
+        state.tempRangeHigh = parsed.tempRangeHigh;
+        state.setTemp = parsed.setTemp;
+
+        render();
+        setMsg(
+          "Stav načítaný.\n" +
+          "Režim: " + parsed.heatMode + "\n" +
+          "Rozsah: " + parsed.tempRange + "\n" +
+          "Čas panelu: " + parsed.time
+        );
+      } catch (e) {
+        setMsg("Chyba pri načítaní panelu: " + e.message);
+      }
+    }
+
+    async function saveSetTemp() {
+      try {
+        const value = document.getElementById("tempSlider").value;
+        setMsg("Nastavujem teplotu na " + value + "°" + state.unit + " ...");
+
+        const { resp, data } = await fetchJson(
+          WORKER_URL + "/settemp?value=" + encodeURIComponent(value)
+        );
+
+        if (!resp.ok) {
+          setMsg("Nastavenie teploty zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        state.setTemp = Number(value);
+        render();
+        setMsg((ok ? "Teplota nastavená." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setTimeout(refreshPanel, 1500);
+      } catch (e) {
+        setMsg("Chyba pri nastavení teploty: " + e.message);
+      }
+    }
+
+    async function setTempUnits(unit) {
+      try {
+        setMsg("Prepínam jednotky na °" + unit + " ...");
+
+        const { resp, data } = await fetchJson(
+          WORKER_URL + "/tempunits?value=" + encodeURIComponent(unit)
+        );
+
+        if (!resp.ok) {
+          setMsg("Prepnutie jednotiek zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        state.unit = unit;
+        render();
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMsg((ok ? "Jednotky zmenené." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setTimeout(refreshPanel, 1500);
+      } catch (e) {
+        setMsg("Chyba pri prepnutí jednotiek: " + e.message);
+      }
+    }
+
+    async function toggleHeatMode() {
+      try {
+        setMsg("Prepínam tepelný režim...");
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/button?code=81");
+
+        if (!resp.ok) {
+          setMsg("Prepnutie tepelného režimu zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMsg((ok ? "Tepelný režim prepnutý." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setTimeout(refreshPanel, 1500);
+      } catch (e) {
+        setMsg("Chyba pri prepínaní tepelného režimu: " + e.message);
+      }
+    }
+
+    async function toggleTempRange() {
+      try {
+        setMsg("Prepínam teplotný rozsah...");
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/button?code=80");
+
+        if (!resp.ok) {
+          setMsg("Prepnutie teplotného rozsahu zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMsg((ok ? "Teplotný rozsah prepnutý." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setTimeout(refreshPanel, 1500);
+      } catch (e) {
+        setMsg("Chyba pri prepínaní teplotného rozsahu: " + e.message);
+      }
+    }
+
+    document.getElementById("tempSlider").addEventListener("input", function () {
+      state.setTemp = Number(this.value);
+      render();
+    });
+
+    render();
+    refreshPanel();
+  </script>
+</body>
+</html>
