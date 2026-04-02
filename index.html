@@ -3,104 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Balboa old cloud test</title>
+  <title>Balboa old cloud web</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #111;
       color: #eee;
       margin: 0;
-      padding: 24px;
+      padding: 20px;
     }
-
     h1 {
-      font-size: 42px;
-      margin: 0 0 24px 0;
+      font-size: 34px;
+      margin: 0 0 20px 0;
     }
-
     .card {
       background: #1b1b1f;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 24px;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 18px;
       box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
     }
-
     label {
       display: block;
-      font-size: 18px;
-      margin: 0 0 8px 0;
+      font-size: 17px;
+      margin-bottom: 8px;
     }
-
     input, textarea {
       width: 100%;
       box-sizing: border-box;
-      background: #3a3a3f;
+      background: #2c2c31;
       color: #fff;
       border: 1px solid #666;
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 16px;
-      margin-bottom: 18px;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 15px;
+      margin-bottom: 14px;
     }
-
     textarea {
-      min-height: 220px;
+      min-height: 120px;
       resize: vertical;
     }
-
     .row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
-
-    .row-1 {
+    .row3 {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
-
     button {
       width: 100%;
-      background: #777;
+      background: #6f6f6f;
       color: white;
       border: none;
-      border-radius: 8px;
-      padding: 18px 12px;
-      font-size: 18px;
+      border-radius: 10px;
+      padding: 16px 10px;
+      font-size: 17px;
       cursor: pointer;
     }
-
     button:hover {
-      background: #8b8b8b;
+      background: #848484;
     }
-
-    .small {
-      font-size: 14px;
-      color: #bbb;
-      margin-top: -8px;
-      margin-bottom: 16px;
-    }
-
-    .ok {
-      color: #7CFC8A;
-    }
-
-    .err {
-      color: #FF8A8A;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      word-break: break-word;
+    .out {
       background: #101014;
       border-radius: 10px;
-      padding: 14px;
-      overflow-x: auto;
+      padding: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
       font-size: 14px;
+      min-height: 60px;
+    }
+    .mono {
+      font-family: monospace;
+    }
+    .infoGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .smallBox {
+      background: #101014;
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .smallTitle {
+      color: #bbb;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .smallValue {
+      font-size: 16px;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -110,7 +107,6 @@
   <div class="card">
     <label for="workerUrl">Worker URL</label>
     <input id="workerUrl" type="text" value="https://balboa-proxy-worker.lechstav.workers.dev">
-    <div class="small">Tu nechaj adresu tvojho Cloudflare workeru.</div>
 
     <div class="row">
       <button onclick="loadPanelUpdate()">Načítať PanelUpdate.txt</button>
@@ -118,19 +114,50 @@
     </div>
 
     <div class="row">
-      <button onclick="clearOutput()">Vymazať výstup</button>
       <button onclick="testWorker()">Test workeru</button>
+      <button onclick="clearAll()">Vymazať výstup</button>
     </div>
   </div>
 
   <div class="card">
-    <label for="statusBox">Stav / odpoveď</label>
-    <textarea id="statusBox" readonly></textarea>
+    <div class="infoGrid">
+      <div class="smallBox">
+        <div class="smallTitle">Súbor</div>
+        <div class="smallValue" id="fileName">-</div>
+      </div>
+      <div class="smallBox">
+        <div class="smallTitle">HTTP status</div>
+        <div class="smallValue" id="httpStatus">-</div>
+      </div>
+      <div class="smallBox">
+        <div class="smallTitle">Počet bajtov</div>
+        <div class="smallValue" id="bytesLength">-</div>
+      </div>
+      <div class="smallBox">
+        <div class="smallTitle">Device ID</div>
+        <div class="smallValue mono" id="deviceId">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>HEX dáta</label>
+    <div class="out mono" id="hexBox">-</div>
+  </div>
+
+  <div class="card">
+    <label>Base64 dáta</label>
+    <div class="out mono" id="base64Box">-</div>
+  </div>
+
+  <div class="card">
+    <label>Raw XML</label>
+    <div class="out mono" id="xmlBox">-</div>
   </div>
 
   <div class="card">
     <label>Krátky log</label>
-    <pre id="logBox">Pripravené.</pre>
+    <div class="out mono" id="logBox">Pripravené.</div>
   </div>
 
   <script>
@@ -138,72 +165,96 @@
       return document.getElementById("workerUrl").value.trim().replace(/\/+$/, "");
     }
 
-    function setStatus(text) {
-      document.getElementById("statusBox").value = text;
-    }
-
-    function appendLog(text, ok) {
+    function log(msg) {
       const box = document.getElementById("logBox");
       const now = new Date().toLocaleTimeString();
-      const prefix = ok === true ? "[OK]" : ok === false ? "[CHYBA]" : "[INFO]";
-      box.textContent = now + " " + prefix + " " + text + "\n\n" + box.textContent;
+      box.textContent = now + " " + msg + "\n\n" + box.textContent;
     }
 
-    function clearOutput() {
-      setStatus("");
+    function clearAll() {
+      document.getElementById("fileName").textContent = "-";
+      document.getElementById("httpStatus").textContent = "-";
+      document.getElementById("bytesLength").textContent = "-";
+      document.getElementById("deviceId").textContent = "-";
+      document.getElementById("hexBox").textContent = "-";
+      document.getElementById("base64Box").textContent = "-";
+      document.getElementById("xmlBox").textContent = "-";
       document.getElementById("logBox").textContent = "Vymazané.";
     }
 
-    async function fetchText(path) {
-      const base = getWorkerUrl();
-      const url = base + path;
+    function fillResult(data) {
+      document.getElementById("fileName").textContent = data.file || "-";
+      document.getElementById("httpStatus").textContent = data.status ?? "-";
+      document.getElementById("bytesLength").textContent = data.bytesLength ?? "-";
+      document.getElementById("deviceId").textContent = data.deviceId || "-";
+      document.getElementById("hexBox").textContent = data.hex || "-";
+      document.getElementById("base64Box").textContent = data.base64 || "-";
+      document.getElementById("xmlBox").textContent = data.xml || "-";
+    }
 
-      appendLog("Volám: " + url, null);
+    async function fetchJson(path) {
+      const url = getWorkerUrl() + path;
+      log("[INFO] Volám: " + url);
 
-      const resp = await fetch(url, {
-        method: "GET"
-      });
-
+      const resp = await fetch(url, { method: "GET" });
       const text = await resp.text();
 
-      appendLog("HTTP status: " + resp.status, resp.ok);
+      log("[OK] HTTP status: " + resp.status);
 
-      return {
-        ok: resp.ok,
-        status: resp.status,
-        text: text
-      };
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = {
+          file: path,
+          status: resp.status,
+          bytesLength: "-",
+          deviceId: "-",
+          hex: "-",
+          base64: "-",
+          xml: text
+        };
+      }
+
+      return data;
     }
 
     async function testWorker() {
       try {
-        const result = await fetchText("");
-        setStatus(result.text);
+        const url = getWorkerUrl();
+        log("[INFO] Test workeru: " + url);
+        const resp = await fetch(url);
+        const text = await resp.text();
+
+        document.getElementById("fileName").textContent = "worker test";
+        document.getElementById("httpStatus").textContent = resp.status;
+        document.getElementById("bytesLength").textContent = text.length;
+        document.getElementById("deviceId").textContent = "-";
+        document.getElementById("hexBox").textContent = "-";
+        document.getElementById("base64Box").textContent = "-";
+        document.getElementById("xmlBox").textContent = text;
+
+        log("[OK] Worker odpovedal.");
       } catch (e) {
-        setStatus("CHYBA: " + e.message);
-        appendLog("Worker test zlyhal: " + e.message, false);
+        log("[CHYBA] " + e.message);
       }
     }
 
     async function loadPanelUpdate() {
       try {
-        setStatus("Načítavam PanelUpdate.txt ...");
-        const result = await fetchText("/panelupdate");
-        setStatus(result.text);
+        const data = await fetchJson("/panelupdate");
+        fillResult(data);
       } catch (e) {
-        setStatus("CHYBA: " + e.message);
-        appendLog("PanelUpdate zlyhal: " + e.message, false);
+        log("[CHYBA] PanelUpdate zlyhal: " + e.message);
       }
     }
 
     async function loadDeviceConfig() {
       try {
-        setStatus("Načítavam DeviceConfiguration.txt ...");
-        const result = await fetchText("/deviceconfig");
-        setStatus(result.text);
+        const data = await fetchJson("/deviceconfig");
+        fillResult(data);
       } catch (e) {
-        setStatus("CHYBA: " + e.message);
-        appendLog("DeviceConfiguration zlyhal: " + e.message, false);
+        log("[CHYBA] DeviceConfiguration zlyhal: " + e.message);
       }
     }
   </script>
