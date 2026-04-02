@@ -512,51 +512,61 @@
     }
 
     function parsePanel(hex) {
-      const p = hexToBytes(hex);
-      if (p.length < 24) return null;
+  const p = hexToBytes(hex);
+  if (p.length < 24) return null;
 
-      const tempNow = p[7] ?? 0;
-      const hour = p[8] ?? 0;
-      const minute = p[9] ?? 0;
-      const heatModeRaw = p[10] ?? 0;
-      const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
-      const setTemp = p[23] ?? 0;
+  const tempNow = (p[6] ?? 0) / 2;
+  const hour = p[7] ?? 0;
+  const minute = p[8] ?? 0;
+  const heatModeRaw = p[10] ?? 0;
+  const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
+  const setTemp = (p[23] ?? 0) / 2;
 
-      let heatMode = "Ready";
-      if (heatModeRaw === 1) heatMode = "Rest";
-      else if (heatModeRaw === 2) heatMode = "Ready in Rest";
+  let heatMode = "Ready";
+  if (heatModeRaw === 1) heatMode = "Rest";
+  else if (heatModeRaw === 2) heatMode = "Ready in Rest";
 
-      const tempRange = tempRangeHigh ? "High Range" : "Low Range";
+  const tempRange = tempRangeHigh ? "High Range" : "Low Range";
 
-      const circPumpOn = (((p[15] ?? 0) & 0x10) !== 0);
-      const pump1On = ((((p[14] ?? 0) & 0x80) !== 0) || (((p[17] ?? 0) & 0x02) !== 0));
-      const pump2On = ((((p[14] ?? 0) & 0x40) !== 0) || (((p[17] ?? 0) & 0x01) !== 0));
-      const pump3On = (((p[15] ?? 0) & 0x20) !== 0);
-      const blowerOn = ((((p[17] ?? 0) & 0x04) !== 0) || (((p[15] ?? 0) & 0x08) !== 0));
-      const light1On = ((((p[18] ?? 0) & 0x03) !== 0) || (((p[19] ?? 0) & 0x01) !== 0));
+  const circPumpOn = (((p[15] ?? 0) & 0x10) !== 0);
+  const pump1On = ((((p[14] ?? 0) & 0x80) !== 0) || (((p[17] ?? 0) & 0x02) !== 0));
 
-      return {
-        tempNow,
-        setTemp,
-        time: pad2(hour) + ":" + pad2(minute),
-        heatMode,
-        tempRange,
-        tempRangeHigh,
-        circPumpOn,
-        pump1On,
-        pump2On,
-        pump3On,
-        blowerOn,
-        light1On
+  // Pumpa 2 a obeh ešte nie sú na 100 % potvrdené.
+  const pump2On = ((((p[14] ?? 0) & 0x40) !== 0) || (((p[17] ?? 0) & 0x01) !== 0));
+  const pump3On = (((p[15] ?? 0) & 0x20) !== 0);
+
+  const blowerOn = ((((p[17] ?? 0) & 0x04) !== 0) || (((p[15] ?? 0) & 0x08) !== 0));
+  const light1On = ((((p[18] ?? 0) & 0x03) !== 0) || (((p[19] ?? 0) & 0x01) !== 0));
+
+  return {
+    tempNow,
+    setTemp,
+    time: pad2(hour) + ":" + pad2(minute),
+    heatMode,
+    tempRange,
+    tempRangeHigh,
+    circPumpOn,
+    pump1On,
+    pump2On,
+    pump3On,
+    blowerOn,
+    light1On
+  };
+    }
       };
     }
 
     function applyHomeState(s) {
-      document.getElementById("homeTemp").textContent = Number.isFinite(s.tempNow) ? (s.tempNow + ".0°C") : "--.-°C";
-      document.getElementById("homeMode").textContent = s.heatMode || "-";
-      document.getElementById("homeRange").textContent = s.tempRange || "-";
-      document.getElementById("homeTime").textContent = "Čas: " + (s.time || "--:--");
-      document.getElementById("homeSetTemp").textContent = "Nastavená teplota: " + (Number.isFinite(s.setTemp) ? (s.setTemp + ".0°C") : "--.-°C");
+  document.getElementById("homeTemp").textContent = Number.isFinite(s.tempNow)
+    ? s.tempNow.toFixed(1) + "°C"
+    : "--.-°C";
+
+  document.getElementById("homeMode").textContent = s.heatMode || "-";
+  document.getElementById("homeRange").textContent = s.tempRange || "-";
+  document.getElementById("homeTime").textContent = "Čas: " + (s.time || "--:--");
+  document.getElementById("homeSetTemp").textContent =
+    "Nastavená teplota: " +
+    (Number.isFinite(s.setTemp) ? s.setTemp.toFixed(1) + "°C" : "--.-°C");
     }
 
     function applyControlsState(s) {
