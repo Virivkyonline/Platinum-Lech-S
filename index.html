@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balboa Old Cloud Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background:#f5f5f5; color:#222; }
+    .box { background:#fff; padding:16px; border-radius:12px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    input, button, textarea, select { width:100%; padding:10px; margin-top:8px; margin-bottom:12px; box-sizing:border-box; }
+    button { cursor:pointer; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    textarea { min-height:260px; font-family:monospace; }
+  </style>
+</head>
+<body>
+  <h1>Balboa old cloud test</h1>
+
+  <div class="box">
+    <label>Device Identifier</label>
+    <input id="deviceId" placeholder="Sem vlož device identifier" />
+
+    <label>Cloud username</label>
+    <input id="username" value="BalboaWaterAndroidApp" />
+
+    <label>Cloud password</label>
+    <input id="password" value="SW2Bra7a!" />
+
+    <div class="row">
+      <button onclick="loadPanelUpdate()">Načítať PanelUpdate.txt</button>
+      <button onclick="loadDeviceConfig()">Načítať DeviceConfiguration.txt</button>
+    </div>
+
+    <div class="row">
+      <button onclick="sendTarget('Pump1')">Pump1</button>
+      <button onclick="sendTarget('Light1')">Light1</button>
+    </div>
+
+    <div class="row">
+      <button onclick="sendTarget('Blower')">Blower</button>
+      <button onclick="sendTarget('HeatMode')">HeatMode</button>
+    </div>
+
+    <label>Vlastný target_name</label>
+    <input id="customTarget" placeholder="napr. Pump2" />
+    <button onclick="sendCustom()">Poslať vlastný príkaz</button>
+  </div>
+
+  <div class="box">
+    <label>Log / odpoveď</label>
+    <textarea id="log"></textarea>
+  </div>
+
+  <script>
+    const SCI_URL = "http://my.idigi.com/ws/sci";
+    const DATA_URL = "https://my.idigi.com/ws/data/~/";
+    const DEVICECORE_URL = "https://my.idigi.com/ws/DeviceCore";
+
+    function log(msg) {
+      const el = document.getElementById("log");
+      el.value += msg + "\n\n";
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function getCreds() {
+      return {
+        deviceId: document.getElementById("deviceId").value.trim(),
+        username: document.getElementById("username").value.trim(),
+        password: document.getElementById("password").value.trim()
+      };
+    }
+
+    function authHeader(username, password) {
+      return "Basic " + btoa(username + ":" + password);
+    }
+
+    async function loadPanelUpdate() {
+      const { deviceId, username, password } = getCreds();
+      const url = DATA_URL + deviceId + "/PanelUpdate.txt";
+      log("GET " + url);
+
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Authorization": authHeader(username, password)
+          }
+        });
+        const text = await res.text();
+        log("STATUS: " + res.status);
+        log(text);
+      } catch (e) {
+        log("CHYBA: " + e.message);
+      }
+    }
+
+    async function loadDeviceConfig() {
+      const { deviceId, username, password } = getCreds();
+      const url = DATA_URL + deviceId + "/DeviceConfiguration.txt";
+      log("GET " + url);
+
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Authorization": authHeader(username, password)
+          }
+        });
+        const text = await res.text();
+        log("STATUS: " + res.status);
+        log(text);
+      } catch (e) {
+        log("CHYBA: " + e.message);
+      }
+    }
+
+    async function sendTarget(targetName) {
+      const { deviceId, username, password } = getCreds();
+
+      const xml =
+`<sci_request version="1.0">
+  <send_message cache="false">
+    <targets>
+      <device id="${deviceId}"/>
+    </targets>
+    <rci_request version="1.1">
+      <do_command target_name="${targetName}"/>
+    </rci_request>
+  </send_message>
+</sci_request>`;
+
+      log("POST " + SCI_URL);
+      log(xml);
+
+      try {
+        const res = await fetch(SCI_URL, {
+          method: "POST",
+          headers: {
+            "Authorization": authHeader(username, password),
+            "Content-Type": "text/xml"
+          },
+          body: xml
+        });
+        const text = await res.text();
+        log("STATUS: " + res.status);
+        log(text);
+      } catch (e) {
+        log("CHYBA: " + e.message);
+      }
+    }
+
+    function sendCustom() {
+      const t = document.getElementById("customTarget").value.trim();
+      if (!t) {
+        log("Zadaj target_name.");
+        return;
+      }
+      sendTarget(t);
+    }
+  </script>
+</body>
+</html>
