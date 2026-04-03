@@ -227,29 +227,38 @@
     }
 
     function parsePanel(hex) {
-      const p = hexToBytes(hex);
-      if (p.length < 24) return null;
+  const p = hexToBytes(hex);
+  if (p.length < 26) return null;
 
-      const heatModeRaw = p[10] ?? 0;
-      const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
-      const rawSetTemp = p[23] ?? 0;
-      const hour = p[7] ?? 0;
-      const minute = p[8] ?? 0;
+  const rawSetTemp = p[25] ?? 0;
+  const hour = p[7] ?? 0;
+  const minute = p[8] ?? 0;
 
-      let heatMode = "Pripravený";
-      if (heatModeRaw === 1) heatMode = "Spiaci";
-      else if (heatModeRaw === 2) heatMode = "Pripravený v spiacom";
+  // SPRÁVNE čítanie podľa tvojich reálnych hexov
+  const flags = p[14] ?? 0;
 
-      const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
+  // Range: 0x04
+  const tempRangeHigh = (flags & 0x04) !== 0;
 
-      return {
-        setTemp,
-        heatMode,
-        tempRangeHigh,
-        tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
-        time: pad2(hour) + ":" + pad2(minute)
-      };
-    }
+  // Heat mode: 0x10 + pomocne p[9]
+  const heatRestBit = (flags & 0x10) === 0;
+  const heatModeRaw = p[9] ?? 0;
+
+  let heatMode = "Pripravený";
+  if (heatRestBit || heatModeRaw === 1) {
+    heatMode = "Spiaci";
+  }
+
+  const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
+
+  return {
+    setTemp,
+    heatMode,
+    tempRangeHigh,
+    tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
+    time: pad2(hour) + ":" + pad2(minute)
+  };
+}
 
     function updateSliderLimits() {
       const slider = document.getElementById("tempSlider");
