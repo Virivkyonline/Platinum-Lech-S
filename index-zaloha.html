@@ -1,1 +1,937 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platinum Lech Spa</title>
+  <style>
+    * { box-sizing: border-box; }
 
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(80,140,255,.18), transparent 20%),
+        radial-gradient(circle at 80% 25%, rgba(80,140,255,.14), transparent 18%),
+        radial-gradient(circle at 35% 70%, rgba(80,140,255,.12), transparent 24%),
+        linear-gradient(180deg, #041b3e 0%, #06224b 45%, #041833 100%);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 24px;
+    }
+
+    .bubble-bg::before,
+    .bubble-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        radial-gradient(circle at 8px 8px, rgba(255,255,255,.45) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 22px 20px, rgba(255,255,255,.28) 0 1.5px, transparent 2px),
+        radial-gradient(circle at 38px 8px, rgba(255,255,255,.18) 0 1px, transparent 1.5px);
+      background-size: 48px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 10px 10px;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      min-width: 92px;
+      height: 40px;
+      border: 1px solid rgba(170,210,255,.55);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(173,213,255,.95), rgba(96,149,224,.95));
+      color: #eef7ff;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 400;
+      text-align: center;
+      flex: 1;
+      margin: 0;
+      color: #f3f8ff;
+    }
+
+    .cloud-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      margin-left: 6px;
+    }
+
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .center-panel {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      min-height: 575px;
+      border-radius: 28px;
+      padding: 30px 18px 24px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(5,34,79,.94) 0%, rgba(2,20,50,.96) 100%);
+      border: 2px solid rgba(0,0,0,.38);
+      box-shadow:
+        inset 0 0 0 1px rgba(140,190,255,.08),
+        0 8px 30px rgba(0,0,0,.25);
+    }
+
+    .home-temp {
+      text-align: center;
+      font-size: 64px;
+      font-weight: 500;
+      margin-top: 100px;
+      letter-spacing: 1px;
+    }
+
+    .swirl {
+      text-align: center;
+      font-size: 82px;
+      opacity: .88;
+      margin-top: 26px;
+      line-height: 1;
+    }
+
+    .home-mode {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+
+    .home-range {
+      font-size: 24px;
+      color: rgba(255,255,255,.88);
+      margin-top: 20px;
+      margin-left: 18px;
+    }
+
+    .home-time,
+    .home-settemp {
+      text-align: center;
+      font-size: 18px;
+      color: #cde5ff;
+    }
+
+    .home-time { margin-top: 20px; }
+    .home-settemp { margin-top: 8px; }
+
+    .controls-title,
+    .settings-title {
+      text-align: center;
+      font-size: 26px;
+      margin-top: -4px;
+      margin-bottom: 28px;
+      color: #f3f8ff;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px 8px;
+      justify-items: center;
+      align-items: start;
+      margin-top: 46px;
+    }
+
+    .control-item {
+      width: 72px;
+      text-align: center;
+    }
+
+    .circle-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.12);
+      cursor: pointer;
+      margin: 0 auto 6px;
+      color: #d7e8ff;
+      font-size: 26px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.23), transparent 28%),
+        linear-gradient(180deg, #565656 0%, #171717 55%, #050505 100%);
+      box-shadow:
+        inset 0 10px 18px rgba(255,255,255,.16),
+        inset 0 -8px 14px rgba(0,0,0,.45),
+        0 2px 8px rgba(0,0,0,.25);
+    }
+
+    .circle-btn.off {
+      filter: grayscale(.15);
+      opacity: .95;
+    }
+
+    .circle-btn.on,
+    .circle-btn.low,
+    .circle-btn.high {
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.42), transparent 28%),
+        linear-gradient(180deg, #707070 0%, #1d1d1d 45%, #030303 100%);
+      box-shadow:
+        inset 0 0 22px rgba(120,255,185,1),
+        0 0 14px rgba(80,240,160,.9),
+        0 0 28px rgba(60,220,145,1),
+        0 0 48px rgba(45,200,130,.95);
+      color: #ffffff;
+    }
+
+    .circle-btn.light.on {
+      box-shadow:
+        inset 0 0 24px rgba(140,255,195,1),
+        0 0 16px rgba(100,255,180,.95),
+        0 0 30px rgba(70,230,150,1),
+        0 0 52px rgba(40,210,135,.95);
+      color: #ffffff;
+    }
+
+    .control-label {
+      font-size: 14px;
+      line-height: 1.1;
+      color: #f2f7ff;
+      min-height: 32px;
+    }
+
+    .control-state {
+      font-size: 12px;
+      color: #ffffff;
+      min-height: 16px;
+      margin-top: 2px;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(120,255,185,.9);
+    }
+
+    .settings-block {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(170,210,255,.18);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .settings-label {
+      font-size: 17px;
+      margin-bottom: 10px;
+      color: #f3f8ff;
+    }
+
+    .settings-value {
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-min,
+    .slider-max {
+      width: 44px;
+      text-align: center;
+      color: #cde5ff;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: #74d4ff;
+    }
+
+    .settings-btn,
+    .settings-btn-small,
+    .settings-btn-wide {
+      border: 1px solid rgba(170,210,255,.28);
+      border-radius: 14px;
+      color: #eef7ff;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(173,213,255,.20), rgba(96,149,224,.18));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .settings-btn {
+      min-height: 44px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+    }
+
+    .settings-btn-small {
+      min-width: 70px;
+      min-height: 42px;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .settings-btn-wide {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .settings-btn.active,
+    .settings-btn-small.active,
+    .settings-btn-wide.active {
+      background: linear-gradient(180deg, rgba(120,255,185,.38), rgba(55,175,115,.28));
+      box-shadow:
+        inset 0 0 16px rgba(120,255,185,.42),
+        0 0 18px rgba(60,220,145,.20);
+      border-color: rgba(120,255,185,.55);
+      color: #ffffff;
+    }
+
+    .btn-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-top: 28px;
+      color: rgba(255,255,255,.96);
+    }
+
+    .logo-main {
+      font-size: 42px;
+      letter-spacing: 1px;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .logo-sub {
+      font-size: 18px;
+      letter-spacing: 8px;
+      margin-top: 6px;
+      text-transform: lowercase;
+    }
+
+    .message-box {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(170,210,255,.12);
+      color: #e8f3ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      min-height: 48px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="app bubble-bg">
+    <div class="topbar">
+      <button class="nav-btn" onclick="showScreen('controls')">Ovládanie</button>
+      <h1 class="title" id="mainTitle">Domov</h1>
+      <button class="nav-btn" onclick="showScreen('settings')">Nastavenia</button>
+    </div>
+
+    <div id="homeScreen" class="screen active">
+      <div class="cloud-icon">☁</div>
+
+      <div class="center-panel">
+        <div class="home-temp" id="homeTemp">--.-°C</div>
+        <div class="swirl">🌀</div>
+        <div class="home-mode" id="homeMode">Ready</div>
+        <div class="home-range" id="homeRange">Low Range</div>
+        <div class="home-time" id="homeTime">Čas: --:--</div>
+        <div class="home-settemp" id="homeSetTemp">Nastavená teplota: --.-°C</div>
+
+        <div class="logo-wrap" style="margin-top:92px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="controlsScreen" class="screen">
+      <div class="center-panel">
+        <div class="controls-title">Ovládanie</div>
+
+        <div class="controls-grid">
+          <div class="control-item" id="item-circpump">
+            <button id="btn-circpump" class="circle-btn off" onclick="sendButton(3,'Obehové čerpadlo')">🌀</button>
+            <div class="control-label">Obeh</div>
+            <div class="control-state" id="lbl-circpump">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump1">
+            <button id="btn-pump1" class="circle-btn off" onclick="sendButton(4,'Pumpa 1')">🌀</button>
+            <div class="control-label">Pumpa 1</div>
+            <div class="control-state" id="lbl-pump1">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump2">
+            <button id="btn-pump2" class="circle-btn off" onclick="sendButton(5,'Pumpa 2')">🌀</button>
+            <div class="control-label">Pumpa 2</div>
+            <div class="control-state" id="lbl-pump2">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump3">
+            <button id="btn-pump3" class="circle-btn off" onclick="sendButton(6,'Pumpa 3')">🌀</button>
+            <div class="control-label">Pumpa 3</div>
+            <div class="control-state" id="lbl-pump3">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump4">
+            <button id="btn-pump4" class="circle-btn off" onclick="sendButton(7,'Pumpa 4')">🌀</button>
+            <div class="control-label">Pumpa 4</div>
+            <div class="control-state" id="lbl-pump4">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump5">
+            <button id="btn-pump5" class="circle-btn off" onclick="sendButton(8,'Pumpa 5')">🌀</button>
+            <div class="control-label">Pumpa 5</div>
+            <div class="control-state" id="lbl-pump5">-</div>
+          </div>
+
+          <div class="control-item" id="item-pump6">
+            <button id="btn-pump6" class="circle-btn off" onclick="sendButton(9,'Pumpa 6')">🌀</button>
+            <div class="control-label">Pumpa 6</div>
+            <div class="control-state" id="lbl-pump6">-</div>
+          </div>
+
+          <div class="control-item" id="item-blower">
+            <button id="btn-blower" class="circle-btn off" onclick="sendButton(12,'Blower')">◌</button>
+            <div class="control-label">Blower</div>
+            <div class="control-state" id="lbl-blower">-</div>
+          </div>
+
+          <div class="control-item" id="item-light1">
+            <button id="btn-light1" class="circle-btn light off" onclick="sendButton(17,'Svetlo 1')">☼</button>
+            <div class="control-label">Svetlo 1</div>
+            <div class="control-state" id="lbl-light1">-</div>
+          </div>
+
+          <div class="control-item" id="item-light2">
+            <button id="btn-light2" class="circle-btn light off" onclick="sendButton(18,'Svetlo 2')">☼</button>
+            <div class="control-label">Svetlo 2</div>
+            <div class="control-state" id="lbl-light2">-</div>
+          </div>
+
+          <div class="control-item" id="item-mister">
+            <button id="btn-mister" class="circle-btn off" onclick="sendButton(14,'Mister')">◍</button>
+            <div class="control-label">Mister</div>
+            <div class="control-state" id="lbl-mister">-</div>
+          </div>
+
+          <div class="control-item" id="item-aux1">
+            <button id="btn-aux1" class="circle-btn off" onclick="sendButton(22,'Aux 1')">A1</button>
+            <div class="control-label">Aux 1</div>
+            <div class="control-state" id="lbl-aux1">-</div>
+          </div>
+
+          <div class="control-item" id="item-aux2">
+            <button id="btn-aux2" class="circle-btn off" onclick="sendButton(23,'Aux 2')">A2</button>
+            <div class="control-label">Aux 2</div>
+            <div class="control-state" id="lbl-aux2">-</div>
+          </div>
+        </div>
+
+        <div class="logo-wrap" style="margin-top:70px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsScreen" class="screen">
+      <div class="center-panel">
+        <div class="settings-title">Nastavenia</div>
+
+        <div class="settings-block">
+          <div class="settings-label">Nastavená teplota</div>
+          <div class="settings-value" id="settingsTempValue">--.-°C</div>
+          <div class="slider-row">
+            <div class="slider-min" id="tempMinLabel">26</div>
+            <input type="range" id="tempSlider" min="26" max="40" step="0.5" value="34" />
+            <div class="slider-max" id="tempMaxLabel">40</div>
+          </div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveSetTemp()">Uložiť teplotu</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Jednotky teploty</div>
+          <div class="btn-grid-2">
+            <button id="unitCBtn" class="settings-btn-small" onclick="setTempUnits('C')">°C</button>
+            <button id="unitFBtn" class="settings-btn-small" onclick="setTempUnits('F')">°F</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Heat Mode</div>
+          <div class="btn-grid-2">
+            <button id="heatReadyBtn" class="settings-btn" onclick="sendHeatModeButton()">Ready / Rest</button>
+            <button class="settings-btn" onclick="refreshAll()">Obnoviť stav</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Temperature Range</div>
+          <div class="btn-grid-2">
+            <button id="rangeLowBtn" class="settings-btn" onclick="sendRangeButton()">Low / High</button>
+            <button class="settings-btn" onclick="refreshAll()">Načítať z panelu</button>
+          </div>
+        </div>
+
+        <div class="logo-wrap" style="margin-top:28px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-box" id="messageBox">Vitajte. Ovládanie je pripravené.</div>
+  </div>
+
+  <script>
+    const WORKER_URL = "https://balboa-proxy-worker.lechstav.workers.dev";
+
+    const appState = {
+      tempUnit: "C",
+      tempRangeHigh: false,
+      heatMode: "Ready",
+      setTemp: 34.0,
+      deviceConfigHex: "",
+      profileName: "default"
+    };
+
+    const deviceProfiles = {
+      default: {
+        controls: {
+          circpump: true,
+          pump1: true,
+          pump2: true,
+          pump3: true,
+          pump4: false,
+          pump5: false,
+          pump6: false,
+          blower: true,
+          light1: true,
+          light2: false,
+          mister: false,
+          aux1: false,
+          aux2: false
+        }
+      },
+
+      currentSpa: {
+        controls: {
+          circpump: true,
+          pump1: true,
+          pump2: true,
+          pump3: true,
+          pump4: false,
+          pump5: false,
+          pump6: false,
+          blower: true,
+          light1: true,
+          light2: false,
+          mister: false,
+          aux1: false,
+          aux2: false
+        }
+      }
+    };
+
+    function setMessage(text) {
+      document.getElementById("messageBox").textContent = text;
+    }
+
+    function showScreen(name) {
+      document.getElementById("homeScreen").classList.remove("active");
+      document.getElementById("controlsScreen").classList.remove("active");
+      document.getElementById("settingsScreen").classList.remove("active");
+
+      if (name === "home") {
+        document.getElementById("homeScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Domov";
+      } else if (name === "settings") {
+        document.getElementById("settingsScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Nastavenia";
+      } else {
+        document.getElementById("controlsScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Ovládanie";
+      }
+    }
+
+    function setCtrlState(btnId, lblId, css, label) {
+      const btn = document.getElementById(btnId);
+      const lbl = document.getElementById(lblId);
+      if (!btn || !lbl) return;
+      btn.classList.remove("off", "on", "low", "high");
+      btn.classList.add(css);
+      lbl.textContent = label;
+    }
+
+    async function fetchJson(url) {
+      const resp = await fetch(url, { method: "GET" });
+      const text = await resp.text();
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { raw: text };
+      }
+      return { resp, data, text };
+    }
+
+    function hexToBytes(hex) {
+      if (!hex) return [];
+      const clean = String(hex).replace(/[^0-9a-f]/gi, "");
+      if (clean.length % 2 !== 0) return [];
+      const out = [];
+      for (let i = 0; i < clean.length; i += 2) {
+        out.push(parseInt(clean.substring(i, i + 2), 16));
+      }
+      return out;
+    }
+
+    function pad2(n) {
+      const v = Number(n);
+      if (!Number.isFinite(v)) return "--";
+      return String(v).padStart(2, "0");
+    }
+
+    function detectDeviceProfile(deviceHex) {
+      const hex = (deviceHex || "").toLowerCase();
+
+      if (!hex) return "default";
+
+      // miesto pre ďalšie modely
+      // if (hex === "sem_pridame_presny_hex_inej_virivky") return "fivePumps";
+
+      return "currentSpa";
+    }
+
+    function applyDeviceProfile(profileName) {
+      const profile = deviceProfiles[profileName] || deviceProfiles.default;
+      const controls = profile.controls;
+
+      Object.keys(controls).forEach((key) => {
+        const el = document.getElementById("item-" + key);
+        if (!el) return;
+        el.classList.toggle("hidden", !controls[key]);
+      });
+
+      appState.profileName = profileName;
+    }
+
+    function parsePanel(hex) {
+      const p = hexToBytes(hex);
+      if (p.length < 24) return null;
+
+      const tempNow = (p[6] ?? 0) / 2;
+      const hour = p[7] ?? 0;
+      const minute = p[8] ?? 0;
+      const heatModeRaw = p[10] ?? 0;
+      const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
+      const setTemp = (p[23] ?? 0) / 2;
+
+      let heatMode = "Ready";
+      if (heatModeRaw === 1) heatMode = "Rest";
+      else if (heatModeRaw === 2) heatMode = "Ready in Rest";
+
+      const tempRange = tempRangeHigh ? "High Range" : "Low Range";
+
+      const byte14 = p[14] ?? 0;
+      const byte15 = p[15] ?? 0;
+      const byte17 = p[17] ?? 0;
+      const byte18 = p[18] ?? 0;
+      const byte19 = p[19] ?? 0;
+
+      const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
+      const pump1On = (byte15 & 0x02) !== 0;
+      const pump2On = (byte15 & 0x08) !== 0;
+      const pump3On = (byte15 & 0x20) !== 0;
+      const blowerOn = (byte17 & 0x04) !== 0 || (byte17 & 0x08) !== 0;
+      const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
+
+      return {
+        tempNow,
+        setTemp,
+        time: pad2(hour) + ":" + pad2(minute),
+        heatMode,
+        tempRange,
+        tempRangeHigh,
+        circPumpOn,
+        pump1On,
+        pump2On,
+        pump3On,
+        blowerOn,
+        light1On
+      };
+    }
+
+    function applyHomeState(s) {
+      document.getElementById("homeTemp").textContent = Number.isFinite(s.tempNow)
+        ? s.tempNow.toFixed(1) + "°C"
+        : "--.-°C";
+
+      document.getElementById("homeMode").textContent = s.heatMode || "-";
+      document.getElementById("homeRange").textContent = s.tempRange || "-";
+      document.getElementById("homeTime").textContent = "Čas: " + (s.time || "--:--");
+      document.getElementById("homeSetTemp").textContent =
+        "Nastavená teplota: " +
+        (Number.isFinite(s.setTemp) ? s.setTemp.toFixed(1) + "°C" : "--.-°C");
+    }
+
+    function applyControlsState(s) {
+      setCtrlState("btn-circpump", "lbl-circpump", s.circPumpOn ? "on" : "off", s.circPumpOn ? "ON" : "OFF");
+      setCtrlState("btn-pump1", "lbl-pump1", s.pump1On ? "on" : "off", s.pump1On ? "ON" : "OFF");
+      setCtrlState("btn-pump2", "lbl-pump2", s.pump2On ? "on" : "off", s.pump2On ? "ON" : "OFF");
+      setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
+      setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
+      setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
+    }
+
+    function updateSettingsUI() {
+      document.getElementById("settingsTempValue").textContent =
+        Number(appState.setTemp).toFixed(1) + "°" + appState.tempUnit;
+
+      const slider = document.getElementById("tempSlider");
+      slider.value = String(appState.setTemp);
+
+      document.getElementById("unitCBtn").classList.toggle("active", appState.tempUnit === "C");
+      document.getElementById("unitFBtn").classList.toggle("active", appState.tempUnit === "F");
+      document.getElementById("heatReadyBtn").textContent = appState.heatMode;
+      document.getElementById("rangeLowBtn").textContent = appState.tempRangeHigh ? "High Range" : "Low Range";
+
+      updateSliderLimits();
+    }
+
+    function updateSliderLimits() {
+      const slider = document.getElementById("tempSlider");
+      const minLabel = document.getElementById("tempMinLabel");
+      const maxLabel = document.getElementById("tempMaxLabel");
+
+      if (appState.tempUnit === "C") {
+        if (appState.tempRangeHigh) {
+          slider.min = "32";
+          slider.max = "40";
+          slider.step = "0.5";
+          minLabel.textContent = "32";
+          maxLabel.textContent = "40";
+        } else {
+          slider.min = "26";
+          slider.max = "32";
+          slider.step = "0.5";
+          minLabel.textContent = "26";
+          maxLabel.textContent = "32";
+        }
+      } else {
+        if (appState.tempRangeHigh) {
+          slider.min = "90";
+          slider.max = "104";
+          slider.step = "1";
+          minLabel.textContent = "90";
+          maxLabel.textContent = "104";
+        } else {
+          slider.min = "80";
+          slider.max = "90";
+          slider.step = "1";
+          minLabel.textContent = "80";
+          maxLabel.textContent = "90";
+        }
+      }
+
+      const current = Number(slider.value);
+      const min = Number(slider.min);
+      const max = Number(slider.max);
+
+      if (current < min) slider.value = String(min);
+      if (current > max) slider.value = String(max);
+
+      appState.setTemp = Number(slider.value);
+      document.getElementById("settingsTempValue").textContent =
+        Number(appState.setTemp).toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
+    }
+
+    async function loadDeviceConfig() {
+      try {
+        const { resp, data } = await fetchJson(WORKER_URL + "/deviceconfig");
+        if (!resp.ok) {
+          applyDeviceProfile("default");
+          return;
+        }
+
+        const hex = data && data.hex ? data.hex : "";
+        appState.deviceConfigHex = hex;
+        const profile = detectDeviceProfile(hex);
+        applyDeviceProfile(profile);
+      } catch (e) {
+        applyDeviceProfile("default");
+      }
+    }
+
+    async function loadPanelUpdate() {
+      try {
+        const { resp, data, text } = await fetchJson(WORKER_URL + "/panelupdate");
+
+        if (!resp.ok) {
+          setMessage("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const hex = data && data.hex ? data.hex : "";
+        const parsed = parsePanel(hex);
+
+        if (!parsed) {
+          setMessage("Nepodarilo sa rozpoznať stav z PanelUpdate.");
+          console.log("panelupdate raw:", text);
+          return;
+        }
+
+        appState.heatMode = parsed.heatMode || "Ready";
+        appState.tempRangeHigh = !!parsed.tempRangeHigh;
+        appState.setTemp = Number.isFinite(parsed.setTemp) ? parsed.setTemp : appState.setTemp;
+
+        applyHomeState(parsed);
+        applyControlsState(parsed);
+        updateSettingsUI();
+        setMessage("Stav vírivky bol aktualizovaný.");
+      } catch (e) {
+        setMessage("Chyba pri načítaní stavu: " + e.message);
+      }
+    }
+
+    async function sendButton(code, name) {
+      try {
+        setMessage("Odosielam príkaz: " + name + " ...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/button?code=" + encodeURIComponent(code));
+
+        if (!resp.ok) {
+          setMessage("Príkaz zlyhal: " + name + ". HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMessage((ok ? "Príkaz prijatý: " : "Príkaz odoslaný: ") + name + ". Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1200);
+      } catch (e) {
+        setMessage("Chyba pri odoslaní príkazu " + name + ": " + e.message);
+      }
+    }
+
+    async function saveSetTemp() {
+      try {
+        const value = document.getElementById("tempSlider").value;
+        setMessage("Nastavujem teplotu na " + value + "°" + appState.tempUnit + " ...");
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/settemp?value=" + encodeURIComponent(value));
+
+        if (!resp.ok) {
+          setMessage("Nastavenie teploty zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        appState.setTemp = Number(value);
+        updateSettingsUI();
+        setMessage((ok ? "Teplota nastavená. " : "Príkaz odoslaný. ") + "Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1500);
+      } catch (e) {
+        setMessage("Chyba pri nastavení teploty: " + e.message);
+      }
+    }
+
+    async function setTempUnits(unit) {
+      try {
+        setMessage("Prepínam jednotky na °" + unit + " ...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/tempunits?value=" + encodeURIComponent(unit));
+
+        if (!resp.ok) {
+          setMessage("Prepnutie jednotiek zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        appState.tempUnit = unit;
+        updateSettingsUI();
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMessage((ok ? "Jednotky zmenené. " : "Príkaz odoslaný. ") + "Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1500);
+      } catch (e) {
+        setMessage("Chyba pri prepnutí jednotiek: " + e.message);
+      }
+    }
+
+    async function sendHeatModeButton() {
+      await sendButton(81, "Heat Mode");
+    }
+
+    async function sendRangeButton() {
+      await sendButton(80, "Temperature Range");
+    }
+
+    async function refreshAll() {
+      await loadDeviceConfig();
+      await loadPanelUpdate();
+    }
+
+    document.getElementById("tempSlider").addEventListener("input", function () {
+      const val = Number(this.value);
+      appState.setTemp = val;
+      document.getElementById("settingsTempValue").textContent =
+        val.toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
+    });
+
+    updateSettingsUI();
+    refreshAll();
+    setInterval(loadPanelUpdate, 15000);
+  </script>
+</body>
+</html>
