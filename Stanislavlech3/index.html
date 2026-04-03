@@ -4,57 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Platinum Lech Spa</title>
-
-  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="36" fill="%230004ff"/>
-  <text x="96" y="112" text-anchor="middle" font-size="80" font-family="Arial" font-weight="700" fill="white">SPA</text>
-</svg>'>
-<meta name="theme-color" content="#0004ff">
-  
-</svg>'>
-<meta name="theme-color" content="#0004ff">
-
-  <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-      <rect width="180" height="180" rx="38" fill="%230f2d73"/>
-      <circle cx="90" cy="90" r="54" fill="%2355d6ff" opacity="0.18"/>
-      <text x="90" y="108" font-size="72" text-anchor="middle" fill="white" font-family="Arial" font-weight="700">SPA</text>
-    </svg>'>
-
-  <link rel="manifest" href='data:application/manifest+json,{
-    "name":"Platinum Lech Spa",
-    "short_name":"Platinum Lech Spa",
-    "start_url":".",
-    "display":"standalone",
-    "background_color":"#73ecf5",
-    "theme_color":"#73ecf5",
-    "icons":[
-      {
-        "src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 180 180%22><rect width=%22180%22 height=%22180%22 rx=%2238%22 fill=%22%230f2d73%22/><circle cx=%2290%22 cy=%2290%22 r=%2254%22 fill=%22%2355d6ff%22 opacity=%220.18%22/><text x=%2290%22 y=%22108%22 font-size=%2272%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22700%22>PL</text></svg>",
-        "sizes":"180x180",
-        "type":"image/svg+xml"
-      }
-    ]
-  }'>
-
-  <meta name="theme-color" content="#73ecf5" />
-
   <style>
     * { box-sizing: border-box; }
 
-    :root {
-      --bg-color: #73ecf5;
-      --panel-color: #8d8ae6;
-    }
-
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: #fff;
-      background: var(--bg-color);
-      min-height: 100vh;
-    }
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background: #1216e6;
+  min-height: 100vh;
+}
 
     .app {
       max-width: 430px;
@@ -135,7 +94,7 @@
       border-radius: 28px;
       padding: 30px 18px 24px;
       position: relative;
-      background: var(--panel-color);
+      background: linear-gradient(180deg, rgba(5,34,79,.94) 0%, rgba(2,20,50,.96) 100%);
       border: 2px solid rgba(0,0,0,.38);
       box-shadow:
         inset 0 0 0 1px rgba(140,190,255,.08),
@@ -322,8 +281,7 @@
     .settings-btn,
     .settings-btn-small,
     .settings-btn-wide,
-    .settings-select,
-    .settings-input {
+    .settings-select {
       border: 1px solid rgba(170,210,255,.28);
       border-radius: 14px;
       color: #eef7ff;
@@ -358,8 +316,7 @@
       cursor: pointer;
     }
 
-    .settings-select,
-    .settings-input {
+    .settings-select {
       width: 100%;
       min-height: 46px;
       padding: 10px 12px;
@@ -372,10 +329,6 @@
 
     .settings-select option {
       color: #000;
-    }
-
-    .settings-input::placeholder {
-      color: rgba(255,255,255,.7);
     }
 
     .settings-btn.active,
@@ -555,32 +508,6 @@
         <div class="settings-title">Nastavenia</div>
 
         <div class="settings-block">
-          <div class="settings-label">Farby aplikácie</div>
-
-          <div class="small" style="margin-bottom:8px;">HEX farba pozadia stránky</div>
-          <div class="btn-grid-2" style="margin-bottom:10px;">
-            <input id="bgColorInput" class="settings-input" type="text" placeholder="#73ecf5" maxlength="7" />
-            <button class="settings-btn" onclick="setColorFromInput('bg')">Použiť</button>
-          </div>
-
-          <div class="small" style="margin-bottom:8px;">HEX farba panelu pod tlačidlami</div>
-          <div class="btn-grid-2">
-            <input id="panelColorInput" class="settings-input" type="text" placeholder="#8d8ae6" maxlength="7" />
-            <button class="settings-btn" onclick="setColorFromInput('panel')">Použiť</button>
-          </div>
-
-          <div class="small" style="margin-top:10px;">
-            Pozadie: <span id="bgColorPreviewText">#73ecf5</span>
-            <br>
-            Panel: <span id="panelColorPreviewText">#8d8ae6</span>
-          </div>
-
-          <div style="margin-top:12px;">
-            <button class="settings-btn-wide" onclick="saveThemeColors()">Uložiť farby</button>
-          </div>
-        </div>
-
-        <div class="settings-block">
           <div class="settings-label">Nastavená teplota</div>
           <div class="settings-value" id="settingsTempValue">--.-°C</div>
           <div class="slider-row">
@@ -606,7 +533,7 @@
           <div class="settings-label">Teplotný režim</div>
           <div class="btn-grid-2">
             <button id="heatReadyBtn" class="settings-btn" onclick="setHeatMode('ready')">Pripravený</button>
-            <button id="heatRestBtn" class="settings-btn" onclick="setHeatMode('rest')">Spiaci</button>
+            <button id="heatRestBtn" class="settings-btn" onclick="setHeatMode('rest')">Dovolenka</button>
           </div>
         </div>
 
@@ -692,9 +619,7 @@
       profileName: "default",
       filter2Enabled: false,
       devicePrefix: "001527FF",
-      deviceSuffix: "FF3B526E",
-      bgColor: localStorage.getItem("spa_bg_color") || "#73ecf5",
-      panelColor: localStorage.getItem("spa_panel_color") || "#8d8ae6"
+      deviceSuffix: "FF3B516E"
     };
 
     const deviceProfiles = {
@@ -737,53 +662,6 @@
 
     function setMessage(text) {
       document.getElementById("messageBox").textContent = text;
-    }
-
-    function isValidHexColor(value) {
-      return /^#[0-9A-Fa-f]{6}$/.test(String(value).trim());
-    }
-
-    function applyThemeColors() {
-      document.documentElement.style.setProperty("--bg-color", appState.bgColor);
-      document.documentElement.style.setProperty("--panel-color", appState.panelColor);
-
-      const bgText = document.getElementById("bgColorPreviewText");
-      const panelText = document.getElementById("panelColorPreviewText");
-      const bgInput = document.getElementById("bgColorInput");
-      const panelInput = document.getElementById("panelColorInput");
-
-      if (bgText) bgText.textContent = appState.bgColor;
-      if (panelText) panelText.textContent = appState.panelColor;
-      if (bgInput) bgInput.value = appState.bgColor;
-      if (panelInput) panelInput.value = appState.panelColor;
-    }
-
-    function setColorFromInput(type) {
-      if (type === "bg") {
-        const value = (document.getElementById("bgColorInput").value || "").trim();
-        if (!isValidHexColor(value)) {
-          setMessage("HEX farba pozadia musí byť napríklad #73ecf5");
-          return;
-        }
-        appState.bgColor = value;
-      } else {
-        const value = (document.getElementById("panelColorInput").value || "").trim();
-        if (!isValidHexColor(value)) {
-          setMessage("HEX farba panelu musí byť napríklad #8d8ae6");
-          return;
-        }
-        appState.panelColor = value;
-      }
-
-      applyThemeColors();
-      setMessage("Farba bola použitá. Ak ju chceš uložiť natrvalo, klikni na Uložiť farby.");
-    }
-
-    function saveThemeColors() {
-      localStorage.setItem("spa_bg_color", appState.bgColor);
-      localStorage.setItem("spa_panel_color", appState.panelColor);
-      applyThemeColors();
-      setMessage("Farby boli uložené.");
     }
 
     function showScreen(name) {
@@ -1060,7 +938,6 @@
 
       updateSliderLimits();
       updateFilterEnds();
-      applyThemeColors();
     }
 
     async function loadDeviceConfig() {
@@ -1369,10 +1246,9 @@
     });
 
     initSelects();
-    applyThemeColors();
     updateSettingsUI();
     refreshAll();
     setInterval(loadPanelUpdate, 15000);
   </script>
 </body>
-  </html>
+</html>
