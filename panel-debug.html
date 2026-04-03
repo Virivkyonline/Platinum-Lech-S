@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balboa Panel Debug</title>
+  <style>
+    body{
+      margin:0;
+      padding:16px;
+      font-family:Arial,sans-serif;
+      background:#081a36;
+      color:#fff;
+    }
+    .wrap{
+      max-width:520px;
+      margin:0 auto;
+    }
+    .card{
+      background:#10264d;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:16px;
+      margin-bottom:14px;
+    }
+    h1{
+      font-size:26px;
+      margin:0 0 14px;
+      text-align:center;
+    }
+    button{
+      width:100%;
+      min-height:46px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:700;
+      color:#fff;
+      background:#2d6cdf;
+      margin-bottom:10px;
+      cursor:pointer;
+    }
+    .mono{
+      font-family:monospace;
+      white-space:pre-wrap;
+      word-break:break-all;
+      font-size:14px;
+      line-height:1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Panel Debug</h1>
+
+    <div class="card">
+      <button onclick="loadPanel()">Načítať panel</button>
+      <div class="mono" id="out">Pripravené.</div>
+    </div>
+  </div>
+
+  <script>
+    const WORKER_URL = "https://balboa-proxy-worker.lechstav.workers.dev";
+
+    async function fetchJson(url) {
+      const resp = await fetch(url, { method: "GET", cache: "no-store" });
+      const text = await resp.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { raw: text };
+      }
+      return { resp, data, text };
+    }
+
+    function hexToBytes(hex) {
+      if (!hex) return [];
+      const clean = String(hex).replace(/[^0-9a-f]/gi, "");
+      if (clean.length % 2 !== 0) return [];
+      const out = [];
+      for (let i = 0; i < clean.length; i += 2) {
+        out.push(parseInt(clean.substring(i, i + 2), 16));
+      }
+      return out;
+    }
+
+    function b(arr, i) {
+      const v = arr[i];
+      if (typeof v !== "number") return "n/a";
+      return `${i}: dec ${v} / hex 0x${v.toString(16).padStart(2,"0")}`;
+    }
+
+    async function loadPanel() {
+      const out = document.getElementById("out");
+      out.textContent = "Načítavam...";
+
+      try {
+        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
+
+        if (!resp.ok) {
+          out.textContent = "HTTP chyba: " + resp.status;
+          return;
+        }
+
+        const hex = data.hex || "";
+        const p = hexToBytes(hex);
+
+        if (!p.length) {
+          out.textContent = "Nepodarilo sa získať hex.";
+          return;
+        }
+
+        const text =
+`Dĺžka poľa: ${p.length}
+
+Kľúčové byty podľa APK:
+${b(p, 7)}
+${b(p, 8)}
+${b(p, 9)}
+${b(p,10)}
+${b(p,14)}
+${b(p,15)}
+${b(p,25)}
+
+Predbežný výklad:
+byte 7  = aktuálna teplota
+byte 8  = hodina
+byte 9  = minúta
+byte 10 = heat mode
+byte 14 = flags
+byte 15 = range flags
+byte 25 = nastavená teplota
+
+Raw hex:
+${hex}`;
+
+        out.textContent = text;
+      } catch (e) {
+        out.textContent = "Chyba: " + e.message;
+      }
+    }
+
+    loadPanel();
+  </script>
+</body>
+</html>
