@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Test nastavení vírivky</title>
+  <title>Nastavenia vírivky</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -94,18 +94,25 @@
       gap: 10px;
     }
 
-    button {
+    button, input[type="number"] {
       width: 100%;
       min-height: 46px;
       padding: 10px 12px;
       border: 1px solid rgba(170,210,255,.28);
       border-radius: 14px;
       color: #eef7ff;
-      cursor: pointer;
       background: linear-gradient(180deg, rgba(173,213,255,.20), rgba(96,149,224,.18));
       box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
       font-size: 17px;
       font-weight: 700;
+    }
+
+    input[type="number"]::placeholder {
+      color: rgba(255,255,255,.7);
+    }
+
+    button {
+      cursor: pointer;
     }
 
     button.active {
@@ -127,6 +134,15 @@
       font-size: 14px;
       min-height: 48px;
       white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #cde5ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.45;
     }
   </style>
 </head>
@@ -174,6 +190,26 @@
       </div>
 
       <div class="block">
+        <div class="label">Čas panelu</div>
+        <div class="grid2">
+          <input id="timeHour" type="number" min="0" max="23" placeholder="Hodina">
+          <input id="timeMinute" type="number" min="0" max="59" placeholder="Minúta">
+        </div>
+        <div style="margin-top:10px;">
+          <button onclick="saveSystemTime()">Uložiť čas</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="label">Filtračné cykly</div>
+        <div class="grid2">
+          <button onclick="requestFilters()">Načítať filtre</button>
+          <button onclick="debugPanel()">Debug panel</button>
+        </div>
+        <div class="small" id="filtersInfo" style="margin-top:10px;">Zatiaľ nenačítané.</div>
+      </div>
+
+      <div class="block">
         <div class="label">Obnovenie</div>
         <div class="grid2">
           <button onclick="refreshPanel()">Načítať z panelu</button>
@@ -208,7 +244,7 @@
       } catch {
         data = { raw: text };
       }
-      return { resp, data };
+      return { resp, data, text };
     }
 
     function hexToBytes(hex) {
@@ -252,7 +288,8 @@
         heatMode,
         tempRangeHigh,
         tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
-        time: pad2(hour) + ":" + pad2(minute)
+        time: pad2(hour) + ":" + pad2(minute),
+        rawBytes: p
       };
     }
 
@@ -340,6 +377,9 @@
         state.heatMode = parsed.heatMode;
         state.tempRangeHigh = parsed.tempRangeHigh;
         state.setTemp = parsed.setTemp;
+
+        document.getElementById("timeHour").value = Number(parsed.time.split(":")[0]);
+        document.getElementById("timeMinute").value = Number(parsed.time.split(":")[1]);
 
         render();
         setMsg(
@@ -478,6 +518,80 @@
         );
       } catch (e) {
         setMsg("Chyba pri prepínaní teplotného rozsahu: " + e.message);
+      }
+    }
+
+    async function saveSystemTime() {
+      try {
+        const hh = Number(document.getElementById("timeHour").value);
+        const mm = Number(document.getElementById("timeMinute").value);
+
+        if (!Number.isInteger(hh) || hh < 0 || hh > 23 || !Number.isInteger(mm) || mm < 0 || mm > 59) {
+          setMsg("Zadaj platný čas.");
+          return;
+        }
+
+        setMsg("Ukladám čas panelu...");
+
+        const { resp, data } = await fetchJson(
+          WORKER_URL + "/systemtime?hh=" + encodeURIComponent(hh) + "&mm=" + encodeURIComponent(mm)
+        );
+
+        if (!resp.ok) {
+          setMsg("Uloženie času zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMsg((ok ? "Čas uložený." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setTimeout(refreshPanel, 2000);
+      } catch (e) {
+        setMsg("Chyba pri ukladaní času: " + e.message);
+      }
+    }
+
+    async function requestFilters() {
+      try {
+        setMsg("Žiadam údaje o filtračných cykloch...");
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/requestfilters");
+
+        if (!resp.ok) {
+          setMsg("Načítanie filtrov zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        document.getElementById("filtersInfo").textContent =
+          ok ? "Požiadavka na filtre bola odoslaná. Použi teraz Debug panel." : "Príkaz odoslaný.";
+        setMsg("Požiadavka na filtre odoslaná.");
+      } catch (e) {
+        setMsg("Chyba pri žiadosti o filtre: " + e.message);
+      }
+    }
+
+    async function debugPanel() {
+      try {
+        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
+        if (!resp.ok) {
+          setMsg("Debug panelu zlyhal. HTTP status: " + resp.status);
+          return;
+        }
+
+        const parsed = parsePanel(data.hex || "");
+        const bytes = parsed?.rawBytes || [];
+        const preview = bytes.map((v, i) => `${String(i).padStart(2,"0")}:${v}`).join("  ");
+
+        document.getElementById("filtersInfo").textContent =
+          "HEX: " + (data.hex || "") + "\n\nBYTES:\n" + preview;
+
+        setMsg("Debug panelu načítaný.");
+      } catch (e) {
+        setMsg("Chyba pri debug panelu: " + e.message);
       }
     }
 
