@@ -70,6 +70,14 @@
       margin-top: 8px;
     }
 
+    .small {
+      font-size: 13px;
+      color: #cde5ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
     .row {
       display: flex;
       align-items: center;
@@ -136,14 +144,6 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
-
-    .small {
-      font-size: 13px;
-      color: #cde5ff;
-      white-space: pre-wrap;
-      word-break: break-word;
-      line-height: 1.45;
-    }
   </style>
 </head>
 <body>
@@ -201,9 +201,42 @@
       </div>
 
       <div class="block">
-        <div class="label">Filtračné cykly</div>
+        <div class="label">Filtračný cyklus 1</div>
         <div class="grid2">
-          <button onclick="requestFilters()">Načítať filtre</button>
+          <input id="f1Hour" type="number" min="0" max="23" placeholder="Štart hodina">
+          <input id="f1Minute" type="number" min="0" max="59" placeholder="Štart minúta">
+        </div>
+        <div class="grid2" style="margin-top:10px;">
+          <input id="f1DurHour" type="number" min="0" max="23" placeholder="Trvanie hodiny">
+          <input id="f1DurMinute" type="number" min="0" max="59" placeholder="Trvanie minúty">
+        </div>
+        <div class="subvalue" id="f1Ends" style="margin-top:10px;">Koniec: --:--</div>
+      </div>
+
+      <div class="block">
+        <div class="label">Filtračný cyklus 2</div>
+        <div class="grid2">
+          <button id="btnF2Off" onclick="setFilter2Enabled(false)">Vypnutý</button>
+          <button id="btnF2On" onclick="setFilter2Enabled(true)">Zapnutý</button>
+        </div>
+        <div class="grid2" style="margin-top:10px;">
+          <input id="f2Hour" type="number" min="0" max="23" placeholder="Štart hodina">
+          <input id="f2Minute" type="number" min="0" max="59" placeholder="Štart minúta">
+        </div>
+        <div class="grid2" style="margin-top:10px;">
+          <input id="f2DurHour" type="number" min="0" max="23" placeholder="Trvanie hodiny">
+          <input id="f2DurMinute" type="number" min="0" max="59" placeholder="Trvanie minúty">
+        </div>
+        <div class="subvalue" id="f2Ends" style="margin-top:10px;">Koniec: --:--</div>
+        <div style="margin-top:10px;">
+          <button onclick="saveFilters()">Uložiť filtračné cykly</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="label">Filtre</div>
+        <div class="grid2">
+          <button onclick="loadFilters()">Načítať filtre</button>
           <button onclick="debugPanel()">Debug panel</button>
         </div>
         <div class="small" id="filtersInfo" style="margin-top:10px;">Zatiaľ nenačítané.</div>
@@ -228,7 +261,8 @@
       unit: "C",
       tempRangeHigh: false,
       heatMode: "Pripravený",
-      setTemp: 10.0
+      setTemp: 10.0,
+      filter2Enabled: false
     };
 
     function setMsg(text) {
@@ -337,6 +371,33 @@
       slider.value = String(state.setTemp);
     }
 
+    function addMinutes(h, m, dh, dm) {
+      let total = (Number(h) * 60) + Number(m) + (Number(dh) * 60) + Number(dm);
+      total = ((total % 1440) + 1440) % 1440;
+      return {
+        h: Math.floor(total / 60),
+        m: total % 60
+      };
+    }
+
+    function updateFilterEnds() {
+      const f1 = addMinutes(
+        Number(document.getElementById("f1Hour").value || 0),
+        Number(document.getElementById("f1Minute").value || 0),
+        Number(document.getElementById("f1DurHour").value || 0),
+        Number(document.getElementById("f1DurMinute").value || 0)
+      );
+      document.getElementById("f1Ends").textContent = "Koniec: " + pad2(f1.h) + ":" + pad2(f1.m);
+
+      const f2 = addMinutes(
+        Number(document.getElementById("f2Hour").value || 0),
+        Number(document.getElementById("f2Minute").value || 0),
+        Number(document.getElementById("f2DurHour").value || 0),
+        Number(document.getElementById("f2DurMinute").value || 0)
+      );
+      document.getElementById("f2Ends").textContent = "Koniec: " + pad2(f2.h) + ":" + pad2(f2.m);
+    }
+
     function render() {
       updateSliderLimits();
 
@@ -356,6 +417,11 @@
 
       document.getElementById("btnRangeLow").classList.toggle("active", !state.tempRangeHigh);
       document.getElementById("btnRangeHigh").classList.toggle("active", state.tempRangeHigh);
+
+      document.getElementById("btnF2Off").classList.toggle("active", !state.filter2Enabled);
+      document.getElementById("btnF2On").classList.toggle("active", state.filter2Enabled);
+
+      updateFilterEnds();
     }
 
     async function refreshPanel() {
@@ -385,7 +451,7 @@
         setMsg(
           "Stav načítaný.\n" +
           "Režim: " + parsed.heatMode + "\n" +
-          "Rozsah: " + parsed.tempRange + "\n" +
+          "Rozsah: " + (parsed.tempRangeHigh ? "Vysoký" : "Nízky") + "\n" +
           "Čas panelu: " + parsed.time
         );
       } catch (e) {
@@ -394,9 +460,7 @@
     }
 
     function convertSetTempForWorker(temp, unit) {
-      if (unit === "C") {
-        return String((Number(temp) * 2).toFixed(1));
-      }
+      if (unit === "C") return String((Number(temp) * 2).toFixed(1));
       return String(Number(temp).toFixed(1));
     }
 
@@ -405,12 +469,7 @@
         const uiValue = Number(document.getElementById("tempSlider").value);
         const workerValue = convertSetTempForWorker(uiValue, state.unit);
 
-        setMsg(
-          "Nastavujem teplotu na " +
-          uiValue.toFixed(state.unit === "C" ? 1 : 0) +
-          "°" + state.unit + " ..."
-        );
-
+        setMsg("Nastavujem teplotu...");
         const { resp, data } = await fetchJson(
           WORKER_URL + "/settemp?value=" + encodeURIComponent(workerValue)
         );
@@ -436,8 +495,7 @@
 
     async function setTempUnits(unit) {
       try {
-        setMsg("Prepínam jednotky na °" + unit + " ...");
-
+        setMsg("Prepínam jednotky...");
         const { resp, data } = await fetchJson(
           WORKER_URL + "/tempunits?value=" + encodeURIComponent(unit)
         );
@@ -489,12 +547,7 @@
         }
 
         setMsg("Prepínam teplotný režim...");
-        await sendToggleButton(
-          81,
-          "Teplotný režim prepnutý.",
-          "Prepnutie teplotného režimu zlyhalo.",
-          2500
-        );
+        await sendToggleButton(81, "Teplotný režim prepnutý.", "Prepnutie teplotného režimu zlyhalo.", 2500);
       } catch (e) {
         setMsg("Chyba pri prepínaní teplotného režimu: " + e.message);
       }
@@ -510,12 +563,7 @@
         }
 
         setMsg("Prepínam teplotný rozsah...");
-        await sendToggleButton(
-          80,
-          "Teplotný rozsah prepnutý.",
-          "Prepnutie teplotného rozsahu zlyhalo.",
-          2000
-        );
+        await sendToggleButton(80, "Teplotný rozsah prepnutý.", "Prepnutie teplotného rozsahu zlyhalo.", 2000);
       } catch (e) {
         setMsg("Chyba pri prepínaní teplotného rozsahu: " + e.message);
       }
@@ -532,7 +580,6 @@
         }
 
         setMsg("Ukladám čas panelu...");
-
         const { resp, data } = await fetchJson(
           WORKER_URL + "/systemtime?hh=" + encodeURIComponent(hh) + "&mm=" + encodeURIComponent(mm)
         );
@@ -552,25 +599,108 @@
       }
     }
 
-    async function requestFilters() {
-      try {
-        setMsg("Žiadam údaje o filtračných cykloch...");
+    function setFilter2Enabled(enabled) {
+      state.filter2Enabled = !!enabled;
+      render();
+    }
 
-        const { resp, data } = await fetchJson(WORKER_URL + "/requestfilters");
+    async function loadFilters() {
+      try {
+        setMsg("Načítavam filtre...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/getfilters");
 
         if (!resp.ok) {
           setMsg("Načítanie filtrov zlyhalo. HTTP status: " + resp.status);
           return;
         }
 
+        const p = data.parsed;
+        if (!p) {
+          setMsg("Filtre sa nepodarilo rozpoznať.");
+          return;
+        }
+
+        document.getElementById("f1Hour").value = p.filterCycle1.startsAtHour;
+        document.getElementById("f1Minute").value = p.filterCycle1.startsAtMinute;
+        document.getElementById("f1DurHour").value = p.filterCycle1.durationHour;
+        document.getElementById("f1DurMinute").value = p.filterCycle1.durationMinute;
+
+        state.filter2Enabled = !!p.filterCycle2.enabled;
+        document.getElementById("f2Hour").value = p.filterCycle2.startsAtHour;
+        document.getElementById("f2Minute").value = p.filterCycle2.startsAtMinute;
+        document.getElementById("f2DurHour").value = p.filterCycle2.durationHour;
+        document.getElementById("f2DurMinute").value = p.filterCycle2.durationMinute;
+
+        document.getElementById("filtersInfo").textContent =
+          "Cyklus 1: " + pad2(p.filterCycle1.startsAtHour) + ":" + pad2(p.filterCycle1.startsAtMinute) +
+          ", trvanie " + p.filterCycle1.durationHour + "h " + p.filterCycle1.durationMinute + "m\n" +
+          "Cyklus 2: " + (p.filterCycle2.enabled ? "Zapnutý" : "Vypnutý") + ", " +
+          pad2(p.filterCycle2.startsAtHour) + ":" + pad2(p.filterCycle2.startsAtMinute) +
+          ", trvanie " + p.filterCycle2.durationHour + "h " + p.filterCycle2.durationMinute + "m";
+
+        render();
+        setMsg("Filtre načítané.");
+      } catch (e) {
+        setMsg("Chyba pri načítaní filtrov: " + e.message);
+      }
+    }
+
+    async function saveFilters() {
+      try {
+        const f1h = Number(document.getElementById("f1Hour").value);
+        const f1m = Number(document.getElementById("f1Minute").value);
+        const f1dh = Number(document.getElementById("f1DurHour").value);
+        const f1dm = Number(document.getElementById("f1DurMinute").value);
+
+        const f2h = Number(document.getElementById("f2Hour").value);
+        const f2m = Number(document.getElementById("f2Minute").value);
+        const f2dh = Number(document.getElementById("f2DurHour").value);
+        const f2dm = Number(document.getElementById("f2DurMinute").value);
+
+        const allValid =
+          Number.isInteger(f1h) && f1h >= 0 && f1h <= 23 &&
+          Number.isInteger(f1m) && f1m >= 0 && f1m <= 59 &&
+          Number.isInteger(f1dh) && f1dh >= 0 && f1dh <= 23 &&
+          Number.isInteger(f1dm) && f1dm >= 0 && f1dm <= 59 &&
+          Number.isInteger(f2h) && f2h >= 0 && f2h <= 23 &&
+          Number.isInteger(f2m) && f2m >= 0 && f2m <= 59 &&
+          Number.isInteger(f2dh) && f2dh >= 0 && f2dh <= 23 &&
+          Number.isInteger(f2dm) && f2dm >= 0 && f2dm <= 59;
+
+        if (!allValid) {
+          setMsg("Skontroluj hodnoty filtračných cyklov.");
+          return;
+        }
+
+        setMsg("Ukladám filtračné cykly...");
+
+        const params = new URLSearchParams({
+          f1h: String(f1h),
+          f1m: String(f1m),
+          f1dh: String(f1dh),
+          f1dm: String(f1dm),
+          f2en: state.filter2Enabled ? "1" : "0",
+          f2h: String(f2h),
+          f2m: String(f2m),
+          f2dh: String(f2dh),
+          f2dm: String(f2dm)
+        });
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/filters?" + params.toString());
+
+        if (!resp.ok) {
+          setMsg("Uloženie filtrov zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
         const txt = data.response || "";
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
-        document.getElementById("filtersInfo").textContent =
-          ok ? "Požiadavka na filtre bola odoslaná. Použi teraz Debug panel." : "Príkaz odoslaný.";
-        setMsg("Požiadavka na filtre odoslaná.");
+        setMsg((ok ? "Filtračné cykly uložené." : "Príkaz odoslaný.") + " Čakám na server...");
+        setTimeout(loadFilters, 2500);
+        setTimeout(loadFilters, 6000);
       } catch (e) {
-        setMsg("Chyba pri žiadosti o filtre: " + e.message);
+        setMsg("Chyba pri ukladaní filtrov: " + e.message);
       }
     }
 
@@ -600,8 +730,14 @@
       render();
     });
 
+    ["f1Hour","f1Minute","f1DurHour","f1DurMinute","f2Hour","f2Minute","f2DurHour","f2DurMinute"]
+      .forEach(id => {
+        document.getElementById(id).addEventListener("input", updateFilterEnds);
+      });
+
     render();
     refreshPanel();
+    loadFilters();
   </script>
 </body>
 </html>
