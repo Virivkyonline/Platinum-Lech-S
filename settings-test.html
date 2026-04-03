@@ -195,12 +195,14 @@
       setTemp: 10.0
     };
 
+    let suppressSetTempFromPanelUntil = 0;
+
     function setMsg(text) {
       document.getElementById("msg").textContent = text;
     }
 
     async function fetchJson(url) {
-      const resp = await fetch(url, { method: "GET" });
+      const resp = await fetch(url, { method: "GET", cache: "no-store" });
       const text = await resp.text();
       let data;
       try {
@@ -339,7 +341,10 @@
 
         state.heatMode = parsed.heatMode;
         state.tempRangeHigh = parsed.tempRangeHigh;
-        state.setTemp = parsed.setTemp;
+
+        if (Date.now() > suppressSetTempFromPanelUntil) {
+          state.setTemp = parsed.setTemp;
+        }
 
         render();
         setMsg(
@@ -384,9 +389,14 @@
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
         state.setTemp = uiValue;
+        suppressSetTempFromPanelUntil = Date.now() + 15000;
         render();
-        setMsg((ok ? "Teplota nastavená." : "Príkaz odoslaný.") + " Aktualizujem stav...");
-        setTimeout(refreshPanel, 1500);
+
+        setMsg((ok ? "Teplota nastavená." : "Príkaz odoslaný.") + " Čakám na potvrdenie z panelu...");
+
+        setTimeout(refreshPanel, 2500);
+        setTimeout(refreshPanel, 6000);
+        setTimeout(refreshPanel, 12000);
       } catch (e) {
         setMsg("Chyba pri nastavení teploty: " + e.message);
       }
@@ -425,7 +435,7 @@
 
       if (!resp.ok) {
         setMsg(errorText + " HTTP status: " + resp.status);
-        return;
+        return false;
       }
 
       const txt = data.response || "";
@@ -433,6 +443,7 @@
 
       setMsg((ok ? successText : "Príkaz odoslaný.") + " Aktualizujem stav...");
       setTimeout(refreshPanel, delay);
+      return true;
     }
 
     async function setHeatMode(target) {
