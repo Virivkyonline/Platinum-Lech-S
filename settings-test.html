@@ -222,38 +222,35 @@
       return out;
     }
 
-    function pad2(n) {
-      return String(Number(n) || 0).padStart(2, "0");
-    }
-
     function parsePanel(hex) {
-      const p = hexToBytes(hex);
-      if (p.length < 26) return null;
+  const p = hexToBytes(hex);
+  if (p.length < 26) return null;
 
-      const rawSetTemp = p[25] ?? 0;
-      const hour = p[7] ?? 0;
-      const minute = p[8] ?? 0;
-      const flags = p[14] ?? 0;
+  const rawSetTemp = p[25] ?? 0;
+  const hour = p[7] ?? 0;
+  const minute = p[8] ?? 0;
+  const flags = p[14] ?? 0;
 
-      const tempRangeHigh = (flags & 0x04) !== 0;
-      const heatModeIsReady = (flags & 0x10) !== 0;
-      const heatModeRaw = p[9] ?? 0;
+  const tempRangeHigh = (flags & 0x04) !== 0;
 
-      let heatMode = "Pripravený";
-      if (!heatModeIsReady || heatModeRaw === 1) {
-        heatMode = "Spiaci";
-      }
+  const heatModeIsRest = (flags & 0x10) !== 0;
+  const heatModeRaw = p[9] ?? 0;
 
-      const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
+  let heatMode = "Pripravený";
+  if (heatModeIsRest || heatModeRaw === 1) {
+    heatMode = "Spiaci";
+  }
 
-      return {
-        setTemp,
-        heatMode,
-        tempRangeHigh,
-        tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
-        time: pad2(hour) + ":" + pad2(minute)
-      };
-    }
+  const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
+
+  return {
+    setTemp,
+    heatMode,
+    tempRangeHigh,
+    tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
+    time: pad2(hour) + ":" + pad2(minute)
+  };
+}
 
     function updateSliderLimits() {
       const slider = document.getElementById("tempSlider");
