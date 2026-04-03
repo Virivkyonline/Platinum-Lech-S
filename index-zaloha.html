@@ -285,7 +285,8 @@
     .settings-btn,
     .settings-btn-small,
     .settings-btn-wide,
-    .settings-select {
+    .settings-select,
+    .settings-input {
       border: 1px solid rgba(170,210,255,.28);
       border-radius: 14px;
       color: #eef7ff;
@@ -320,12 +321,16 @@
       cursor: pointer;
     }
 
-    .settings-select {
+    .settings-select,
+    .settings-input {
       width: 100%;
       min-height: 46px;
       padding: 10px 12px;
       font-size: 17px;
       font-weight: 700;
+    }
+
+    .settings-select {
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -333,6 +338,10 @@
 
     .settings-select option {
       color: #000;
+    }
+
+    .settings-input::placeholder {
+      color: rgba(255,255,255,.7);
     }
 
     .settings-btn.active,
@@ -404,8 +413,8 @@
       <div class="center-panel">
         <div class="home-temp" id="homeTemp">--.-°C</div>
         <div class="swirl">🌀</div>
-        <div class="home-mode" id="homeMode">Ready</div>
-        <div class="home-range" id="homeRange">Low Range</div>
+        <div class="home-mode" id="homeMode">Pripravený</div>
+        <div class="home-range" id="homeRange">Nízky rozsah</div>
         <div class="home-time" id="homeTime">Čas: --:--</div>
         <div class="home-settemp" id="homeSetTemp">Nastavená teplota: --.-°C</div>
 
@@ -510,6 +519,20 @@
     <div id="settingsScreen" class="screen">
       <div class="center-panel">
         <div class="settings-title">Nastavenia</div>
+
+        <div class="settings-block">
+          <div class="settings-label">ID modulu</div>
+          <div class="btn-grid-2">
+            <select id="devicePrefix" class="settings-select"></select>
+            <input id="deviceSuffix" class="settings-input" placeholder="FF3B516E" maxlength="8" />
+          </div>
+          <div class="small" style="margin-top:10px;">
+            Celé ID: <span id="fullDeviceIdPreview">00000000-00000000-001527FF-FF3B516E</span>
+          </div>
+          <div style="margin-top:12px;">
+            <button class="settings-btn-wide" onclick="saveDeviceId()">Uložiť ID modulu</button>
+          </div>
+        </div>
 
         <div class="settings-block">
           <div class="settings-label">Nastavená teplota</div>
@@ -622,7 +645,9 @@
       setTemp: 10.0,
       deviceConfigHex: "",
       profileName: "default",
-      filter2Enabled: false
+      filter2Enabled: false,
+      devicePrefix: localStorage.getItem("spa_device_prefix") || "001527FF",
+      deviceSuffix: localStorage.getItem("spa_device_suffix") || "FF3B516E"
     };
 
     const deviceProfiles = {
@@ -682,6 +707,62 @@
         document.getElementById("controlsScreen").classList.add("active");
         document.getElementById("mainTitle").textContent = "Ovládanie";
       }
+    }
+
+    function getCurrentDeviceId() {
+      return "00000000-00000000-" + appState.devicePrefix + "-" + appState.deviceSuffix;
+    }
+
+    function getWorkerUrl(path) {
+      const sep = path.includes("?") ? "&" : "?";
+      return WORKER_URL + path + sep + "deviceId=" + encodeURIComponent(getCurrentDeviceId());
+    }
+
+    function fillDevicePrefixSelect() {
+      const el = document.getElementById("devicePrefix");
+      if (!el) return;
+
+      const prefixes = ["001527FF"];
+      el.innerHTML = "";
+
+      prefixes.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        el.appendChild(opt);
+      });
+
+      el.value = appState.devicePrefix;
+    }
+
+    function updateDeviceIdPreview() {
+      const preview = document.getElementById("fullDeviceIdPreview");
+      if (preview) preview.textContent = getCurrentDeviceId();
+    }
+
+    function saveDeviceId() {
+      const prefix = (document.getElementById("devicePrefix").value || "").trim().toUpperCase();
+      const suffix = (document.getElementById("deviceSuffix").value || "").trim().toUpperCase();
+
+      if (!/^[0-9A-F]{8}$/.test(prefix)) {
+        setMessage("Prvá časť ID musí mať 8 hex znakov.");
+        return;
+      }
+
+      if (!/^[0-9A-F]{8}$/.test(suffix)) {
+        setMessage("Druhá časť ID musí mať 8 hex znakov.");
+        return;
+      }
+
+      appState.devicePrefix = prefix;
+      appState.deviceSuffix = suffix;
+
+      localStorage.setItem("spa_device_prefix", prefix);
+      localStorage.setItem("spa_device_suffix", suffix);
+
+      updateDeviceIdPreview();
+      setMessage("ID modulu uložené. Načítavam nový modul...");
+      refreshAll();
     }
 
     function setCtrlState(btnId, lblId, css, label) {
@@ -932,11 +1013,12 @@
 
       updateSliderLimits();
       updateFilterEnds();
+      updateDeviceIdPreview();
     }
 
     async function loadDeviceConfig() {
       try {
-        const { resp, data } = await fetchJson(WORKER_URL + "/deviceconfig");
+        const { resp, data } = await fetchJson(getWorkerUrl("/deviceconfig"));
         if (!resp.ok) {
           applyDeviceProfile("default");
           return;
@@ -953,7 +1035,7 @@
 
     async function loadPanelUpdate() {
       try {
-        const { resp, data, text } = await fetchJson(WORKER_URL + "/panelupdate");
+        const { resp, data, text } = await fetchJson(getWorkerUrl("/panelupdate"));
 
         if (!resp.ok) {
           setMessage("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
@@ -988,7 +1070,7 @@
     async function sendButton(code, name) {
       try {
         setMessage("Odosielam príkaz: " + name + " ...");
-        const { resp, data } = await fetchJson(WORKER_URL + "/button?code=" + encodeURIComponent(code));
+        const { resp, data } = await fetchJson(getWorkerUrl("/button?code=" + encodeURIComponent(code)));
 
         if (!resp.ok) {
           setMessage("Príkaz zlyhal: " + name + ". HTTP status: " + resp.status);
@@ -1019,7 +1101,7 @@
 
         setMessage("Nastavujem teplotu na " + uiValue.toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit + " ...");
 
-        const { resp, data } = await fetchJson(WORKER_URL + "/settemp?value=" + encodeURIComponent(workerValue));
+        const { resp, data } = await fetchJson(getWorkerUrl("/settemp?value=" + encodeURIComponent(workerValue)));
 
         if (!resp.ok) {
           setMessage("Nastavenie teploty zlyhalo. HTTP status: " + resp.status);
@@ -1043,7 +1125,7 @@
     async function setTempUnits(unit) {
       try {
         setMessage("Prepínam jednotky na °" + unit + " ...");
-        const { resp, data } = await fetchJson(WORKER_URL + "/tempunits?value=" + encodeURIComponent(unit));
+        const { resp, data } = await fetchJson(getWorkerUrl("/tempunits?value=" + encodeURIComponent(unit)));
 
         if (!resp.ok) {
           setMessage("Prepnutie jednotiek zlyhalo. HTTP status: " + resp.status);
@@ -1065,7 +1147,7 @@
 
     async function sendToggleButton(code, successText, errorText, delay = 1500) {
       const { resp, data } = await fetchJson(
-        WORKER_URL + "/button?code=" + encodeURIComponent(code)
+        getWorkerUrl("/button?code=" + encodeURIComponent(code))
       );
 
       if (!resp.ok) {
@@ -1092,12 +1174,7 @@
         }
 
         setMessage("Prepínam teplotný režim...");
-        await sendToggleButton(
-          81,
-          "Teplotný režim prepnutý.",
-          "Prepnutie teplotného režimu zlyhalo.",
-          2500
-        );
+        await sendToggleButton(81, "Teplotný režim prepnutý.", "Prepnutie teplotného režimu zlyhalo.", 2500);
       } catch (e) {
         setMessage("Chyba pri prepínaní teplotného režimu: " + e.message);
       }
@@ -1113,12 +1190,7 @@
         }
 
         setMessage("Prepínam teplotný rozsah...");
-        await sendToggleButton(
-          80,
-          "Teplotný rozsah prepnutý.",
-          "Prepnutie teplotného rozsahu zlyhalo.",
-          2000
-        );
+        await sendToggleButton(80, "Teplotný rozsah prepnutý.", "Prepnutie teplotného rozsahu zlyhalo.", 2000);
       } catch (e) {
         setMessage("Chyba pri prepínaní teplotného rozsahu: " + e.message);
       }
@@ -1132,7 +1204,7 @@
         setMessage("Ukladám čas panelu...");
 
         const { resp, data } = await fetchJson(
-          WORKER_URL + "/systemtime?hh=" + encodeURIComponent(hh) + "&mm=" + encodeURIComponent(mm)
+          getWorkerUrl("/systemtime?hh=" + encodeURIComponent(hh) + "&mm=" + encodeURIComponent(mm))
         );
 
         if (!resp.ok) {
@@ -1158,7 +1230,7 @@
     async function loadFilters() {
       try {
         setMessage("Načítavam filtre...");
-        const { resp, data } = await fetchJson(WORKER_URL + "/getfilters");
+        const { resp, data } = await fetchJson(getWorkerUrl("/getfilters"));
 
         if (!resp.ok) {
           setMessage("Načítanie filtrov zlyhalo. HTTP status: " + resp.status);
@@ -1211,7 +1283,7 @@
         });
 
         setMessage("Ukladám filtračné cykly...");
-        const { resp, data } = await fetchJson(WORKER_URL + "/filters?" + params.toString());
+        const { resp, data } = await fetchJson(getWorkerUrl("/filters?" + params.toString()));
 
         if (!resp.ok) {
           setMessage("Uloženie filtrov zlyhalo. HTTP status: " + resp.status);
@@ -1231,7 +1303,7 @@
 
     async function debugPanel() {
       try {
-        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
+        const { resp, data } = await fetchJson(getWorkerUrl("/panelupdate"));
         if (!resp.ok) {
           setMessage("Debug panelu zlyhal. HTTP status: " + resp.status);
           return;
@@ -1271,6 +1343,21 @@
     });
 
     initSelects();
+    fillDevicePrefixSelect();
+
+    document.getElementById("deviceSuffix").value = appState.deviceSuffix;
+    document.getElementById("deviceSuffix").addEventListener("input", function () {
+      this.value = this.value.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 8);
+      appState.deviceSuffix = this.value;
+      updateDeviceIdPreview();
+    });
+
+    document.getElementById("devicePrefix").addEventListener("change", function () {
+      appState.devicePrefix = this.value.trim().toUpperCase();
+      updateDeviceIdPreview();
+    });
+
+    updateDeviceIdPreview();
     updateSettingsUI();
     refreshAll();
     setInterval(loadPanelUpdate, 15000);
