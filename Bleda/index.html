@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platinum Lech Spa</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(80,140,255,.18), transparent 20%),
+        radial-gradient(circle at 80% 25%, rgba(80,140,255,.14), transparent 18%),
+        radial-gradient(circle at 35% 70%, rgba(80,140,255,.12), transparent 24%),
+        rgb(115, 236, 245);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 24px;
+    }
+
+    .bubble-bg::before,
+    .bubble-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        radial-gradient(circle at 8px 8px, rgba(255,255,255,.45) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 22px 20px, rgba(255,255,255,.28) 0 1.5px, transparent 2px),
+        radial-gradient(circle at 38px 8px, rgba(255,255,255,.18) 0 1px, transparent 1.5px);
+      background-size: 48px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 10px 10px;
+    }
+
+    .nav-btn {
+      min-width: 88px;
+      height: 38px;
+      border: 1px solid rgba(170,210,255,.55);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(173,213,255,.95), rgba(96,149,224,.95));
+      color: #eef7ff;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 400;
+      text-align: center;
+      flex: 1;
+      margin: 0 10px;
+      color: #f3f8ff;
+    }
+
+    .cloud-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      margin-left: 6px;
+    }
+
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .center-panel {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      min-height: 575px;
+      border-radius: 28px;
+      padding: 30px 18px 24px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(5,34,79,.94) 0%, rgba(2,20,50,.96) 100%);
+      border: 2px solid rgba(0,0,0,.38);
+      box-shadow:
+        inset 0 0 0 1px rgba(140,190,255,.08),
+        0 8px 30px rgba(0,0,0,.25);
+    }
+
+    .home-temp {
+      text-align: center;
+      font-size: 64px;
+      font-weight: 500;
+      margin-top: 100px;
+      letter-spacing: 1px;
+    }
+
+    .swirl {
+      text-align: center;
+      font-size: 82px;
+      opacity: .88;
+      margin-top: 26px;
+      line-height: 1;
+    }
+
+    .home-mode {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+
+    .home-range {
+      font-size: 24px;
+      color: rgba(255,255,255,.88);
+      margin-top: 20px;
+      margin-left: 18px;
+    }
+
+    .home-time {
+      text-align: center;
+      font-size: 18px;
+      color: #cde5ff;
+      margin-top: 20px;
+    }
+
+    .home-settemp {
+      text-align: center;
+      font-size: 18px;
+      color: #cde5ff;
+      margin-top: 8px;
+    }
+
+    .controls-title {
+      text-align: center;
+      font-size: 26px;
+      margin-top: -4px;
+      margin-bottom: 28px;
+      color: #f3f8ff;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px 8px;
+      justify-items: center;
+      align-items: start;
+      margin-top: 46px;
+    }
+
+    .control-item {
+      width: 72px;
+      text-align: center;
+    }
+
+    .circle-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.12);
+      cursor: pointer;
+      margin: 0 auto 6px;
+      color: #d7e8ff;
+      font-size: 26px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.23), transparent 28%),
+        linear-gradient(180deg, #565656 0%, #171717 55%, #050505 100%);
+      box-shadow:
+        inset 0 10px 18px rgba(255,255,255,.16),
+        inset 0 -8px 14px rgba(0,0,0,.45),
+        0 2px 8px rgba(0,0,0,.25);
+    }
+
+    .circle-btn.off {
+      filter: grayscale(.15);
+      opacity: .95;
+    }
+
+    .circle-btn.on,
+    .circle-btn.low,
+    .circle-btn.high {
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.42), transparent 28%),
+        linear-gradient(180deg, #707070 0%, #1d1d1d 45%, #030303 100%);
+      box-shadow:
+        inset 0 0 22px rgba(120,255,185,1),
+        0 0 14px rgba(80,240,160,.9),
+        0 0 28px rgba(60,220,145,1),
+        0 0 48px rgba(45,200,130,.95);
+      color: #ffffff;
+    }
+
+    .circle-btn.light.on {
+      box-shadow:
+        inset 0 0 24px rgba(140,255,195,1),
+        0 0 16px rgba(100,255,180,.95),
+        0 0 30px rgba(70,230,150,1),
+        0 0 52px rgba(40,210,135,.95);
+      color: #ffffff;
+    }
+
+    .control-label {
+      font-size: 14px;
+      line-height: 1.1;
+      color: #f2f7ff;
+      min-height: 32px;
+    }
+
+    .control-state {
+      font-size: 12px;
+      color: #ffffff;
+      min-height: 16px;
+      margin-top: 2px;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(120,255,185,.9);
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-top: 28px;
+      color: rgba(255,255,255,.96);
+    }
+
+    .logo-main {
+      font-size: 42px;
+      letter-spacing: 1px;
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .logo-sub {
+      font-size: 18px;
+      letter-spacing: 8px;
+      margin-top: 6px;
+      text-transform: lowercase;
+    }
+
+    .message-box {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(170,210,255,.12);
+      color: #e8f3ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      min-height: 48px;
+    }
+
+    @media (max-width: 390px) {
+      .controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .center-panel {
+        width: calc(100% - 28px);
+        min-height: 560px;
+      }
+      .home-temp {
+        font-size: 54px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app bubble-bg">
+    <div class="topbar">
+      <button class="nav-btn" onclick="showScreen('controls')">Ovládanie</button>
+      <div class="title" id="mainTitle">Domov</div>
+      <button class="nav-btn" onclick="showSettingsNote()">Nastavenia</button>
+    </div>
+
+    <div id="homeScreen" class="screen active">
+      <div class="cloud-icon">☁</div>
+
+      <div class="center-panel">
+        <div class="home-temp" id="homeTemp">--.-°C</div>
+        <div class="swirl">🌀</div>
+        <div class="home-mode" id="homeMode">Ready</div>
+        <div class="home-range" id="homeRange">Low Range</div>
+        <div class="home-time" id="homeTime">Čas: --:--</div>
+        <div class="home-settemp" id="homeSetTemp">Nastavená teplota: --.-°C</div>
+
+        <div class="logo-wrap" style="margin-top:92px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="controlsScreen" class="screen">
+      <div class="center-panel">
+        <div class="controls-title">Ovládanie</div>
+
+        <div class="controls-grid">
+          <div class="control-item">
+            <button id="btn-circpump" class="circle-btn off" onclick="sendButton(3,'Obehové čerpadlo')">🌀</button>
+            <div class="control-label">Obeh</div>
+            <div class="control-state" id="lbl-circpump">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump1" class="circle-btn off" onclick="sendButton(4,'Pumpa 1')">🌀</button>
+            <div class="control-label">Pumpa 1</div>
+            <div class="control-state" id="lbl-pump1">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump2" class="circle-btn off" onclick="sendButton(5,'Pumpa 2')">🌀</button>
+            <div class="control-label">Pumpa 2</div>
+            <div class="control-state" id="lbl-pump2">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump3" class="circle-btn off" onclick="sendButton(6,'Pumpa 3')">🌀</button>
+            <div class="control-label">Pumpa 3</div>
+            <div class="control-state" id="lbl-pump3">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump4" class="circle-btn off" onclick="sendButton(7,'Pumpa 4')">🌀</button>
+            <div class="control-label">Pumpa 4</div>
+            <div class="control-state" id="lbl-pump4">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump5" class="circle-btn off" onclick="sendButton(8,'Pumpa 5')">🌀</button>
+            <div class="control-label">Pumpa 5</div>
+            <div class="control-state" id="lbl-pump5">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-pump6" class="circle-btn off" onclick="sendButton(9,'Pumpa 6')">🌀</button>
+            <div class="control-label">Pumpa 6</div>
+            <div class="control-state" id="lbl-pump6">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-blower" class="circle-btn off" onclick="sendButton(12,'Blower')">◌</button>
+            <div class="control-label">Blower</div>
+            <div class="control-state" id="lbl-blower">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-light1" class="circle-btn light off" onclick="sendButton(17,'Svetlo 1')">☼</button>
+            <div class="control-label">Svetlo 1</div>
+            <div class="control-state" id="lbl-light1">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-light2" class="circle-btn light off" onclick="sendButton(18,'Svetlo 2')">☼</button>
+            <div class="control-label">Svetlo 2</div>
+            <div class="control-state" id="lbl-light2">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-mister" class="circle-btn off" onclick="sendButton(14,'Mister')">◍</button>
+            <div class="control-label">Mister</div>
+            <div class="control-state" id="lbl-mister">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-aux1" class="circle-btn off" onclick="sendButton(22,'Aux 1')">A1</button>
+            <div class="control-label">Aux 1</div>
+            <div class="control-state" id="lbl-aux1">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-aux2" class="circle-btn off" onclick="sendButton(23,'Aux 2')">A2</button>
+            <div class="control-label">Aux 2</div>
+            <div class="control-state" id="lbl-aux2">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-range" class="circle-btn off" onclick="sendButton(80,'Rozsah teploty')">R</button>
+            <div class="control-label">Rozsah</div>
+            <div class="control-state" id="lbl-range">-</div>
+          </div>
+
+          <div class="control-item">
+            <button id="btn-heatmode" class="circle-btn off" onclick="sendButton(81,'Režim kúrenia')">H</button>
+            <div class="control-label">Kúrenie</div>
+            <div class="control-state" id="lbl-heatmode">-</div>
+          </div>
+        </div>
+
+        <div class="logo-wrap" style="margin-top:52px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="message-box" id="messageBox">Vitajte. Ovládanie je pripravené.</div>
+  </div>
+
+  <script>
+    const WORKER_URL = "https://balboa-proxy-worker.lechstav.workers.dev";
+
+    function setMessage(text) {
+      document.getElementById("messageBox").textContent = text;
+    }
+
+    function showScreen(name) {
+      document.getElementById("homeScreen").classList.remove("active");
+      document.getElementById("controlsScreen").classList.remove("active");
+
+      if (name === "home") {
+        document.getElementById("homeScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Domov";
+      } else {
+        document.getElementById("controlsScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Ovládanie";
+      }
+    }
+
+    function showSettingsNote() {
+      setMessage("Nastavenia pripravím neskôr.");
+    }
+
+    function setCtrlState(btnId, lblId, css, label) {
+      const btn = document.getElementById(btnId);
+      const lbl = document.getElementById(lblId);
+      if (!btn || !lbl) return;
+      btn.classList.remove("off", "on", "low", "high");
+      btn.classList.add(css);
+      lbl.textContent = label;
+    }
+
+    function setUnknown(btnId, lblId) {
+      setCtrlState(btnId, lblId, "off", "-");
+    }
+
+    async function fetchJson(url) {
+      const resp = await fetch(url, { method: "GET" });
+      const text = await resp.text();
+      let data = null;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { raw: text };
+      }
+      return { resp, data, text };
+    }
+
+    function hexToBytes(hex) {
+      if (!hex) return [];
+      const clean = String(hex).replace(/[^0-9a-f]/gi, "");
+      if (clean.length % 2 !== 0) return [];
+      const out = [];
+      for (let i = 0; i < clean.length; i += 2) {
+        out.push(parseInt(clean.substring(i, i + 2), 16));
+      }
+      return out;
+    }
+
+    function pad2(n) {
+      const v = Number(n);
+      if (!Number.isFinite(v)) return "--";
+      return String(v).padStart(2, "0");
+    }
+
+    function parsePanel(hex) {
+      const p = hexToBytes(hex);
+      if (p.length < 24) return null;
+
+      const tempNow = (p[6] ?? 0) / 2;
+      const hour = p[7] ?? 0;
+      const minute = p[8] ?? 0;
+      const heatModeRaw = p[10] ?? 0;
+      const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
+      const setTemp = (p[23] ?? 0) / 2;
+
+      let heatMode = "Ready";
+      if (heatModeRaw === 1) heatMode = "Rest";
+      else if (heatModeRaw === 2) heatMode = "Ready in Rest";
+
+      const tempRange = tempRangeHigh ? "High Range" : "Low Range";
+
+      const byte14 = p[14] ?? 0;
+      const byte15 = p[15] ?? 0;
+      const byte17 = p[17] ?? 0;
+      const byte18 = p[18] ?? 0;
+      const byte19 = p[19] ?? 0;
+
+      const circPumpOn = (byte14 & 0x08) !== 0 || (byte17 & 0x02) !== 0;
+      const pump1On = (byte15 & 0x02) !== 0;
+      const pump2On = (byte15 & 0x08) !== 0;
+      const pump3On = (byte15 & 0x20) !== 0;
+      const blowerOn = (byte17 & 0x04) !== 0 || (byte17 & 0x08) !== 0;
+      const light1On = (byte18 & 0x03) !== 0 || (byte19 & 0x01) !== 0;
+
+      return {
+        tempNow,
+        setTemp,
+        time: pad2(hour) + ":" + pad2(minute),
+        heatMode,
+        tempRange,
+        tempRangeHigh,
+        circPumpOn,
+        pump1On,
+        pump2On,
+        pump3On,
+        blowerOn,
+        light1On
+      };
+    }
+
+    function applyHomeState(s) {
+      document.getElementById("homeTemp").textContent = Number.isFinite(s.tempNow)
+        ? s.tempNow.toFixed(1) + "°C"
+        : "--.-°C";
+
+      document.getElementById("homeMode").textContent = s.heatMode || "-";
+      document.getElementById("homeRange").textContent = s.tempRange || "-";
+      document.getElementById("homeTime").textContent = "Čas: " + (s.time || "--:--");
+      document.getElementById("homeSetTemp").textContent =
+        "Nastavená teplota: " +
+        (Number.isFinite(s.setTemp) ? s.setTemp.toFixed(1) + "°C" : "--.-°C");
+    }
+
+    function applyControlsState(s) {
+      setCtrlState("btn-circpump", "lbl-circpump", s.circPumpOn ? "on" : "off", s.circPumpOn ? "ON" : "OFF");
+      setCtrlState("btn-pump1", "lbl-pump1", s.pump1On ? "on" : "off", s.pump1On ? "ON" : "OFF");
+      setCtrlState("btn-pump2", "lbl-pump2", s.pump2On ? "on" : "off", s.pump2On ? "ON" : "OFF");
+      setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
+      setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
+      setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
+
+      setUnknown("btn-pump4", "lbl-pump4");
+      setUnknown("btn-pump5", "lbl-pump5");
+      setUnknown("btn-pump6", "lbl-pump6");
+      setUnknown("btn-light2", "lbl-light2");
+      setUnknown("btn-mister", "lbl-mister");
+      setUnknown("btn-aux1", "lbl-aux1");
+      setUnknown("btn-aux2", "lbl-aux2");
+
+      setCtrlState("btn-range", "lbl-range", s.tempRangeHigh ? "on" : "off", s.tempRangeHigh ? "HIGH" : "LOW");
+      setCtrlState("btn-heatmode", "lbl-heatmode", "on", (s.heatMode || "-").toUpperCase());
+    }
+
+    async function loadPanelUpdate() {
+      try {
+        const { resp, data, text } = await fetchJson(WORKER_URL + "/panelupdate");
+
+        if (!resp.ok) {
+          setMessage("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const hex = data && data.hex ? data.hex : "";
+        const parsed = parsePanel(hex);
+
+        if (!parsed) {
+          setMessage("Nepodarilo sa rozpoznať stav z PanelUpdate.");
+          console.log("panelupdate raw:", text);
+          return;
+        }
+
+        applyHomeState(parsed);
+        applyControlsState(parsed);
+        setMessage("Stav vírivky bol aktualizovaný.");
+      } catch (e) {
+        setMessage("Chyba pri načítaní stavu: " + e.message);
+      }
+    }
+
+    async function sendButton(code, name) {
+      try {
+        setMessage("Odosielam príkaz: " + name + " ...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/button?code=" + encodeURIComponent(code));
+
+        if (!resp.ok) {
+          setMessage("Príkaz zlyhal: " + name + ". HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = (data && data.response) ? data.response : "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMessage((ok ? "Príkaz prijatý: " : "Príkaz odoslaný: ") + name + ". Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 1200);
+      } catch (e) {
+        setMessage("Chyba pri odoslaní príkazu " + name + ": " + e.message);
+      }
+    }
+
+    loadPanelUpdate();
+    setInterval(loadPanelUpdate, 15000);
+  </script>
+</body>
+  </html>
