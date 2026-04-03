@@ -656,7 +656,7 @@
       profileName: "default",
       filter2Enabled: false,
       devicePrefix: "001527FF",
-      deviceSuffix: "FF3B526E",
+      deviceSuffix: "FF3B516E",
       bgColor: localStorage.getItem("spa_bg_color") || "#73ecf5",
       panelColor: localStorage.getItem("spa_panel_color") || "#8d8ae6"
     };
