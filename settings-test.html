@@ -195,8 +195,6 @@
       setTemp: 10.0
     };
 
-    let suppressSetTempFromPanelUntil = 0;
-
     function setMsg(text) {
       document.getElementById("msg").textContent = text;
     }
@@ -230,9 +228,9 @@
 
     function parsePanel(hex) {
       const p = hexToBytes(hex);
-      if (p.length < 26) return null;
+      if (p.length < 25) return null;
 
-      const rawSetTemp = p[25] ?? 0;
+      const rawSetTemp = p[24] ?? 0;
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
       const flags = p[14] ?? 0;
@@ -341,10 +339,7 @@
 
         state.heatMode = parsed.heatMode;
         state.tempRangeHigh = parsed.tempRangeHigh;
-
-        if (Date.now() > suppressSetTempFromPanelUntil) {
-          state.setTemp = parsed.setTemp;
-        }
+        state.setTemp = parsed.setTemp;
 
         render();
         setMsg(
@@ -389,14 +384,11 @@
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
         state.setTemp = uiValue;
-        suppressSetTempFromPanelUntil = Date.now() + 15000;
         render();
 
-        setMsg((ok ? "Teplota nastavená." : "Príkaz odoslaný.") + " Čakám na potvrdenie z panelu...");
-
+        setMsg((ok ? "Teplota nastavená." : "Príkaz odoslaný.") + " Čakám na server...");
         setTimeout(refreshPanel, 2500);
         setTimeout(refreshPanel, 6000);
-        setTimeout(refreshPanel, 12000);
       } catch (e) {
         setMsg("Chyba pri nastavení teploty: " + e.message);
       }
