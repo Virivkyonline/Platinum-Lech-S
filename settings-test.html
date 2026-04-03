@@ -208,7 +208,7 @@
       } catch {
         data = { raw: text };
       }
-      return { resp, data, text };
+      return { resp, data };
     }
 
     function hexToBytes(hex) {
@@ -227,36 +227,32 @@
     }
 
     function parsePanel(hex) {
-  const p = hexToBytes(hex);
-  if (p.length < 26) return null;
+      const p = hexToBytes(hex);
+      if (p.length < 26) return null;
 
-  const rawSetTemp = p[25] ?? 0;
-  const hour = p[7] ?? 0;
-  const minute = p[8] ?? 0;
+      const rawSetTemp = p[25] ?? 0;
+      const hour = p[7] ?? 0;
+      const minute = p[8] ?? 0;
+      const flags = p[14] ?? 0;
 
-  const flags = p[14] ?? 0;
+      const tempRangeHigh = (flags & 0x04) !== 0;
+      const heatModeIsReady = (flags & 0x10) !== 0;
+      const heatModeRaw = p[9] ?? 0;
 
-  // Rozsah
-  const tempRangeHigh = (flags & 0x04) !== 0;
+      let heatMode = "Pripravený";
+      if (!heatModeIsReady || heatModeRaw === 1) {
+        heatMode = "Spiaci";
+      }
 
-  // Režim
-  const heatModeIsReady = (flags & 0x10) !== 0;
-  const heatModeRaw = p[9] ?? 0;
+      const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
 
-  let heatMode = "Pripravený";
-  if (!heatModeIsReady || heatModeRaw === 1) {
-    heatMode = "Spiaci";
-  }
-
-  const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
-
-  return {
-    setTemp,
-    heatMode,
-    tempRangeHigh,
-    tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
-    time: pad2(hour) + ":" + pad2(minute)
-  };
+      return {
+        setTemp,
+        heatMode,
+        tempRangeHigh,
+        tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
+        time: pad2(hour) + ":" + pad2(minute)
+      };
     }
 
     function updateSliderLimits() {
@@ -316,10 +312,7 @@
       document.getElementById("btnUnitC").classList.toggle("active", state.unit === "C");
       document.getElementById("btnUnitF").classList.toggle("active", state.unit === "F");
 
-      const isReady =
-        state.heatMode === "Pripravený" ||
-        state.heatMode === "Pripravený v spiacom";
-
+      const isReady = state.heatMode === "Pripravený";
       document.getElementById("btnHeatReady").classList.toggle("active", isReady);
       document.getElementById("btnHeatRest").classList.toggle("active", !isReady);
 
@@ -330,7 +323,7 @@
     async function refreshPanel() {
       try {
         setMsg("Načítavam stav z panelu...");
-        const { resp, data, text } = await fetchJson(WORKER_URL + "/panelupdate");
+        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
 
         if (!resp.ok) {
           setMsg("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
@@ -339,7 +332,6 @@
 
         const parsed = parsePanel(data.hex || "");
         if (!parsed) {
-          console.log(text);
           setMsg("PanelUpdate sa nepodarilo rozpoznať.");
           return;
         }
@@ -425,53 +417,43 @@
       }
     }
 
-    async function sendToggleButton(code, successText, errorText) {
+    async function sendToggleButton(code, successText, errorText, delay = 1500) {
       const { resp, data } = await fetchJson(
         WORKER_URL + "/button?code=" + encodeURIComponent(code)
       );
 
       if (!resp.ok) {
         setMsg(errorText + " HTTP status: " + resp.status);
-        return false;
+        return;
       }
 
       const txt = data.response || "";
       const ok = txt.includes("Command received") || txt.includes('status="0"');
 
       setMsg((ok ? successText : "Príkaz odoslaný.") + " Aktualizujem stav...");
-      setTimeout(refreshPanel, 1500);
-      return true;
+      setTimeout(refreshPanel, delay);
     }
 
     async function setHeatMode(target) {
-  try {
-    const currentlyReady = state.heatMode === "Pripravený";
-    const wantReady = target === "ready";
+      try {
+        const currentlyReady = state.heatMode === "Pripravený";
+        const wantReady = target === "ready";
 
-    if ((wantReady && currentlyReady) || (!wantReady && !currentlyReady)) {
-      setMsg("Teplotný režim je už nastavený.");
-      return;
-    }
+        if ((wantReady && currentlyReady) || (!wantReady && !currentlyReady)) {
+          setMsg("Teplotný režim je už nastavený.");
+          return;
+        }
 
-    setMsg("Prepínam teplotný režim...");
-
-    const { resp, data } = await fetchJson(
-      WORKER_URL + "/button?code=81"
-    );
-
-    if (!resp.ok) {
-      setMsg("Prepnutie teplotného režimu zlyhalo. HTTP status: " + resp.status);
-      return;
-    }
-
-    const txt = data.response || "";
-    const ok = txt.includes("Command received") || txt.includes('status="0"');
-
-    setMsg((ok ? "Teplotný režim prepnutý." : "Príkaz odoslaný.") + " Aktualizujem stav...");
-    setTimeout(refreshPanel, 2000);
-  } catch (e) {
-    setMsg("Chyba pri prepínaní teplotného režimu: " + e.message);
-  }
+        setMsg("Prepínam teplotný režim...");
+        await sendToggleButton(
+          81,
+          "Teplotný režim prepnutý.",
+          "Prepnutie teplotného režimu zlyhalo.",
+          2000
+        );
+      } catch (e) {
+        setMsg("Chyba pri prepínaní teplotného režimu: " + e.message);
+      }
     }
 
     async function setTempRange(target) {
