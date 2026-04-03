@@ -255,6 +255,14 @@
       margin-bottom: 10px;
     }
 
+    .small {
+      font-size: 13px;
+      color: #cde5ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
     .slider-row {
       display: flex;
       align-items: center;
@@ -276,11 +284,11 @@
 
     .settings-btn,
     .settings-btn-small,
-    .settings-btn-wide {
+    .settings-btn-wide,
+    .settings-select {
       border: 1px solid rgba(170,210,255,.28);
       border-radius: 14px;
       color: #eef7ff;
-      cursor: pointer;
       background: linear-gradient(180deg, rgba(173,213,255,.20), rgba(96,149,224,.18));
       box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
     }
@@ -291,6 +299,7 @@
       font-size: 15px;
       font-weight: 700;
       width: 100%;
+      cursor: pointer;
     }
 
     .settings-btn-small {
@@ -299,6 +308,7 @@
       padding: 8px 12px;
       font-size: 16px;
       font-weight: 700;
+      cursor: pointer;
     }
 
     .settings-btn-wide {
@@ -307,6 +317,22 @@
       padding: 10px 14px;
       font-size: 17px;
       font-weight: 700;
+      cursor: pointer;
+    }
+
+    .settings-select {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      font-size: 17px;
+      font-weight: 700;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    .settings-select option {
+      color: #000;
     }
 
     .settings-btn.active,
@@ -356,6 +382,7 @@
       padding: 12px 14px;
       font-size: 14px;
       min-height: 48px;
+      white-space: pre-wrap;
     }
 
     .hidden {
@@ -488,10 +515,11 @@
           <div class="settings-label">Nastavená teplota</div>
           <div class="settings-value" id="settingsTempValue">--.-°C</div>
           <div class="slider-row">
-            <div class="slider-min" id="tempMinLabel">26</div>
-            <input type="range" id="tempSlider" min="26" max="40" step="0.5" value="34" />
-            <div class="slider-max" id="tempMaxLabel">40</div>
+            <div class="slider-min" id="tempMinLabel">10</div>
+            <input type="range" id="tempSlider" min="10" max="26.5" step="0.5" value="10" />
+            <div class="slider-max" id="tempMaxLabel">26.5</div>
           </div>
+          <div class="small" id="tempRangeText" style="margin-top:10px;">Nízky rozsah</div>
           <div style="margin-top: 12px;">
             <button class="settings-btn-wide" onclick="saveSetTemp()">Uložiť teplotu</button>
           </div>
@@ -506,19 +534,72 @@
         </div>
 
         <div class="settings-block">
-          <div class="settings-label">Heat Mode</div>
+          <div class="settings-label">Teplotný režim</div>
           <div class="btn-grid-2">
-            <button id="heatReadyBtn" class="settings-btn" onclick="sendHeatModeButton()">Ready / Rest</button>
-            <button class="settings-btn" onclick="refreshAll()">Obnoviť stav</button>
+            <button id="heatReadyBtn" class="settings-btn" onclick="setHeatMode('ready')">Pripravený</button>
+            <button id="heatRestBtn" class="settings-btn" onclick="setHeatMode('rest')">Spiaci</button>
           </div>
         </div>
 
         <div class="settings-block">
-          <div class="settings-label">Temperature Range</div>
+          <div class="settings-label">Teplotný rozsah</div>
           <div class="btn-grid-2">
-            <button id="rangeLowBtn" class="settings-btn" onclick="sendRangeButton()">Low / High</button>
-            <button class="settings-btn" onclick="refreshAll()">Načítať z panelu</button>
+            <button id="rangeLowBtn" class="settings-btn" onclick="setTempRange('low')">Nízky</button>
+            <button id="rangeHighBtn" class="settings-btn" onclick="setTempRange('high')">Vysoký</button>
           </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Čas panelu</div>
+          <div class="btn-grid-2">
+            <select id="timeHour" class="settings-select"></select>
+            <select id="timeMinute" class="settings-select"></select>
+          </div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveSystemTime()">Uložiť čas</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Filtračný cyklus 1</div>
+          <div class="btn-grid-2">
+            <select id="f1Hour" class="settings-select"></select>
+            <select id="f1Minute" class="settings-select"></select>
+          </div>
+          <div class="btn-grid-2" style="margin-top:10px;">
+            <select id="f1DurHour" class="settings-select"></select>
+            <select id="f1DurMinute" class="settings-select"></select>
+          </div>
+          <div class="small" id="f1Ends" style="margin-top:10px;">Koniec: --:--</div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Filtračný cyklus 2</div>
+          <div class="btn-grid-2">
+            <button id="btnF2Off" class="settings-btn" onclick="setFilter2Enabled(false)">Vypnutý</button>
+            <button id="btnF2On" class="settings-btn" onclick="setFilter2Enabled(true)">Zapnutý</button>
+          </div>
+          <div class="btn-grid-2" style="margin-top:10px;">
+            <select id="f2Hour" class="settings-select"></select>
+            <select id="f2Minute" class="settings-select"></select>
+          </div>
+          <div class="btn-grid-2" style="margin-top:10px;">
+            <select id="f2DurHour" class="settings-select"></select>
+            <select id="f2DurMinute" class="settings-select"></select>
+          </div>
+          <div class="small" id="f2Ends" style="margin-top:10px;">Koniec: --:--</div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveFilters()">Uložiť filtračné cykly</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Filtre</div>
+          <div class="btn-grid-2">
+            <button class="settings-btn" onclick="loadFilters()">Načítať filtre</button>
+            <button class="settings-btn" onclick="debugPanel()">Debug panel</button>
+          </div>
+          <div class="small" id="filtersInfo" style="margin-top:10px;">Zatiaľ nenačítané.</div>
         </div>
 
         <div class="logo-wrap" style="margin-top:28px;">
@@ -537,10 +618,11 @@
     const appState = {
       tempUnit: "C",
       tempRangeHigh: false,
-      heatMode: "Ready",
-      setTemp: 34.0,
+      heatMode: "Pripravený",
+      setTemp: 10.0,
       deviceConfigHex: "",
-      profileName: "default"
+      profileName: "default",
+      filter2Enabled: false
     };
 
     const deviceProfiles = {
@@ -612,7 +694,7 @@
     }
 
     async function fetchJson(url) {
-      const resp = await fetch(url, { method: "GET" });
+      const resp = await fetch(url, { method: "GET", cache: "no-store" });
       const text = await resp.text();
       let data = null;
       try {
@@ -642,12 +724,7 @@
 
     function detectDeviceProfile(deviceHex) {
       const hex = (deviceHex || "").toLowerCase();
-
       if (!hex) return "default";
-
-      // miesto pre ďalšie modely
-      // if (hex === "sem_pridame_presny_hex_inej_virivky") return "fivePumps";
-
       return "currentSpa";
     }
 
@@ -666,20 +743,25 @@
 
     function parsePanel(hex) {
       const p = hexToBytes(hex);
-      if (p.length < 24) return null;
+      if (p.length < 25) return null;
 
       const tempNow = (p[6] ?? 0) / 2;
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
-      const heatModeRaw = p[10] ?? 0;
-      const tempRangeHigh = ((p[11] ?? 0) & 0x04) !== 0;
-      const setTemp = (p[23] ?? 0) / 2;
+      const heatModeRaw = p[9] ?? 0;
+      const flags = p[14] ?? 0;
+      const rawSetTemp = p[24] ?? 0;
 
-      let heatMode = "Ready";
-      if (heatModeRaw === 1) heatMode = "Rest";
-      else if (heatModeRaw === 2) heatMode = "Ready in Rest";
+      const tempRangeHigh = (flags & 0x04) !== 0;
+      const heatModeIsRest = (flags & 0x10) !== 0;
 
-      const tempRange = tempRangeHigh ? "High Range" : "Low Range";
+      let heatMode = "Pripravený";
+      if (heatModeIsRest || heatModeRaw === 1) {
+        heatMode = "Spiaci";
+      }
+
+      const tempRange = tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah";
+      const setTemp = appState.tempUnit === "C" ? rawSetTemp / 2 : rawSetTemp;
 
       const byte14 = p[14] ?? 0;
       const byte15 = p[15] ?? 0;
@@ -706,8 +788,13 @@
         pump2On,
         pump3On,
         blowerOn,
-        light1On
+        light1On,
+        rawBytes: p
       };
+    }
+
+    function parseFiltersResponse(data) {
+      return data && data.parsed ? data.parsed : null;
     }
 
     function applyHomeState(s) {
@@ -732,19 +819,47 @@
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
     }
 
-    function updateSettingsUI() {
-      document.getElementById("settingsTempValue").textContent =
-        Number(appState.setTemp).toFixed(1) + "°" + appState.tempUnit;
+    function fillSelect(id, from, to) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = "";
+      for (let i = from; i <= to; i++) {
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = pad2(i);
+        el.appendChild(opt);
+      }
+    }
 
-      const slider = document.getElementById("tempSlider");
-      slider.value = String(appState.setTemp);
+    function initSelects() {
+      ["timeHour","f1Hour","f2Hour"].forEach(id => fillSelect(id, 0, 23));
+      ["timeMinute","f1Minute","f2Minute","f1DurMinute","f2DurMinute"].forEach(id => fillSelect(id, 0, 59));
+      ["f1DurHour","f2DurHour"].forEach(id => fillSelect(id, 0, 23));
+    }
 
-      document.getElementById("unitCBtn").classList.toggle("active", appState.tempUnit === "C");
-      document.getElementById("unitFBtn").classList.toggle("active", appState.tempUnit === "F");
-      document.getElementById("heatReadyBtn").textContent = appState.heatMode;
-      document.getElementById("rangeLowBtn").textContent = appState.tempRangeHigh ? "High Range" : "Low Range";
+    function getNum(id) {
+      return Number(document.getElementById(id).value || 0);
+    }
 
-      updateSliderLimits();
+    function setNum(id, value) {
+      document.getElementById(id).value = String(Number(value) || 0);
+    }
+
+    function addMinutes(h, m, dh, dm) {
+      let total = (Number(h) * 60) + Number(m) + (Number(dh) * 60) + Number(dm);
+      total = ((total % 1440) + 1440) % 1440;
+      return {
+        h: Math.floor(total / 60),
+        m: total % 60
+      };
+    }
+
+    function updateFilterEnds() {
+      const f1 = addMinutes(getNum("f1Hour"), getNum("f1Minute"), getNum("f1DurHour"), getNum("f1DurMinute"));
+      document.getElementById("f1Ends").textContent = "Koniec: " + pad2(f1.h) + ":" + pad2(f1.m);
+
+      const f2 = addMinutes(getNum("f2Hour"), getNum("f2Minute"), getNum("f2DurHour"), getNum("f2DurMinute"));
+      document.getElementById("f2Ends").textContent = "Koniec: " + pad2(f2.h) + ":" + pad2(f2.m);
     }
 
     function updateSliderLimits() {
@@ -754,31 +869,31 @@
 
       if (appState.tempUnit === "C") {
         if (appState.tempRangeHigh) {
-          slider.min = "32";
+          slider.min = "26.5";
           slider.max = "40";
           slider.step = "0.5";
-          minLabel.textContent = "32";
+          minLabel.textContent = "26.5";
           maxLabel.textContent = "40";
         } else {
-          slider.min = "26";
-          slider.max = "32";
+          slider.min = "10";
+          slider.max = "26.5";
           slider.step = "0.5";
-          minLabel.textContent = "26";
-          maxLabel.textContent = "32";
+          minLabel.textContent = "10";
+          maxLabel.textContent = "26.5";
         }
       } else {
         if (appState.tempRangeHigh) {
-          slider.min = "90";
+          slider.min = "80";
           slider.max = "104";
           slider.step = "1";
-          minLabel.textContent = "90";
+          minLabel.textContent = "80";
           maxLabel.textContent = "104";
         } else {
-          slider.min = "80";
-          slider.max = "90";
+          slider.min = "50";
+          slider.max = "80";
           slider.step = "1";
-          minLabel.textContent = "80";
-          maxLabel.textContent = "90";
+          minLabel.textContent = "50";
+          maxLabel.textContent = "80";
         }
       }
 
@@ -790,8 +905,33 @@
       if (current > max) slider.value = String(max);
 
       appState.setTemp = Number(slider.value);
+    }
+
+    function updateSettingsUI() {
       document.getElementById("settingsTempValue").textContent =
         Number(appState.setTemp).toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
+
+      const slider = document.getElementById("tempSlider");
+      slider.value = String(appState.setTemp);
+
+      document.getElementById("unitCBtn").classList.toggle("active", appState.tempUnit === "C");
+      document.getElementById("unitFBtn").classList.toggle("active", appState.tempUnit === "F");
+
+      const isReady = appState.heatMode === "Pripravený";
+      document.getElementById("heatReadyBtn").classList.toggle("active", isReady);
+      document.getElementById("heatRestBtn").classList.toggle("active", !isReady);
+
+      document.getElementById("rangeLowBtn").classList.toggle("active", !appState.tempRangeHigh);
+      document.getElementById("rangeHighBtn").classList.toggle("active", appState.tempRangeHigh);
+
+      document.getElementById("btnF2Off").classList.toggle("active", !appState.filter2Enabled);
+      document.getElementById("btnF2On").classList.toggle("active", appState.filter2Enabled);
+
+      document.getElementById("tempRangeText").textContent =
+        appState.tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah";
+
+      updateSliderLimits();
+      updateFilterEnds();
     }
 
     async function loadDeviceConfig() {
@@ -829,9 +969,12 @@
           return;
         }
 
-        appState.heatMode = parsed.heatMode || "Ready";
+        appState.heatMode = parsed.heatMode || "Pripravený";
         appState.tempRangeHigh = !!parsed.tempRangeHigh;
         appState.setTemp = Number.isFinite(parsed.setTemp) ? parsed.setTemp : appState.setTemp;
+
+        setNum("timeHour", Number(parsed.time.split(":")[0]));
+        setNum("timeMinute", Number(parsed.time.split(":")[1]));
 
         applyHomeState(parsed);
         applyControlsState(parsed);
@@ -856,18 +999,27 @@
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
         setMessage((ok ? "Príkaz prijatý: " : "Príkaz odoslaný: ") + name + ". Aktualizujem stav...");
-        setTimeout(loadPanelUpdate, 1200);
+        setTimeout(loadPanelUpdate, 1500);
       } catch (e) {
         setMessage("Chyba pri odoslaní príkazu " + name + ": " + e.message);
       }
     }
 
+    function convertSetTempForWorker(temp, unit) {
+      if (unit === "C") {
+        return String((Number(temp) * 2).toFixed(1));
+      }
+      return String(Number(temp).toFixed(1));
+    }
+
     async function saveSetTemp() {
       try {
-        const value = document.getElementById("tempSlider").value;
-        setMessage("Nastavujem teplotu na " + value + "°" + appState.tempUnit + " ...");
+        const uiValue = Number(document.getElementById("tempSlider").value);
+        const workerValue = convertSetTempForWorker(uiValue, appState.tempUnit);
 
-        const { resp, data } = await fetchJson(WORKER_URL + "/settemp?value=" + encodeURIComponent(value));
+        setMessage("Nastavujem teplotu na " + uiValue.toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit + " ...");
+
+        const { resp, data } = await fetchJson(WORKER_URL + "/settemp?value=" + encodeURIComponent(workerValue));
 
         if (!resp.ok) {
           setMessage("Nastavenie teploty zlyhalo. HTTP status: " + resp.status);
@@ -877,10 +1029,12 @@
         const txt = (data && data.response) ? data.response : "";
         const ok = txt.includes("Command received") || txt.includes('status="0"');
 
-        appState.setTemp = Number(value);
+        appState.setTemp = uiValue;
         updateSettingsUI();
-        setMessage((ok ? "Teplota nastavená. " : "Príkaz odoslaný. ") + "Aktualizujem stav...");
-        setTimeout(loadPanelUpdate, 1500);
+
+        setMessage((ok ? "Teplota nastavená. " : "Príkaz odoslaný. ") + "Čakám na server...");
+        setTimeout(loadPanelUpdate, 2500);
+        setTimeout(loadPanelUpdate, 6000);
       } catch (e) {
         setMessage("Chyba pri nastavení teploty: " + e.message);
       }
@@ -909,17 +1063,197 @@
       }
     }
 
-    async function sendHeatModeButton() {
-      await sendButton(81, "Heat Mode");
+    async function sendToggleButton(code, successText, errorText, delay = 1500) {
+      const { resp, data } = await fetchJson(
+        WORKER_URL + "/button?code=" + encodeURIComponent(code)
+      );
+
+      if (!resp.ok) {
+        setMessage(errorText + " HTTP status: " + resp.status);
+        return false;
+      }
+
+      const txt = data.response || "";
+      const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+      setMessage((ok ? successText : "Príkaz odoslaný.") + " Aktualizujem stav...");
+      setTimeout(loadPanelUpdate, delay);
+      return true;
     }
 
-    async function sendRangeButton() {
-      await sendButton(80, "Temperature Range");
+    async function setHeatMode(target) {
+      try {
+        const currentlyReady = appState.heatMode === "Pripravený";
+        const wantReady = target === "ready";
+
+        if ((wantReady && currentlyReady) || (!wantReady && !currentlyReady)) {
+          setMessage("Teplotný režim je už nastavený.");
+          return;
+        }
+
+        setMessage("Prepínam teplotný režim...");
+        await sendToggleButton(
+          81,
+          "Teplotný režim prepnutý.",
+          "Prepnutie teplotného režimu zlyhalo.",
+          2500
+        );
+      } catch (e) {
+        setMessage("Chyba pri prepínaní teplotného režimu: " + e.message);
+      }
+    }
+
+    async function setTempRange(target) {
+      try {
+        const wantHigh = target === "high";
+
+        if ((wantHigh && appState.tempRangeHigh) || (!wantHigh && !appState.tempRangeHigh)) {
+          setMessage("Teplotný rozsah je už nastavený.");
+          return;
+        }
+
+        setMessage("Prepínam teplotný rozsah...");
+        await sendToggleButton(
+          80,
+          "Teplotný rozsah prepnutý.",
+          "Prepnutie teplotného rozsahu zlyhalo.",
+          2000
+        );
+      } catch (e) {
+        setMessage("Chyba pri prepínaní teplotného rozsahu: " + e.message);
+      }
+    }
+
+    async function saveSystemTime() {
+      try {
+        const hh = getNum("timeHour");
+        const mm = getNum("timeMinute");
+
+        setMessage("Ukladám čas panelu...");
+
+        const { resp, data } = await fetchJson(
+          WORKER_URL + "/systemtime?hh=" + encodeURIComponent(hh) + "&mm=" + encodeURIComponent(mm)
+        );
+
+        if (!resp.ok) {
+          setMessage("Uloženie času zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMessage((ok ? "Čas uložený." : "Príkaz odoslaný.") + " Aktualizujem stav...");
+        setTimeout(loadPanelUpdate, 2000);
+      } catch (e) {
+        setMessage("Chyba pri ukladaní času: " + e.message);
+      }
+    }
+
+    function setFilter2Enabled(enabled) {
+      appState.filter2Enabled = !!enabled;
+      updateSettingsUI();
+    }
+
+    async function loadFilters() {
+      try {
+        setMessage("Načítavam filtre...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/getfilters");
+
+        if (!resp.ok) {
+          setMessage("Načítanie filtrov zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const p = parseFiltersResponse(data);
+        if (!p) {
+          setMessage("Filtre sa nepodarilo rozpoznať.");
+          return;
+        }
+
+        setNum("f1Hour", p.filterCycle1.startsAtHour);
+        setNum("f1Minute", p.filterCycle1.startsAtMinute);
+        setNum("f1DurHour", p.filterCycle1.durationHour);
+        setNum("f1DurMinute", p.filterCycle1.durationMinute);
+
+        appState.filter2Enabled = !!p.filterCycle2.enabled;
+        setNum("f2Hour", p.filterCycle2.startsAtHour);
+        setNum("f2Minute", p.filterCycle2.startsAtMinute);
+        setNum("f2DurHour", p.filterCycle2.durationHour);
+        setNum("f2DurMinute", p.filterCycle2.durationMinute);
+
+        document.getElementById("filtersInfo").textContent =
+          "Cyklus 1: " + pad2(p.filterCycle1.startsAtHour) + ":" + pad2(p.filterCycle1.startsAtMinute) +
+          ", trvanie " + p.filterCycle1.durationHour + "h " + p.filterCycle1.durationMinute + "m\n" +
+          "Cyklus 2: " + (p.filterCycle2.enabled ? "Zapnutý" : "Vypnutý") + ", " +
+          pad2(p.filterCycle2.startsAtHour) + ":" + pad2(p.filterCycle2.startsAtMinute) +
+          ", trvanie " + p.filterCycle2.durationHour + "h " + p.filterCycle2.durationMinute + "m";
+
+        updateSettingsUI();
+        setMessage("Filtre načítané.");
+      } catch (e) {
+        setMessage("Chyba pri načítaní filtrov: " + e.message);
+      }
+    }
+
+    async function saveFilters() {
+      try {
+        const params = new URLSearchParams({
+          f1h: String(getNum("f1Hour")),
+          f1m: String(getNum("f1Minute")),
+          f1dh: String(getNum("f1DurHour")),
+          f1dm: String(getNum("f1DurMinute")),
+          f2en: appState.filter2Enabled ? "1" : "0",
+          f2h: String(getNum("f2Hour")),
+          f2m: String(getNum("f2Minute")),
+          f2dh: String(getNum("f2DurHour")),
+          f2dm: String(getNum("f2DurMinute"))
+        });
+
+        setMessage("Ukladám filtračné cykly...");
+        const { resp, data } = await fetchJson(WORKER_URL + "/filters?" + params.toString());
+
+        if (!resp.ok) {
+          setMessage("Uloženie filtrov zlyhalo. HTTP status: " + resp.status);
+          return;
+        }
+
+        const txt = data.response || "";
+        const ok = txt.includes("Command received") || txt.includes('status="0"');
+
+        setMessage((ok ? "Filtračné cykly uložené." : "Príkaz odoslaný.") + " Čakám na server...");
+        setTimeout(loadFilters, 2500);
+        setTimeout(loadFilters, 6000);
+      } catch (e) {
+        setMessage("Chyba pri ukladaní filtrov: " + e.message);
+      }
+    }
+
+    async function debugPanel() {
+      try {
+        const { resp, data } = await fetchJson(WORKER_URL + "/panelupdate");
+        if (!resp.ok) {
+          setMessage("Debug panelu zlyhal. HTTP status: " + resp.status);
+          return;
+        }
+
+        const parsed = parsePanel(data.hex || "");
+        const bytes = parsed?.rawBytes || [];
+        const preview = bytes.map((v, i) => `${String(i).padStart(2,"0")}:${v}`).join("  ");
+
+        document.getElementById("filtersInfo").textContent =
+          "HEX: " + (data.hex || "") + "\n\nBYTES:\n" + preview;
+
+        setMessage("Debug panelu načítaný.");
+      } catch (e) {
+        setMessage("Chyba pri debug panelu: " + e.message);
+      }
     }
 
     async function refreshAll() {
       await loadDeviceConfig();
       await loadPanelUpdate();
+      await loadFilters();
     }
 
     document.getElementById("tempSlider").addEventListener("input", function () {
@@ -929,6 +1263,14 @@
         val.toFixed(appState.tempUnit === "C" ? 1 : 0) + "°" + appState.tempUnit;
     });
 
+    [
+      "f1Hour","f1Minute","f1DurHour","f1DurMinute",
+      "f2Hour","f2Minute","f2DurHour","f2DurMinute"
+    ].forEach(id => {
+      document.getElementById(id).addEventListener("change", updateFilterEnds);
+    });
+
+    initSelects();
     updateSettingsUI();
     refreshAll();
     setInterval(loadPanelUpdate, 15000);
