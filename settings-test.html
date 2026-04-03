@@ -222,35 +222,39 @@
       return out;
     }
 
+    function pad2(n) {
+      return String(Number(n) || 0).padStart(2, "0");
+    }
+
     function parsePanel(hex) {
-  const p = hexToBytes(hex);
-  if (p.length < 26) return null;
+      const p = hexToBytes(hex);
+      if (p.length < 26) return null;
 
-  const rawSetTemp = p[25] ?? 0;
-  const hour = p[7] ?? 0;
-  const minute = p[8] ?? 0;
-  const flags = p[14] ?? 0;
+      const rawSetTemp = p[25] ?? 0;
+      const hour = p[7] ?? 0;
+      const minute = p[8] ?? 0;
+      const flags = p[14] ?? 0;
 
-  const tempRangeHigh = (flags & 0x04) !== 0;
+      const tempRangeHigh = (flags & 0x04) !== 0;
 
-  const heatModeIsRest = (flags & 0x10) !== 0;
-  const heatModeRaw = p[9] ?? 0;
+      const heatModeIsRest = (flags & 0x10) !== 0;
+      const heatModeRaw = p[9] ?? 0;
 
-  let heatMode = "Pripravený";
-  if (heatModeIsRest || heatModeRaw === 1) {
-    heatMode = "Spiaci";
-  }
+      let heatMode = "Pripravený";
+      if (heatModeIsRest || heatModeRaw === 1) {
+        heatMode = "Spiaci";
+      }
 
-  const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
+      const setTemp = state.unit === "C" ? rawSetTemp / 2 : rawSetTemp;
 
-  return {
-    setTemp,
-    heatMode,
-    tempRangeHigh,
-    tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
-    time: pad2(hour) + ":" + pad2(minute)
-  };
-}
+      return {
+        setTemp,
+        heatMode,
+        tempRangeHigh,
+        tempRange: tempRangeHigh ? "Vysoký rozsah" : "Nízky rozsah",
+        time: pad2(hour) + ":" + pad2(minute)
+      };
+    }
 
     function updateSliderLimits() {
       const slider = document.getElementById("tempSlider");
@@ -446,7 +450,7 @@
           81,
           "Teplotný režim prepnutý.",
           "Prepnutie teplotného režimu zlyhalo.",
-          2000
+          2500
         );
       } catch (e) {
         setMsg("Chyba pri prepínaní teplotného režimu: " + e.message);
@@ -466,7 +470,8 @@
         await sendToggleButton(
           80,
           "Teplotný rozsah prepnutý.",
-          "Prepnutie teplotného rozsahu zlyhalo."
+          "Prepnutie teplotného rozsahu zlyhalo.",
+          2000
         );
       } catch (e) {
         setMsg("Chyba pri prepínaní teplotného rozsahu: " + e.message);
