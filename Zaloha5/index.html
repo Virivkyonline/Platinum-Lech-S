@@ -1724,17 +1724,7 @@
 
       if (isTestMode) {
         setSetupStatus(
-          "Provisioning paket bol pripravený v TEST režime.
-
-" +
-          "SSID: " + ssid + "
-" +
-          "Typ: " + securityType + "
-" +
-          "Dĺžka paketu: " + payload.length + " bajtov
-
-" +
-          "Do modulu sa nič neposlalo."
+          `Provisioning paket bol pripravený v TEST režime.\n\nSSID: ${ssid}\nTyp: ${securityType}\nDĺžka paketu: ${payload.length} bajtov\n\nDo modulu sa nič neposlalo.`
         );
         setMessage("Test režim: provisioning paket bol pripravený. Do modulu sa nič neposlalo.");
         return;
@@ -1748,30 +1738,17 @@
         if (res.ok) {
           setMessage("Provisioning bol odoslaný do modulu.");
           setSetupStatus(
-            "Wi-Fi údaje boli odoslané do modulu.
-" +
-            "Režim: " + res.mode + "
-
-" +
-            "Modul sa teraz má pripojiť na domácu Wi-Fi a prestať vysielať svoju setup sieť."
+            `Wi-Fi údaje boli odoslané do modulu.\nRežim: ${res.mode}\n\nModul sa teraz má pripojiť na domácu Wi-Fi a prestať vysielať svoju setup sieť.`
           );
         } else {
           setMessage("Reálny režim zlyhal: chýba Android bridge.");
           setSetupStatus(
-            "Reálny režim sa nespustil.
-
-" +
-            "Dôvod: chýba Android bridge.
-" +
-            "Do modulu sa nič neposlalo."
+            `Reálny režim sa nespustil.\n\nDôvod: chýba Android bridge.\nDo modulu sa nič neposlalo.`
           );
         }
       } catch (e) {
         setMessage("Chyba pri odosielaní do modulu: " + e.message);
-        setSetupStatus("Chyba pri reálnom odosielaní:
-" + e.message + "
-
-Do modulu sa nič neposlalo.");
+        setSetupStatus(`Chyba pri reálnom odosielaní:\n${e.message}\n\nDo modulu sa nič neposlalo.`);
       }
     }
 
