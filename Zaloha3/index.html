@@ -918,6 +918,20 @@
       word-break:break-word;
     }
 
+    .danger-btn{
+      border-color:rgba(255,120,120,.18) !important;
+      color:#fff4f4 !important;
+      background:
+        linear-gradient(180deg, rgba(120,28,28,.35), rgba(60,15,15,.45)) !important;
+    }
+
+    .danger-btn:hover{
+      border-color:rgba(255,140,140,.28) !important;
+      box-shadow:
+        0 0 14px rgba(255,90,90,.10),
+        0 8px 20px rgba(0,0,0,.12) !important;
+    }
+
     .hidden{ display:none !important; }
 
     @media (max-width:380px){
@@ -1250,7 +1264,7 @@
 
             <div class="setup-actions" style="margin-top:14px;">
               <button class="settings-btn-wide" onclick="fillCurrentWifiName()">Vyplniť názov Wi-Fi</button>
-              <button class="settings-btn-wide" onclick="clearSetupForm()">Vymazať</button>
+              <button class="settings-btn-wide" onclick="clearSetupForm()">Vymazať formulár</button>
             </div>
           </div>
 
@@ -1276,6 +1290,17 @@
             </div>
             <div style="margin-top:12px;">
               <button class="settings-btn-wide" onclick="saveManualDeviceId()">Uložiť ručne</button>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <div class="settings-label">Správa setupu</div>
+            <div class="small" style="margin-bottom:12px;">
+              Tu môžeš zmazať uložené Device ID a vynulovať setup bez ručného mazania localStorage.
+            </div>
+            <div class="setup-actions">
+              <button class="settings-btn-wide danger-btn" onclick="clearSavedDeviceId()">Vymazať Device ID</button>
+              <button class="settings-btn-wide danger-btn" onclick="resetSetup()">Reset setupu</button>
             </div>
           </div>
         </div>
@@ -1435,6 +1460,7 @@
       document.getElementById("setupSecurityType").value = "WPA";
       appState.detectedDeviceId = "";
       updateSetupUI();
+      setMessage("Formulár setupu bol vymazaný.");
     }
 
     function validateDeviceIdFormat(deviceId) {
@@ -1477,6 +1503,46 @@
       }
 
       saveDeviceId(manual);
+    }
+
+    function clearSavedDeviceId() {
+      appState.deviceId = "";
+      appState.detectedDeviceId = "";
+      appState.setupCompleted = false;
+
+      localStorage.removeItem("balboaDeviceId");
+      localStorage.removeItem("balboaSetupCompleted");
+
+      updateSetupUI();
+      setMessage("Uložené Device ID bolo vymazané.");
+      showScreen("setup");
+    }
+
+    function resetSetup() {
+      appState.deviceId = "";
+      appState.detectedDeviceId = "";
+      appState.setupCompleted = false;
+
+      localStorage.removeItem("balboaDeviceId");
+      localStorage.removeItem("balboaSetupCompleted");
+      localStorage.removeItem("lastHomeWifiName");
+
+      document.getElementById("setupHomeWifiName").value = "";
+      document.getElementById("setupHomeWifiPassword").value = "";
+      document.getElementById("setupModuleApName").value = "";
+      document.getElementById("manualDeviceIdInput").value = "";
+      document.getElementById("setupSecurityType").value = "WPA";
+
+      document.getElementById("homeTemp").textContent = "--.-°C";
+      document.getElementById("homeMode").textContent = "Pripravený";
+      document.getElementById("homeRange").textContent = "Nízky rozsah";
+      document.getElementById("homeTime").textContent = "Čas: --:--";
+      document.getElementById("homeSetTemp").textContent = "Nastavená teplota: --.-°C";
+      document.getElementById("filtersInfo").textContent = "Zatiaľ nenačítané.";
+
+      updateSetupUI();
+      setMessage("Setup bol resetovaný.");
+      showScreen("setup");
     }
 
     function continueToMainApp() {
@@ -2246,4 +2312,4 @@
     }, 15000);
   </script>
 </body>
-              </html>
+                                                                                                    </html>
