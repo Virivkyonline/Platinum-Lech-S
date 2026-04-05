@@ -936,6 +936,14 @@
         linear-gradient(180deg, rgba(120,28,28,.35), rgba(60,15,15,.45)) !important;
     }
 
+    .mode-note{
+      margin-top:10px;
+      font-size:13px;
+      color:var(--text-soft);
+      line-height:1.5;
+      white-space:pre-wrap;
+    }
+
     .danger-btn:hover{
       border-color:rgba(255,140,140,.28) !important;
       box-shadow:
@@ -1249,6 +1257,15 @@
           </div>
 
           <div class="settings-block">
+            <div class="settings-label">Režim odoslania</div>
+            <div class="btn-grid-2">
+              <button id="modeTestBtn" class="settings-btn" onclick="setProvisioningMode('test')">Test režim</button>
+              <button id="modeRealBtn" class="settings-btn" onclick="setProvisioningMode('real')">Reálny režim</button>
+            </div>
+            <div class="mode-note" id="provisioningModeInfo">Test režim len vytvorí HEX paket. Nič sa neposiela do modulu.</div>
+          </div>
+
+          <div class="settings-block">
             <div class="setup-field">
               <label class="setup-label" for="setupHomeWifiName">Názov domácej Wi-Fi</label>
               <input id="setupHomeWifiName" class="setup-input" type="text" placeholder="Napr. MojDomWiFi">
@@ -1347,7 +1364,8 @@
       deviceId: localStorage.getItem("balboaDeviceId") || "",
       detectedDeviceId: "",
       setupCompleted: localStorage.getItem("balboaSetupCompleted") === "1",
-      lastHexPayload: ""
+      lastHexPayload: "",
+      provisioningMode: localStorage.getItem("balboaProvisioningMode") || "test"
     };
 
     const deviceProfiles = {
@@ -1452,6 +1470,30 @@
       el.textContent = appState.lastHexPayload || "Zatiaľ nevygenerované.";
     }
 
+    function updateProvisioningModeUI() {
+      const isTest = appState.provisioningMode !== "real";
+      const testBtn = document.getElementById("modeTestBtn");
+      const realBtn = document.getElementById("modeRealBtn");
+      const info = document.getElementById("provisioningModeInfo");
+
+      if (testBtn) testBtn.classList.toggle("active", isTest);
+      if (realBtn) realBtn.classList.toggle("active", !isTest);
+      if (info) {
+        info.textContent = isTest
+          ? "Test režim len vytvorí HEX paket. Nič sa neposiela do modulu."
+          : "Reálny režim sa pokúsi poslať údaje do modulu cez Android bridge. Bez bridge sa nič neodošle.";
+      }
+    }
+
+    function setProvisioningMode(mode) {
+      appState.provisioningMode = mode === "real" ? "real" : "test";
+      localStorage.setItem("balboaProvisioningMode", appState.provisioningMode);
+      updateProvisioningModeUI();
+      setMessage(appState.provisioningMode === "real"
+        ? "Zapnutý reálny režim. Bez Android bridge sa však nič neodošle."
+        : "Zapnutý test režim. Bude sa len generovať HEX paket.");
+    }
+
     function updateSetupUI() {
       const deviceBox = document.getElementById("setupDeviceIdBox");
       if (deviceBox) {
@@ -1468,6 +1510,7 @@
       }
 
       updateTopStatus();
+      updateProvisioningModeUI();
     }
 
     function fillCurrentWifiName() {
@@ -1650,9 +1693,9 @@
       }
 
       return {
-        ok: true,
-        mode: "simulation",
-        result: "Provisioning paket pripravený, ale web bez Android bridge ho nevie priamo odoslať do modulu."
+        ok: false,
+        mode: "no-bridge",
+        result: "Reálny režim vyžaduje Android bridge. Z webu sa teraz nič neodoslalo."
       };
     }
 
@@ -1661,6 +1704,7 @@
       const password = document.getElementById("setupHomeWifiPassword").value;
       const securityType = document.getElementById("setupSecurityType").value;
       const moduleApName = document.getElementById("setupModuleApName").value.trim();
+      const isTestMode = appState.provisioningMode !== "real";
 
       if (!ssid) {
         setMessage("Zadaj názov domácej Wi-Fi.");
@@ -1677,25 +1721,57 @@
       const hexPayload = bytesToHex(payload);
       appState.lastHexPayload = hexPayload;
       updateHexPayloadBox();
-      setSetupStatus("Posielam Wi-Fi údaje do modulu...");
+
+      if (isTestMode) {
+        setSetupStatus(
+          "Provisioning paket bol pripravený v TEST režime.
+
+" +
+          "SSID: " + ssid + "
+" +
+          "Typ: " + securityType + "
+" +
+          "Dĺžka paketu: " + payload.length + " bajtov
+
+" +
+          "Do modulu sa nič neposlalo."
+        );
+        setMessage("Test režim: provisioning paket bol pripravený. Do modulu sa nič neposlalo.");
+        return;
+      }
+
+      setSetupStatus("Reálny režim: pokus o odoslanie Wi-Fi údajov do modulu...");
 
       try {
         const res = await sendProvisioningToModule(ssid, password, securityType, moduleApName);
 
         if (res.ok) {
-          setMessage("Provisioning bol spustený.");
+          setMessage("Provisioning bol odoslaný do modulu.");
           setSetupStatus(
-            "Wi-Fi údaje boli spracované.\n" +
-            "Režim: " + res.mode + "\n\n" +
-            "Teraz sa modul má pripojiť na domácu Wi-Fi a prestať vysielať svoju setup sieť."
+            "Wi-Fi údaje boli odoslané do modulu.
+" +
+            "Režim: " + res.mode + "
+
+" +
+            "Modul sa teraz má pripojiť na domácu Wi-Fi a prestať vysielať svoju setup sieť."
           );
         } else {
-          setMessage("Provisioning zlyhal.");
-          setSetupStatus("Provisioning zlyhal.");
+          setMessage("Reálny režim zlyhal: chýba Android bridge.");
+          setSetupStatus(
+            "Reálny režim sa nespustil.
+
+" +
+            "Dôvod: chýba Android bridge.
+" +
+            "Do modulu sa nič neposlalo."
+          );
         }
       } catch (e) {
-        setMessage("Chyba pri provisioningu: " + e.message);
-        setSetupStatus("Chyba pri provisioningu:\n" + e.message);
+        setMessage("Chyba pri odosielaní do modulu: " + e.message);
+        setSetupStatus("Chyba pri reálnom odosielaní:
+" + e.message + "
+
+Do modulu sa nič neposlalo.");
       }
     }
 
