@@ -353,6 +353,14 @@
             <button class="settings-btn-wide danger-btn" onclick="resetSetup()">Reset setupu</button>
           </div>
         </div>
+
+        <div class="settings-block">
+          <div class="settings-label">HEX provisioning paketu</div>
+          <div class="setup-status" id="hexPayloadBox">Zatiaľ nevygenerované.</div>
+          <div style="margin-top:12px;">
+            <button class="settings-btn-wide" onclick="copyHexPayload()">Kopírovať HEX</button>
+          </div>
+        </div>
       </div>
 
       <div class="logo-wrap">
@@ -367,7 +375,8 @@
     const appState = {
       deviceId: localStorage.getItem("balboaDeviceId") || "",
       detectedDeviceId: "",
-      setupCompleted: localStorage.getItem("balboaSetupCompleted") === "1"
+      setupCompleted: localStorage.getItem("balboaSetupCompleted") === "1",
+      lastHexPayload: ""
     };
 
     function setMessage(text) {
@@ -381,6 +390,12 @@
 
     function setSetupStatus(text) {
       document.getElementById("setupStatusBox").textContent = text;
+    }
+
+    function updateHexPayloadBox() {
+      const el = document.getElementById("hexPayloadBox");
+      if (!el) return;
+      el.textContent = appState.lastHexPayload || "Zatiaľ nevygenerované.";
     }
 
     function updateSetupUI() {
@@ -409,7 +424,9 @@
       document.getElementById("manualDeviceIdInput").value = "";
       document.getElementById("setupSecurityType").value = "WPA";
       appState.detectedDeviceId = "";
+      appState.lastHexPayload = "";
       updateSetupUI();
+      updateHexPayloadBox();
       setMessage("Formulár bol vymazaný.");
     }
 
@@ -476,6 +493,8 @@
       document.getElementById("manualDeviceIdInput").value = "";
       document.getElementById("setupSecurityType").value = "WPA";
 
+      appState.lastHexPayload = "";
+      updateHexPayloadBox();
       updateSetupUI();
       setMessage("Setup bol resetovaný.");
     }
@@ -544,6 +563,9 @@
       const payload = buildProvisioningPayload(ssid, password, securityType);
       const hexPayload = bytesToHex(payload);
 
+      appState.lastHexPayload = hexPayload;
+      updateHexPayloadBox();
+
       setSetupStatus(
         "Provisioning paket bol pripravený.\n\n" +
         "SSID: " + ssid + "\n" +
@@ -562,7 +584,22 @@
       setMessage("ID modulu bolo načítané testovacím režimom.");
     }
 
+    async function copyHexPayload() {
+      if (!appState.lastHexPayload) {
+        setMessage("Najprv vygeneruj provisioning paket.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(appState.lastHexPayload);
+        setMessage("HEX provisioning paketu bol skopírovaný.");
+      } catch (e) {
+        setMessage("Nepodarilo sa skopírovať HEX paket.");
+      }
+    }
+
     updateSetupUI();
+    updateHexPayloadBox();
   </script>
 </body>
 </html>
