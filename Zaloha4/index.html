@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platinum Lech Spa - Zaloha4 Setup</title>
+  <link rel="icon" href="logo-gold.png">
+  <meta name="theme-color" content="#050505">
+
+  <style>
+    :root{
+      --bg:#050505;
+      --panel:#111010;
+      --line:rgba(255,214,102,.12);
+      --gold:#f2c94c;
+      --gold-2:#ffd84d;
+      --gold-3:#fff1b2;
+      --text:#fff8ef;
+      --text-soft:#dbc38b;
+      --shadow:0 24px 60px rgba(0,0,0,.46);
+      --radius-xl:34px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html, body{
+      margin:0;
+      min-height:100%;
+      font-family: Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% -10%, rgba(242,201,76,.14), transparent 24%),
+        linear-gradient(180deg, #0f0f0f 0%, #080808 45%, #040404 100%);
+    }
+
+    .app{
+      max-width:430px;
+      margin:0 auto;
+      min-height:100vh;
+      padding:14px 14px 28px;
+    }
+
+    .topbar{
+      display:grid;
+      gap:12px;
+      padding:4px 2px 10px;
+    }
+
+    .brandbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .brand-title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+
+    .brand-title strong{
+      font-size:17px;
+      letter-spacing:2.8px;
+      color:var(--gold-2);
+      font-weight:800;
+    }
+
+    .brand-title span{
+      font-size:11px;
+      letter-spacing:8px;
+      color:var(--text-soft);
+      text-transform:uppercase;
+    }
+
+    .status-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      min-height:42px;
+      padding:0 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(28,24,19,.94), rgba(16,14,12,.98));
+      color:var(--text);
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .status-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--gold-2);
+      box-shadow:
+        0 0 10px rgba(255,216,77,.95),
+        0 0 24px rgba(255,216,77,.45);
+    }
+
+    .panel{
+      width:100%;
+      margin:14px auto 0;
+      border-radius:var(--radius-xl);
+      padding:20px;
+      background:linear-gradient(180deg, rgba(20,18,17,.97), rgba(11,10,10,.99));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .page-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .page-title{
+      margin:0;
+      font-size:28px;
+      font-weight:900;
+      color:var(--gold-2);
+    }
+
+    .page-sub{
+      font-size:13px;
+      color:var(--text-soft);
+      margin-top:4px;
+    }
+
+    .ghost-chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      padding:0 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--text);
+      background:linear-gradient(180deg, rgba(30,26,22,.78), rgba(17,15,13,.92));
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .setup-grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .settings-block{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.018));
+      border:1px solid rgba(255,216,77,.10);
+      border-radius:26px;
+      padding:18px;
+    }
+
+    .settings-label{
+      font-size:17px;
+      margin-bottom:12px;
+      color:var(--text);
+      font-weight:800;
+    }
+
+    .setup-field{
+      display:grid;
+      gap:8px;
+    }
+
+    .setup-label{
+      font-size:15px;
+      color:var(--text);
+      font-weight:800;
+    }
+
+    .setup-input,
+    .setup-select{
+      width:100%;
+      min-height:56px;
+      padding:12px 16px;
+      border-radius:18px;
+      border:1px solid rgba(255,216,77,.10);
+      color:var(--text);
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+      font-size:16px;
+      outline:none;
+    }
+
+    .setup-input::placeholder{
+      color:var(--text-soft);
+    }
+
+    .setup-select option{
+      color:#000;
+    }
+
+    .setup-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .setup-status,
+    .setup-device-box{
+      border-radius:22px;
+      padding:14px 16px;
+      border:1px solid rgba(255,216,77,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.018));
+      color:var(--text);
+      white-space:pre-wrap;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
+    .setup-device-box{
+      color:var(--gold-3);
+      font-weight:800;
+    }
+
+    .settings-btn-wide{
+      width:100%;
+      min-height:56px;
+      padding:10px 14px;
+      font-size:16px;
+      font-weight:800;
+      cursor:pointer;
+      border:1px solid rgba(255,216,77,.10);
+      border-radius:18px;
+      color:var(--gold-3);
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    }
+
+    .danger-btn{
+      border-color:rgba(255,120,120,.18) !important;
+      color:#fff4f4 !important;
+      background:linear-gradient(180deg, rgba(120,28,28,.35), rgba(60,15,15,.45)) !important;
+    }
+
+    .message-box{
+      width:100%;
+      margin:14px auto 0;
+      background:linear-gradient(180deg, rgba(22,18,16,.94), rgba(13,12,11,.97));
+      border:1px solid rgba(255,216,77,.08);
+      color:var(--text);
+      border-radius:22px;
+      padding:16px 16px;
+      font-size:14px;
+      min-height:58px;
+      white-space:pre-wrap;
+    }
+
+    .logo-wrap{
+      text-align:center;
+      margin-top:22px;
+    }
+
+    .brand-logo{
+      display:block;
+      width:min(100%, 220px);
+      height:auto;
+      margin:0 auto;
+      opacity:.98;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brandbar">
+        <div class="brand-title">
+          <strong>PLATINUM LECH</strong>
+          <span>spa</span>
+        </div>
+        <div class="status-chip">
+          <span class="status-dot"></span>
+          <span id="topStatusText">Čaká na setup</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Setup modulu</h1>
+          <div class="page-sub">Samostatný test nastavenia Wi-Fi a Device ID</div>
+        </div>
+        <div class="ghost-chip">Zaloha4</div>
+      </div>
+
+      <div class="setup-grid">
+        <div class="settings-block">
+          <div class="settings-label">Stav setupu</div>
+          <div class="setup-status" id="setupStatusBox">Modul ešte nie je nastavený.</div>
+        </div>
+
+        <div class="settings-block">
+          <div class="setup-field">
+            <label class="setup-label" for="setupHomeWifiName">Názov domácej Wi-Fi</label>
+            <input id="setupHomeWifiName" class="setup-input" type="text" placeholder="Napr. MojDomWiFi">
+          </div>
+
+          <div class="setup-field" style="margin-top:12px;">
+            <label class="setup-label" for="setupHomeWifiPassword">Heslo Wi-Fi</label>
+            <input id="setupHomeWifiPassword" class="setup-input" type="password" placeholder="Zadaj heslo">
+          </div>
+
+          <div class="setup-field" style="margin-top:12px;">
+            <label class="setup-label" for="setupSecurityType">Typ zabezpečenia</label>
+            <select id="setupSecurityType" class="setup-select">
+              <option value="WPA">WPA / WPA2</option>
+              <option value="WEP">WEP</option>
+              <option value="OPEN">Otvorená sieť</option>
+            </select>
+          </div>
+
+          <div class="setup-field" style="margin-top:12px;">
+            <label class="setup-label" for="setupModuleApName">Názov Wi-Fi modulu</label>
+            <input id="setupModuleApName" class="setup-input" type="text" placeholder="Napr. BWGSPA_xxxx">
+          </div>
+
+          <div class="setup-actions" style="margin-top:14px;">
+            <button class="settings-btn-wide" onclick="fillCurrentWifiName()">Vyplniť názov Wi-Fi</button>
+            <button class="settings-btn-wide" onclick="clearSetupForm()">Vymazať formulár</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Device ID modulu</div>
+          <div class="setup-device-box" id="setupDeviceIdBox">Neuložené</div>
+
+          <div class="setup-actions" style="margin-top:14px;">
+            <button class="settings-btn-wide" onclick="startProvisioning()">Odoslať do modulu</button>
+            <button class="settings-btn-wide" onclick="simulateReadModuleId()">Načítať ID modulu</button>
+          </div>
+
+          <div class="setup-actions" style="margin-top:12px;">
+            <button class="settings-btn-wide" onclick="saveDetectedDeviceId()">Uložiť ID</button>
+            <button class="settings-btn-wide" onclick="saveManualDeviceId()">Uložiť ručne</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Ručné zadanie Device ID</div>
+          <div class="setup-field">
+            <input id="manualDeviceIdInput" class="setup-input" type="text" placeholder="00000000-00000000-001527FF-FF3B516E">
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Správa setupu</div>
+          <div class="setup-actions">
+            <button class="settings-btn-wide danger-btn" onclick="clearSavedDeviceId()">Vymazať Device ID</button>
+            <button class="settings-btn-wide danger-btn" onclick="resetSetup()">Reset setupu</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="logo-wrap">
+        <img src="logo-gold.png" alt="Platinum Lech Spa" class="brand-logo">
+      </div>
+    </div>
+
+    <div class="message-box" id="messageBox">Vitaj. Toto je samostatný setup modul.</div>
+  </div>
+
+  <script>
+    const appState = {
+      deviceId: localStorage.getItem("balboaDeviceId") || "",
+      detectedDeviceId: "",
+      setupCompleted: localStorage.getItem("balboaSetupCompleted") === "1"
+    };
+
+    function setMessage(text) {
+      document.getElementById("messageBox").textContent = text;
+    }
+
+    function updateTopStatus() {
+      const topStatusText = document.getElementById("topStatusText");
+      topStatusText.textContent = appState.deviceId ? "Setup pripravený" : "Čaká na setup";
+    }
+
+    function setSetupStatus(text) {
+      document.getElementById("setupStatusBox").textContent = text;
+    }
+
+    function updateSetupUI() {
+      document.getElementById("setupDeviceIdBox").textContent =
+        appState.detectedDeviceId || appState.deviceId || "Neuložené";
+
+      if (appState.deviceId) {
+        setSetupStatus("Modul je pripravený.\nUložené Device ID:\n" + appState.deviceId);
+      } else {
+        setSetupStatus("Modul ešte nie je nastavený.\nNajprv odošli Wi-Fi údaje do modulu a ulož Device ID.");
+      }
+
+      updateTopStatus();
+    }
+
+    function fillCurrentWifiName() {
+      const lastWifi = localStorage.getItem("lastHomeWifiName") || "";
+      document.getElementById("setupHomeWifiName").value = lastWifi;
+      setMessage(lastWifi ? "Bol doplnený posledný uložený názov Wi-Fi." : "Žiadny názov Wi-Fi zatiaľ nie je uložený.");
+    }
+
+    function clearSetupForm() {
+      document.getElementById("setupHomeWifiName").value = "";
+      document.getElementById("setupHomeWifiPassword").value = "";
+      document.getElementById("setupModuleApName").value = "";
+      document.getElementById("manualDeviceIdInput").value = "";
+      document.getElementById("setupSecurityType").value = "WPA";
+      appState.detectedDeviceId = "";
+      updateSetupUI();
+      setMessage("Formulár bol vymazaný.");
+    }
+
+    function validateDeviceIdFormat(deviceId) {
+      return /^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{8}-[0-9A-Fa-f]{8}-[0-9A-Fa-f]{8}$/.test((deviceId || "").trim());
+    }
+
+    function saveDeviceId(deviceId) {
+      const clean = (deviceId || "").trim();
+
+      if (!validateDeviceIdFormat(clean)) {
+        setMessage("Device ID má zlý formát.");
+        return false;
+      }
+
+      appState.deviceId = clean;
+      appState.setupCompleted = true;
+      localStorage.setItem("balboaDeviceId", clean);
+      localStorage.setItem("balboaSetupCompleted", "1");
+      updateSetupUI();
+      setMessage("Device ID bolo uložené.");
+      return true;
+    }
+
+    function saveDetectedDeviceId() {
+      if (!appState.detectedDeviceId) {
+        setMessage("Najprv načítaj ID modulu.");
+        return;
+      }
+      saveDeviceId(appState.detectedDeviceId);
+    }
+
+    function saveManualDeviceId() {
+      const manual = document.getElementById("manualDeviceIdInput").value.trim();
+      if (!manual) {
+        setMessage("Zadaj ručne Device ID.");
+        return;
+      }
+      saveDeviceId(manual);
+    }
+
+    function clearSavedDeviceId() {
+      appState.deviceId = "";
+      appState.detectedDeviceId = "";
+      appState.setupCompleted = false;
+      localStorage.removeItem("balboaDeviceId");
+      localStorage.removeItem("balboaSetupCompleted");
+      updateSetupUI();
+      setMessage("Uložené Device ID bolo vymazané.");
+    }
+
+    function resetSetup() {
+      appState.deviceId = "";
+      appState.detectedDeviceId = "";
+      appState.setupCompleted = false;
+
+      localStorage.removeItem("balboaDeviceId");
+      localStorage.removeItem("balboaSetupCompleted");
+      localStorage.removeItem("lastHomeWifiName");
+
+      document.getElementById("setupHomeWifiName").value = "";
+      document.getElementById("setupHomeWifiPassword").value = "";
+      document.getElementById("setupModuleApName").value = "";
+      document.getElementById("manualDeviceIdInput").value = "";
+      document.getElementById("setupSecurityType").value = "WPA";
+
+      updateSetupUI();
+      setMessage("Setup bol resetovaný.");
+    }
+
+    function buildProvisioningPayload(ssid, password, securityType) {
+      const encoder = new TextEncoder();
+      const ssidBytes = Array.from(encoder.encode(ssid)).slice(0, 32);
+      const passBytes = Array.from(encoder.encode(password)).slice(0, 64);
+
+      const securityMap = { OPEN: 0, WEP: 1, WPA: 2 };
+
+      const payload = new Uint8Array(107);
+      payload.fill(0);
+
+      payload[0] = 0x7E;
+      payload[1] = 0x69;
+      payload[2] = 0x0A;
+      payload[3] = 0xBF;
+      payload[4] = 0x92;
+      payload[5] = 0x01;
+      payload[6] = ssidBytes.length;
+
+      for (let i = 0; i < ssidBytes.length; i++) {
+        payload[7 + i] = ssidBytes[i];
+      }
+
+      payload[39] = securityMap[securityType] ?? 2;
+      payload[40] = passBytes.length;
+
+      for (let i = 0; i < passBytes.length; i++) {
+        payload[41 + i] = passBytes[i];
+      }
+
+      let checksum = 0;
+      for (let i = 1; i <= 104; i++) {
+        checksum = (checksum + payload[i]) & 0xFF;
+      }
+
+      payload[105] = checksum;
+      payload[106] = 0x7E;
+
+      return payload;
+    }
+
+    function bytesToHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+    }
+
+    async function startProvisioning() {
+      const ssid = document.getElementById("setupHomeWifiName").value.trim();
+      const password = document.getElementById("setupHomeWifiPassword").value;
+      const securityType = document.getElementById("setupSecurityType").value;
+
+      if (!ssid) {
+        setMessage("Zadaj názov domácej Wi-Fi.");
+        return;
+      }
+
+      if (securityType !== "OPEN" && !password) {
+        setMessage("Zadaj heslo domácej Wi-Fi.");
+        return;
+      }
+
+      localStorage.setItem("lastHomeWifiName", ssid);
+
+      const payload = buildProvisioningPayload(ssid, password, securityType);
+      const hexPayload = bytesToHex(payload);
+
+      setSetupStatus(
+        "Provisioning paket bol pripravený.\n\n" +
+        "SSID: " + ssid + "\n" +
+        "Typ: " + securityType + "\n" +
+        "Dĺžka paketu: " + payload.length + " bajtov"
+      );
+
+      console.log("Provisioning HEX payload:", hexPayload);
+      setMessage("Provisioning paket bol pripravený. Zatiaľ je to test bez priameho odoslania do modulu.");
+    }
+
+    function simulateReadModuleId() {
+      const simulated = "00000000-00000000-001527FF-FF3B516E";
+      appState.detectedDeviceId = simulated;
+      updateSetupUI();
+      setMessage("ID modulu bolo načítané testovacím režimom.");
+    }
+
+    updateSetupUI();
+  </script>
+</body>
+</html>
