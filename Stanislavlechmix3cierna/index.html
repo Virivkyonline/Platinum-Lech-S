@@ -4,841 +4,423 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Platinum Lech Spa</title>
-  <link rel="icon" href="logo-gold.png">
-  <meta name="theme-color" content="#3b3a40">
-
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="36" fill="%230004ff"/>
+  <text x="96" y="112" text-anchor="middle" font-size="80" font-family="Arial" font-weight="700" fill="white">SPA</text>
+</svg>'>
+<meta name="theme-color" content="#0004ff">
   <style>
-    :root{
-      /* TU MENIS LEN TIETO 2 HEX FARBY */
-      --main-bg:##3b3a40;
-      --main-panel:#1e1e21;
+    * { box-sizing: border-box; }
 
-      --bg-main:#0816d8;
-      --bg-deep:#020a86;
-      --panel:#04108f;
-      --panel-2:#030a72;
-      --card:#03107e;
-      --card-2:#020b68;
+    body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background: #1216e6;
+  min-height: 100vh;
+}
 
-      --line:rgba(255,255,255,.08);
-      --line-strong:rgba(255,255,255,.14);
-
-      --text:#ffffff;
-      --text-soft:rgba(255,255,255,.84);
-      --text-dim:rgba(255,255,255,.68);
-
-      --cyan:#79d7ff;
-      --cyan-2:#52c8ff;
-
-      --glow:#00ff66;
-      --glow-2:#00ff99;
-
-      /* SILNEJSIE ZELENE GLOW */
-      --active-glow:rgba(0,255,90,.55);
-      --active-glow-2:rgba(0,255,140,.42);
-      --active-glow-3:rgba(0,255,200,.24);
-
-      --btn-dark:#051055;
-      --btn-dark-2:#071742;
-
-      --shadow:0 18px 44px rgba(0,0,0,.28);
-      --soft-shadow:0 8px 24px rgba(0,0,0,.18);
-
-      --radius-xl:34px;
-      --radius-lg:26px;
-      --radius-md:20px;
-      --radius-sm:16px;
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 24px;
     }
 
-    *{
-      box-sizing:border-box;
+    .bubble-bg::before,
+    .bubble-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        radial-gradient(circle at 8px 8px, rgba(255,255,255,.45) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 22px 20px, rgba(255,255,255,.28) 0 1.5px, transparent 2px),
+        radial-gradient(circle at 38px 8px, rgba(255,255,255,.18) 0 1px, transparent 1.5px);
+      background-size: 48px 48px;
     }
 
-    html, body{
-      margin:0;
-      min-height:100%;
-      font-family: Arial, sans-serif;
-      color:var(--text);
-      background:var(--main-bg);
-      overflow-x:hidden;
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 10px 10px;
+      gap: 8px;
     }
 
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      z-index:0;
-      background:
-        radial-gradient(circle at 20px 20px, rgba(255,255,255,.05) 0 1.6px, transparent 2.6px),
-        radial-gradient(circle at 70px 58px, rgba(0,255,170,.04) 0 1.3px, transparent 2.2px),
-        radial-gradient(circle at 110px 18px, rgba(121,215,255,.05) 0 1.2px, transparent 2px);
-      background-size:140px 140px;
-      opacity:.45;
+    .nav-btn {
+      min-width: 92px;
+      height: 40px;
+      border: 1px solid rgba(170,210,255,.55);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(173,213,255,.95), rgba(96,149,224,.95));
+      color: #eef7ff;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
     }
 
-    .app{
-      max-width:430px;
-      margin:0 auto;
-      min-height:100vh;
-      position:relative;
-      z-index:1;
-      padding:14px 14px 28px;
+    .title {
+      font-size: 28px;
+      font-weight: 400;
+      text-align: center;
+      flex: 1;
+      margin: 0;
+      color: #f3f8ff;
     }
 
-    @keyframes pulseGlow {
-      0%,100%{ transform:scale(1); }
-      50%{ transform:scale(1.03); }
+    .cloud-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      margin-left: 6px;
     }
 
-    @keyframes lightPulse {
-      0%,100%{
-        box-shadow:
-          0 0 0 1px rgba(0,255,90,.52),
-          0 0 24px rgba(0,255,90,.58),
-          0 0 56px rgba(0,255,120,.44),
-          0 0 92px rgba(0,255,170,.30),
-          0 0 140px rgba(0,255,220,.18);
-      }
-      50%{
-        box-shadow:
-          0 0 0 1px rgba(0,255,90,.66),
-          0 0 38px rgba(0,255,90,.72),
-          0 0 82px rgba(0,255,120,.54),
-          0 0 128px rgba(0,255,170,.36),
-          0 0 180px rgba(0,255,220,.24);
-      }
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 1;
     }
 
-    .topbar{
-      display:grid;
-      gap:12px;
-      padding:2px 2px 10px;
-      position:relative;
-      z-index:2;
+    .screen.active {
+      display: block;
     }
 
-    .brandbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .brand-title{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-
-    .brand-title strong{
-      font-size:17px;
-      letter-spacing:2.6px;
-      color:#ffffff;
-      font-weight:800;
-      text-shadow:0 0 10px rgba(255,255,255,.08);
-    }
-
-    .brand-title span{
-      font-size:11px;
-      letter-spacing:8px;
-      color:rgba(255,255,255,.78);
-      text-transform:uppercase;
-    }
-
-    .status-chip{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      min-height:42px;
-      padding:0 16px;
-      border-radius:999px;
-      border:1px solid rgba(120,255,160,.24);
-      background:
-        linear-gradient(180deg, rgba(8,15,95,.96), rgba(5,10,68,.98));
-      color:#ffffff;
+    .center-panel {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      min-height: 575px;
+      border-radius: 28px;
+      padding: 30px 18px 24px;
+      position: relative;
+      background: #0b0c5c;
+      border: 2px solid rgba(0,0,0,.38);
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.04),
-        0 0 14px rgba(0,255,90,.18),
-        0 0 28px rgba(0,255,140,.10);
-      font-size:13px;
-      white-space:nowrap;
+        inset 0 0 0 1px rgba(140,190,255,.08),
+        0 8px 30px rgba(0,0,0,.25);
     }
 
-    .status-dot{
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:#32ff4f;
+    .home-temp {
+      text-align: center;
+      font-size: 64px;
+      font-weight: 500;
+      margin-top: 100px;
+      letter-spacing: 1px;
+    }
+
+    .swirl {
+      text-align: center;
+      font-size: 82px;
+      opacity: .88;
+      margin-top: 26px;
+      line-height: 1;
+    }
+
+    .home-mode {
+      text-align: center;
+      font-size: 36px;
+      font-weight: 600;
+      margin-top: 14px;
+    }
+
+    .home-range {
+      font-size: 24px;
+      color: rgba(255,255,255,.88);
+      margin-top: 20px;
+      margin-left: 18px;
+    }
+
+    .home-time,
+    .home-settemp {
+      text-align: center;
+      font-size: 18px;
+      color: #cde5ff;
+    }
+
+    .home-time { margin-top: 20px; }
+    .home-settemp { margin-top: 8px; }
+
+    .controls-title,
+    .settings-title {
+      text-align: center;
+      font-size: 26px;
+      margin-top: -4px;
+      margin-bottom: 28px;
+      color: #f3f8ff;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px 8px;
+      justify-items: center;
+      align-items: start;
+      margin-top: 46px;
+    }
+
+    .control-item {
+      width: 72px;
+      text-align: center;
+    }
+
+    .circle-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.12);
+      cursor: pointer;
+      margin: 0 auto 6px;
+      color: #d7e8ff;
+      font-size: 26px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.23), transparent 28%),
+        linear-gradient(180deg, #565656 0%, #171717 55%, #050505 100%);
       box-shadow:
-        0 0 10px rgba(50,255,79,.95),
-        0 0 22px rgba(50,255,79,.75),
-        0 0 38px rgba(0,255,120,.42);
-      flex:0 0 auto;
+        inset 0 10px 18px rgba(255,255,255,.16),
+        inset 0 -8px 14px rgba(0,0,0,.45),
+        0 2px 8px rgba(0,0,0,.25);
     }
 
-    .nav-wrap{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:10px;
-      padding:5px;
-      background:
-        linear-gradient(180deg, rgba(7,16,108,.92), rgba(4,12,82,.96));
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:24px;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03),
-        0 12px 28px rgba(0,0,0,.18);
-    }
-
-    .nav-btn{
-      min-width:0;
-      height:58px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      background:
-        linear-gradient(180deg, rgba(7,17,97,.88), rgba(6,15,79,.98));
-      color:#ffffff;
-      font-size:16px;
-      font-weight:700;
-      cursor:pointer;
-      transition:.22s ease;
-    }
-
-    .nav-btn.active{
-      background:
-        linear-gradient(180deg, rgba(11,25,126,.98), rgba(7,18,89,.98));
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.04),
-        0 0 16px rgba(121,215,255,.10);
-    }
-
-    .screen{
-      display:none;
-      position:relative;
-      z-index:1;
-    }
-
-    .screen.active{
-      display:block;
-    }
-
-    .panel{
-      width:100%;
-      margin:14px auto 0;
-      border-radius:var(--radius-xl);
-      padding:20px;
-      position:relative;
-      background:var(--main-panel);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03),
-        var(--shadow);
-      overflow:hidden;
-    }
-
-    .panel::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(121,215,255,.05), transparent 24%),
-        linear-gradient(180deg, rgba(255,255,255,.018), transparent 16%);
-    }
-
-    .page-head{
-      position:relative;
-      z-index:1;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:18px;
-    }
-
-    .page-title{
-      margin:0;
-      font-size:28px;
-      font-weight:400;
-      color:#ffffff;
-      letter-spacing:-.2px;
-    }
-
-    .page-sub{
-      font-size:13px;
-      color:rgba(255,255,255,.78);
-      margin-top:4px;
-    }
-
-    .ghost-chip{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:42px;
-      padding:0 16px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      color:#ffffff;
-      background:
-        linear-gradient(180deg, rgba(7,15,88,.90), rgba(5,10,62,.96));
-      font-size:13px;
-      white-space:nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
-    }
-
-    .hero-card{
-      position:relative;
-      z-index:1;
-      border-radius:30px;
-      padding:22px 18px 20px;
-      margin-top:8px;
-      background: #000000;
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.02),
-        0 16px 32px rgba(0,0,0,.18);
-    }
-
-    .temp-ring-wrap{
-      position:relative;
-      width:246px;
-      height:246px;
-      margin:14px auto 8px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .temp-ring{
-      position:absolute;
-      inset:0;
-      border-radius:50%;
-      background:
-        radial-gradient(circle at center, rgba(0,0,0,.12) 0 50%, transparent 52%),
-        conic-gradient(from 210deg, rgba(121,215,255,.18), rgba(255,255,255,.85), rgba(121,215,255,.18));
-      mask: radial-gradient(circle, transparent 0 58%, #000 61%);
-      -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 61%);
-      opacity:.16;
-    }
-
-    .temp-core{
-      position:relative;
-      z-index:1;
-      width:186px;
-      height:186px;
-      border-radius:50%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      background:
-        linear-gradient(180deg, rgba(4,10,84,.98), rgba(2,6,56,.99));
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03),
-        0 12px 28px rgba(0,0,0,.24);
-    }
-
-    .temp-caption{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:2px;
-      color:rgba(255,255,255,.72);
-      margin-bottom:8px;
-    }
-
-    .home-temp{
-      text-align:center;
-      font-size:58px;
-      font-weight:900;
-      line-height:1;
-      margin:0;
-      color:#ffffff;
-    }
-
-    .swirl{
-      text-align:center;
-      font-size:36px;
-      line-height:1;
-      margin:10px 0 0;
-      filter:drop-shadow(0 0 10px rgba(121,215,255,.18));
-    }
-
-    .home-mode{
-      text-align:center;
-      font-size:30px;
-      font-weight:800;
-      margin-top:16px;
-      color:#ffffff;
-    }
-
-    .home-range{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:38px;
-      padding:0 16px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      font-size:14px;
-      color:rgba(255,255,255,.86);
-      margin:14px auto 0;
-    }
-
-    .home-badges{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:20px;
-    }
-
-    .info-badge{
-      border-radius:20px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
-      border:1px solid rgba(255,255,255,.08);
-      padding:13px 13px 12px;
-      min-height:78px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
-    }
-
-    .info-badge-label{
-      font-size:12px;
-      color:rgba(255,255,255,.72);
-      margin-bottom:8px;
-    }
-
-    .info-badge-value{
-      font-size:18px;
-      color:#ffffff;
-      font-weight:800;
-      line-height:1.2;
-      word-break:break-word;
-    }
-
-    .quick-actions{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:10px;
-      margin-top:16px;
-    }
-
-    .quick-btn{
-      min-height:50px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.08);
-      background:
-        linear-gradient(180deg, rgba(7,14,86,.92), rgba(5,10,62,.98));
-      color:#ffffff;
-      font-size:14px;
-      font-weight:800;
-      cursor:pointer;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
-      transition:.2s ease;
-    }
-
-    .section-title{
-      margin:6px 0 18px;
-      font-size:22px;
-      font-weight:400;
-      color:#ffffff;
-      text-align:center;
-      position:relative;
-      z-index:1;
-    }
-
-    .controls-grid{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:14px;
-      justify-items:stretch;
-      align-items:stretch;
-      position:relative;
-      z-index:1;
-    }
-
-    .control-item{
-      width:100%;
-      text-align:center;
-      border-radius:24px;
-      padding:16px 8px 14px;
-      background:transparent;
-      transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;
-    }
-
-    .control-item.control-active{
-      transform:translateY(-1px);
-    }
-
-    .circle-btn{
-      width:82px;
-      height:82px;
-      border-radius:50%;
-      border:1px solid rgba(0,0,0,.55);
-      cursor:pointer;
-      margin:0 auto 12px;
-      color:#ffffff;
-      font-size:31px;
-      font-weight:700;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:
-        radial-gradient(circle at 34% 28%, rgba(255,255,255,.08), transparent 24%),
-        linear-gradient(180deg, #222 0%, #0f0f14 56%, #05060a 100%);
-      box-shadow:
-        inset 0 10px 16px rgba(255,255,255,.03),
-        inset 0 -10px 14px rgba(0,0,0,.28),
-        0 10px 22px rgba(0,0,0,.22);
-      transition:transform .15s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
-      appearance:none;
-      -webkit-appearance:none;
-    }
-
-    .circle-btn:active{
-      transform:scale(.97);
-    }
-
-    .circle-btn.off{
-      opacity:.98;
+    .circle-btn.off {
+      filter: grayscale(.15);
+      opacity: .95;
     }
 
     .circle-btn.on,
     .circle-btn.low,
-    .circle-btn.high{
+    .circle-btn.high {
       background:
-        radial-gradient(circle at 34% 28%, rgba(255,255,255,.16), transparent 24%),
-        radial-gradient(circle at 50% 50%, rgba(0,255,90,.14), transparent 68%),
-        linear-gradient(180deg, #23252d 0%, #11141c 56%, #070b12 100%);
-      border-color:rgba(0,255,90,.34);
+        radial-gradient(circle at 30% 28%, rgba(255,255,255,.42), transparent 28%),
+        linear-gradient(180deg, #707070 0%, #1d1d1d 45%, #030303 100%);
       box-shadow:
-        inset 0 0 18px rgba(121,215,255,.10),
-        0 0 20px rgba(0,255,90,.24),
-        0 0 44px rgba(0,255,120,.24),
-        0 0 82px rgba(0,255,180,.18),
-        0 10px 22px rgba(0,0,0,.24);
-      color:#ffffff;
-      animation:pulseGlow 2.2s ease-in-out infinite;
+        inset 0 0 22px rgba(120,255,185,1),
+        0 0 14px rgba(80,240,160,.9),
+        0 0 28px rgba(60,220,145,1),
+        0 0 48px rgba(45,200,130,.95);
+      color: #ffffff;
     }
 
-    .circle-btn.light.on{
-      background:
-        radial-gradient(circle at 34% 28%, rgba(255,255,255,.20), transparent 24%),
-        radial-gradient(circle at center, rgba(0,255,90,.28), transparent 58%),
-        linear-gradient(180deg, #20242a 0%, #0f1418 56%, #070b10 100%);
-      border-color:rgba(0,255,90,.50);
-      animation:lightPulse 1.35s ease-in-out infinite;
-    }
-
-    .control-label{
-      font-size:15px;
-      line-height:1.2;
-      color:#ffffff;
-      min-height:36px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:400;
-    }
-
-    .control-state{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:62px;
-      min-height:30px;
-      padding:0 12px;
-      border-radius:999px;
-      font-size:12px;
-      color:#ffffff;
-      margin-top:4px;
-      font-weight:800;
-      border:none;
-      background:transparent;
-      transition:background .2s ease, box-shadow .2s ease, border-color .2s ease;
-    }
-
-    .control-state.state-on{
-      color:#ffffff;
-      text-shadow:
-        0 0 10px rgba(255,255,255,.22),
-        0 0 24px rgba(0,255,90,.34),
-        0 0 38px rgba(0,255,140,.18);
-    }
-
-    .settings-stack{
-      position:relative;
-      z-index:1;
-    }
-
-    .settings-block{
-      background:
-        linear-gradient(180deg, rgba(3,10,105,.96), rgba(2,7,82,.99));
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:24px;
-      padding:18px;
-      margin-bottom:16px;
+    .circle-btn.light.on {
       box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.02),
-        0 8px 20px rgba(0,0,0,.10);
-      transition:.2s ease;
+        inset 0 0 24px rgba(140,255,195,1),
+        0 0 16px rgba(100,255,180,.95),
+        0 0 30px rgba(70,230,150,1),
+        0 0 52px rgba(40,210,135,.95);
+      color: #ffffff;
     }
 
-    .settings-label{
-      font-size:17px;
-      margin-bottom:12px;
-      color:#ffffff;
-      font-weight:400;
+    .control-label {
+      font-size: 14px;
+      line-height: 1.1;
+      color: #f2f7ff;
+      min-height: 32px;
     }
 
-    .settings-value{
-      font-size:24px;
-      font-weight:900;
-      color:#ffffff;
-      margin-bottom:14px;
+    .control-state {
+      font-size: 12px;
+      color: #ffffff;
+      min-height: 16px;
+      margin-top: 2px;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(120,255,185,.9);
     }
 
-    .small{
-      font-size:13px;
-      color:rgba(255,255,255,.78);
-      white-space:pre-wrap;
-      word-break:break-word;
-      line-height:1.5;
+    .settings-block {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(170,210,255,.18);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
     }
 
-    .slider-row{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    .settings-label {
+      font-size: 17px;
+      margin-bottom: 10px;
+      color: #f3f8ff;
+    }
+
+    .settings-value {
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #cde5ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .slider-min,
-    .slider-max{
-      width:44px;
-      text-align:center;
-      color:#ffffff;
-      font-size:13px;
-      font-weight:400;
+    .slider-max {
+      width: 44px;
+      text-align: center;
+      color: #cde5ff;
+      font-size: 14px;
     }
 
-    input[type="range"]{
-      flex:1;
-      accent-color:var(--cyan);
+    input[type="range"] {
+      flex: 1;
+      accent-color: #74d4ff;
     }
 
     .settings-btn,
     .settings-btn-small,
     .settings-btn-wide,
-    .settings-select{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      color:#ffffff;
-      background:
-        linear-gradient(180deg, rgba(6,14,82,.92), rgba(4,9,62,.98));
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.04),
-        0 0 0 rgba(0,0,0,0);
-      transition:.25s ease;
+    .settings-select {
+      border: 1px solid rgba(170,210,255,.28);
+      border-radius: 14px;
+      color: #eef7ff;
+      background: linear-gradient(180deg, rgba(173,213,255,.20), rgba(96,149,224,.18));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
     }
 
-    .settings-btn{
-      min-height:54px;
-      padding:10px 14px;
-      font-size:15px;
-      font-weight:800;
-      width:100%;
-      cursor:pointer;
+    .settings-btn {
+      min-height: 44px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
     }
 
-    .settings-btn-small{
-      min-width:70px;
-      min-height:52px;
-      padding:8px 12px;
-      font-size:16px;
-      font-weight:800;
-      cursor:pointer;
+    .settings-btn-small {
+      min-width: 70px;
+      min-height: 42px;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    .settings-btn-wide{
-      width:100%;
-      min-height:56px;
-      padding:10px 14px;
-      font-size:16px;
-      font-weight:800;
-      cursor:pointer;
+    .settings-btn-wide {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    .settings-select{
-      width:100%;
-      min-height:56px;
-      padding:10px 16px;
-      font-size:18px;
-      font-weight:800;
-      appearance:none;
-      -webkit-appearance:none;
-      -moz-appearance:none;
-      color:#ffffff;
+    .settings-select {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      font-size: 17px;
+      font-weight: 700;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
     }
 
-    .settings-select option{
-      color:#000;
+    .settings-select option {
+      color: #000;
     }
 
     .settings-btn.active,
     .settings-btn-small.active,
-    .settings-btn-wide.active{
-      background:
-        radial-gradient(circle at 50% 50%, rgba(0,255,90,.20), transparent 65%),
-        linear-gradient(180deg, rgba(8,22,110,.98), rgba(5,13,78,.99));
-      border-color:rgba(0,255,90,.52);
+    .settings-btn-wide.active {
+      background: linear-gradient(180deg, rgba(120,255,185,.38), rgba(55,175,115,.28));
       box-shadow:
-        inset 0 0 22px rgba(121,215,255,.08),
-        0 0 0 1px rgba(0,255,90,.22),
-        0 0 28px var(--active-glow),
-        0 0 64px var(--active-glow-2),
-        0 0 112px var(--active-glow-3);
-      text-shadow:
-        0 0 10px rgba(255,255,255,.16),
-        0 0 22px rgba(0,255,120,.18);
+        inset 0 0 16px rgba(120,255,185,.42),
+        0 0 18px rgba(60,220,145,.20);
+      border-color: rgba(120,255,185,.55);
+      color: #ffffff;
     }
 
-    .btn-grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+    .btn-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
-    .logo-wrap{
-      text-align:center;
-      margin-top:26px;
-      position:relative;
-      z-index:1;
+    .logo-wrap {
+      text-align: center;
+      margin-top: 28px;
+      color: rgba(255,255,255,.96);
     }
 
-    .brand-logo{
-      display:block;
-      width:min(100%, 240px);
-      height:auto;
-      margin:0 auto;
-      opacity:.96;
+    .logo-main {
+      font-size: 42px;
+      letter-spacing: 1px;
+      font-weight: 300;
+      line-height: 1;
     }
 
-    .message-box{
-      width:100%;
-      margin:14px auto 0;
-      background:
-        linear-gradient(180deg, rgba(5,10,74,.96), rgba(3,7,52,.98));
-      border:1px solid rgba(255,255,255,.08);
-      color:#ffffff;
-      border-radius:22px;
-      padding:16px 16px;
-      font-size:14px;
-      min-height:58px;
-      white-space:pre-wrap;
-      position:relative;
-      z-index:1;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03),
-        0 10px 22px rgba(0,0,0,.12);
+    .logo-sub {
+      font-size: 18px;
+      letter-spacing: 8px;
+      margin-top: 6px;
+      text-transform: lowercase;
     }
 
-    .hidden{
-      display:none !important;
+    .message-box {
+      width: calc(100% - 56px);
+      margin: 14px auto 0;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(170,210,255,.12);
+      color: #e8f3ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      min-height: 48px;
+      white-space: pre-wrap;
     }
 
-    @media (max-width:380px){
-      .home-temp{ font-size:50px; }
-      .temp-ring-wrap{ width:228px; height:228px; }
-      .temp-core{ width:176px; height:176px; }
-      .circle-btn{ width:72px; height:72px; font-size:28px; }
-      .control-label{ font-size:14px; }
-      .page-title{ font-size:24px; }
-      .brand-logo{ width:min(100%, 210px); }
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app bubble-bg">
     <div class="topbar">
-      <div class="brandbar">
-        <div class="brand-title">
-          <strong>PLATINUM LECH</strong>
-          <span>spa</span>
-        </div>
-        <div class="status-chip">
-          <span class="status-dot"></span>
-          <span>Cloud pripojený</span>
-        </div>
-      </div>
-
-      <div class="nav-wrap">
-        <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">Domov</button>
-        <button class="nav-btn" id="nav-controls" onclick="showScreen('controls')">Ovládanie</button>
-        <button class="nav-btn" id="nav-settings" onclick="showScreen('settings')">Nastavenia</button>
-      </div>
+      <button class="nav-btn" onclick="showScreen('controls')">Ovládanie</button>
+      <h1 class="title" id="mainTitle">Domov</h1>
+      <button class="nav-btn" onclick="showScreen('settings')">Nastavenia</button>
     </div>
 
     <div id="homeScreen" class="screen active">
-      <div class="panel">
-        <div class="page-head">
-          <div>
-            <h1 class="page-title">Domov</h1>
-            <div class="page-sub">Prehľad stavu vírivky</div>
-          </div>
-          <div class="ghost-chip" id="homeCloudChip">☁ Online</div>
-        </div>
+      <div class="cloud-icon">☁</div>
 
-        <div class="hero-card">
-          <div class="temp-ring-wrap">
-            <div class="temp-ring"></div>
-            <div class="temp-core">
-              <div class="temp-caption">Aktuálna teplota</div>
-              <div class="home-temp" id="homeTemp">--.-°C</div>
-              <div class="swirl">🌀</div>
-            </div>
-          </div>
+      <div class="center-panel">
+        <div class="home-temp" id="homeTemp">--.-°C</div>
+        <div class="swirl">🌀</div>
+        <div class="home-mode" id="homeMode">Pripravený</div>
+        <div class="home-range" id="homeRange">Nízky rozsah</div>
+        <div class="home-time" id="homeTime">Čas: --:--</div>
+        <div class="home-settemp" id="homeSetTemp">Nastavená teplota: --.-°C</div>
 
-          <div class="home-mode" id="homeMode">Pripravený</div>
-          <div class="home-range" id="homeRange">Nízky rozsah</div>
-
-          <div class="home-badges">
-            <div class="info-badge">
-              <div class="info-badge-label">Čas panelu</div>
-              <div class="info-badge-value" id="homeTime">Čas: --:--</div>
-            </div>
-            <div class="info-badge">
-              <div class="info-badge-label">Nastavená teplota</div>
-              <div class="info-badge-value" id="homeSetTemp">Nastavená teplota: --.-°C</div>
-            </div>
-          </div>
-
-          <div class="quick-actions">
-            <button class="quick-btn" onclick="showScreen('controls')">Ovládanie</button>
-            <button class="quick-btn" onclick="showScreen('settings')">Nastavenia</button>
-            <button class="quick-btn" onclick="refreshAll()">Obnoviť</button>
-          </div>
-        </div>
-
-        <div class="logo-wrap">
-          <img src="logo-gold.png" alt="Platinum Lech Spa" class="brand-logo">
+        <div class="logo-wrap" style="margin-top:92px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
         </div>
       </div>
     </div>
 
     <div id="controlsScreen" class="screen">
-      <div class="panel">
-        <div class="page-head">
-          <div>
-            <h2 class="page-title">Ovládanie</h2>
-            <div class="page-sub">Rýchle prepínanie funkcií</div>
-          </div>
-          <div class="ghost-chip">Smart control</div>
-        </div>
-
-        <div class="section-title">Ovládacie prvky</div>
+      <div class="center-panel">
+        <div class="controls-title">Ovládanie</div>
 
         <div class="controls-grid">
           <div class="control-item" id="item-circpump">
@@ -920,116 +502,110 @@
           </div>
         </div>
 
-        <div class="logo-wrap">
-          <img src="logo-gold.png" alt="Platinum Lech Spa" class="brand-logo">
+        <div class="logo-wrap" style="margin-top:70px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
         </div>
       </div>
     </div>
 
     <div id="settingsScreen" class="screen">
-      <div class="panel">
-        <div class="page-head">
+      <div class="center-panel">
+        <div class="settings-title">Nastavenia</div>
+
+        <div class="settings-block">
+          <div class="settings-label">Nastavená teplota</div>
+          <div class="settings-value" id="settingsTempValue">--.-°C</div>
+          <div class="slider-row">
+            <div class="slider-min" id="tempMinLabel">10</div>
+            <input type="range" id="tempSlider" min="10" max="26.5" step="0.5" value="10" />
+            <div class="slider-max" id="tempMaxLabel">26.5</div>
+          </div>
+          <div class="small" id="tempRangeText" style="margin-top:10px;">Nízky rozsah</div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveSetTemp()">Uložiť teplotu</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Jednotky teploty</div>
+          <div class="btn-grid-2">
+            <button id="unitCBtn" class="settings-btn-small" onclick="setTempUnits('C')">°C</button>
+            <button id="unitFBtn" class="settings-btn-small" onclick="setTempUnits('F')">°F</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Teplotný režim</div>
+          <div class="btn-grid-2">
+            <button id="heatReadyBtn" class="settings-btn" onclick="setHeatMode('ready')">Pripravený</button>
+            <button id="heatRestBtn" class="settings-btn" onclick="setHeatMode('rest')">Dovolenka</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Teplotný rozsah</div>
+          <div class="btn-grid-2">
+            <button id="rangeLowBtn" class="settings-btn" onclick="setTempRange('low')">Nízky</button>
+            <button id="rangeHighBtn" class="settings-btn" onclick="setTempRange('high')">Vysoký</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Čas panelu</div>
+          <div class="btn-grid-2">
+            <select id="timeHour" class="settings-select"></select>
+            <select id="timeMinute" class="settings-select"></select>
+          </div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveSystemTime()">Uložiť čas</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Filtračný cyklus 1</div>
+          <div class="btn-grid-2">
+            <select id="f1Hour" class="settings-select"></select>
+            <select id="f1Minute" class="settings-select"></select>
+          </div>
+          <div class="btn-grid-2" style="margin-top:10px;">
+            <select id="f1DurHour" class="settings-select"></select>
+            <select id="f1DurMinute" class="settings-select"></select>
+          </div>
+          <div class="small" id="f1Ends" style="margin-top:10px;">Koniec: --:--</div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Filtračný cyklus 2</div>
+          <div class="btn-grid-2">
+            <button id="btnF2Off" class="settings-btn" onclick="setFilter2Enabled(false)">Vypnutý</button>
+            <button id="btnF2On" class="settings-btn" onclick="setFilter2Enabled(true)">Zapnutý</button>
+          </div>
+          <div class="btn-grid-2" style="margin-top:10px;">
+            <select id="f2Hour" class="settings-select"></select>
+            <select id="f2Minute" class="settings-select"></select>
+          </div>
+          <div class="btn-grid-2" style="margin-top:10px;">
+            <select id="f2DurHour" class="settings-select"></select>
+            <select id="f2DurMinute" class="settings-select"></select>
+          </div>
+          <div class="small" id="f2Ends" style="margin-top:10px;">Koniec: --:--</div>
+          <div style="margin-top: 12px;">
+            <button class="settings-btn-wide" onclick="saveFilters()">Uložiť filtračné cykly</button>
+          </div>
+        </div>
+
+        <div class="settings-block">
+          <div class="settings-label">Filtre</div>
           <div>
-            <h2 class="page-title">Nastavenia</h2>
-            <div class="page-sub">Teplota, čas a filtre</div>
+            <button class="settings-btn" onclick="loadFilters()">Načítať filtre</button>
           </div>
-          <div class="ghost-chip">Panel setup</div>
+          <div class="small" id="filtersInfo" style="margin-top:10px;">Zatiaľ nenačítané.</div>
         </div>
 
-        <div class="settings-stack">
-          <div class="settings-block">
-            <div class="settings-label">Nastavená teplota</div>
-            <div class="settings-value" id="settingsTempValue">--.-°C</div>
-            <div class="slider-row">
-              <div class="slider-min" id="tempMinLabel">10</div>
-              <input type="range" id="tempSlider" min="10" max="26.5" step="0.5" value="10" />
-              <div class="slider-max" id="tempMaxLabel">26.5</div>
-            </div>
-            <div class="small" id="tempRangeText" style="margin-top:10px;">Nízky rozsah</div>
-            <div style="margin-top: 12px;">
-              <button class="settings-btn-wide" onclick="saveSetTemp()">Uložiť teplotu</button>
-            </div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Jednotky teploty</div>
-            <div class="btn-grid-2">
-              <button id="unitCBtn" class="settings-btn-small" onclick="setTempUnits('C')">°C</button>
-              <button id="unitFBtn" class="settings-btn-small" onclick="setTempUnits('F')">°F</button>
-            </div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Teplotný režim</div>
-            <div class="btn-grid-2">
-              <button id="heatReadyBtn" class="settings-btn" onclick="setHeatMode('ready')">Pripravený</button>
-              <button id="heatRestBtn" class="settings-btn" onclick="setHeatMode('rest')">Dovolenka</button>
-            </div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Teplotný rozsah</div>
-            <div class="btn-grid-2">
-              <button id="rangeLowBtn" class="settings-btn" onclick="setTempRange('low')">Nízky</button>
-              <button id="rangeHighBtn" class="settings-btn" onclick="setTempRange('high')">Vysoký</button>
-            </div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Čas panelu</div>
-            <div class="btn-grid-2">
-              <select id="timeHour" class="settings-select"></select>
-              <select id="timeMinute" class="settings-select"></select>
-            </div>
-            <div style="margin-top: 12px;">
-              <button class="settings-btn-wide" onclick="saveSystemTime()">Uložiť čas</button>
-            </div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Filtračný cyklus 1</div>
-            <div class="btn-grid-2">
-              <select id="f1Hour" class="settings-select"></select>
-              <select id="f1Minute" class="settings-select"></select>
-            </div>
-            <div class="btn-grid-2" style="margin-top:10px;">
-              <select id="f1DurHour" class="settings-select"></select>
-              <select id="f1DurMinute" class="settings-select"></select>
-            </div>
-            <div class="small" id="f1Ends" style="margin-top:10px;">Koniec: --:--</div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Filtračný cyklus 2</div>
-            <div class="btn-grid-2">
-              <button id="btnF2Off" class="settings-btn" onclick="setFilter2Enabled(false)">Vypnutý</button>
-              <button id="btnF2On" class="settings-btn" onclick="setFilter2Enabled(true)">Zapnutý</button>
-            </div>
-            <div class="btn-grid-2" style="margin-top:10px;">
-              <select id="f2Hour" class="settings-select"></select>
-              <select id="f2Minute" class="settings-select"></select>
-            </div>
-            <div class="btn-grid-2" style="margin-top:10px;">
-              <select id="f2DurHour" class="settings-select"></select>
-              <select id="f2DurMinute" class="settings-select"></select>
-            </div>
-            <div class="small" id="f2Ends" style="margin-top:10px;">Koniec: --:--</div>
-            <div style="margin-top: 12px;">
-              <button class="settings-btn-wide" onclick="saveFilters()">Uložiť filtračné cykly</button>
-            </div>
-          </div>
-
-          <div class="settings-block">
-            <div class="settings-label">Filtre</div>
-            <div>
-              <button class="settings-btn" onclick="loadFilters()">Načítať filtre</button>
-            </div>
-            <div class="small" id="filtersInfo" style="margin-top:10px;">Zatiaľ nenačítané.</div>
-          </div>
-        </div>
-
-        <div class="logo-wrap">
-          <img src="logo-gold.png" alt="Platinum Lech Spa" class="brand-logo">
+        <div class="logo-wrap" style="margin-top:28px;">
+          <div class="logo-main">PLATINUM LECH</div>
+          <div class="logo-sub">SPA</div>
         </div>
       </div>
     </div>
@@ -1094,12 +670,6 @@
       document.getElementById("messageBox").textContent = text;
     }
 
-    function updateNav(name) {
-      document.getElementById("nav-home").classList.toggle("active", name === "home");
-      document.getElementById("nav-controls").classList.toggle("active", name === "controls");
-      document.getElementById("nav-settings").classList.toggle("active", name === "settings");
-    }
-
     function showScreen(name) {
       document.getElementById("homeScreen").classList.remove("active");
       document.getElementById("controlsScreen").classList.remove("active");
@@ -1107,14 +677,14 @@
 
       if (name === "home") {
         document.getElementById("homeScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Domov";
       } else if (name === "settings") {
         document.getElementById("settingsScreen").classList.add("active");
+        document.getElementById("mainTitle").textContent = "Nastavenia";
       } else {
         document.getElementById("controlsScreen").classList.add("active");
-        name = "controls";
+        document.getElementById("mainTitle").textContent = "Ovládanie";
       }
-
-      updateNav(name);
     }
 
     function getCurrentDeviceId() {
@@ -1130,18 +700,9 @@
       const btn = document.getElementById(btnId);
       const lbl = document.getElementById(lblId);
       if (!btn || !lbl) return;
-
       btn.classList.remove("off", "on", "low", "high");
       btn.classList.add(css);
       lbl.textContent = label;
-
-      const isActive = css === "on" || css === "high" || css === "low";
-      lbl.classList.toggle("state-on", isActive);
-
-      const item = btn.closest(".control-item");
-      if (item) {
-        item.classList.toggle("control-active", isActive);
-      }
     }
 
     async function fetchJson(url) {
@@ -1268,11 +829,6 @@
       setCtrlState("btn-pump3", "lbl-pump3", s.pump3On ? "on" : "off", s.pump3On ? "ON" : "OFF");
       setCtrlState("btn-blower", "lbl-blower", s.blowerOn ? "on" : "off", s.blowerOn ? "ON" : "OFF");
       setCtrlState("btn-light1", "lbl-light1", s.light1On ? "on" : "off", s.light1On ? "ON" : "OFF");
-
-      const homeChip = document.getElementById("homeCloudChip");
-      if (homeChip) {
-        homeChip.textContent = "☁ Online";
-      }
     }
 
     function fillSelect(id, from, to) {
@@ -1697,9 +1253,8 @@
 
     initSelects();
     updateSettingsUI();
-    showScreen("home");
     refreshAll();
     setInterval(loadPanelUpdate, 15000);
   </script>
 </body>
-  </html>
+</html>
