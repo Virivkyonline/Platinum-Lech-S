@@ -1,0 +1,23 @@
+{
+  "name": "Platinum Lech Spa",
+  "short_name": "Lech Spa",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "logo-gold.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo-gold.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
