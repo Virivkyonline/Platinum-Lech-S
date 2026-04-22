@@ -1296,7 +1296,12 @@
       const p = hexToBytes(hex);
       if (p.length < 25) return null;
 
-      const tempNow = (p[6] ?? 0) / 2;
+      let tempNowRaw = p[6];
+
+let tempNow = NaN;
+if (Number.isFinite(tempNowRaw) && tempNowRaw !== 255 && tempNowRaw !== 0) {
+  tempNow = tempNowRaw / 2;
+}
       const hour = p[7] ?? 0;
       const minute = p[8] ?? 0;
       const heatModeRaw = p[9] ?? 0;
