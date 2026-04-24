@@ -2122,9 +2122,13 @@
         const { resp, data, text } = await fetchJson(getWorkerUrl("/panelupdate"));
 
         if (!resp.ok) {
-          setMessage("Načítanie stavu zlyhalo. HTTP status: " + resp.status);
-          return;
-        }
+  setMessage(
+    "Načítanie stavu zlyhalo. HTTP status: " + resp.status +
+    "\nOdpoveď servera:\n" + text
+  );
+  console.log("panelupdate error:", resp.status, text);
+  return;
+}
 
         const hex = data && data.hex ? data.hex : "";
         const parsed = parsePanel(hex);
